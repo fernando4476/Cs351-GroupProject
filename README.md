@@ -39,23 +39,24 @@
 # Norms  
 
 **Q4a:** How will your group handle situations when there is conflict in your group?  
+- If its about making a decision, then voting. 
+- Do meeting without missing member, communicate to them their part. Also, record meetings.
+- Give clear tasks and objectives, if person is struggling they need to reach out sooner than later.
+
 **Q4b:** How will your group handle situations when a member is not contributing enough?  
+- Group mediation then give them resources they need. If not they continue not to contribute enough, have meeting with professor. 
 
-**Example:**  
-*If there is a disagreement on direction, we will resolve it with a unanimous vote.*  
-*If team members do not pull their weight, the team will politely remind them of their duties.*  
-*If they continue to not pull their weight, then they will get another warning and a chance to start being more productive.*  
-
----
 
 # Roles  
 
 **Q5:** How will your group divide your role in the Group Project?  
+Tentative: 
+roles needed: project manager, frontend, backend
+ Fernando - frontend (experience with react)
+ Maria - backend
+ Kassandra - frontend/backend
+ ahmad - frontend/backend
 
-**Example:**  
-*Mauricio - Backend, Justin - Project Lead, Claudia - Frontend.*  
-
----
 
 # Tech Stacks
 
@@ -66,9 +67,9 @@
 ---
 
 # Track 1: Tackling Generative AI Consequences
-**Problem 1:** 
+**Problem 1:**  (deepfake)
 
-**Solution 1:** 
+**Solution 1:** (analyze whether or how likely content is fake)
 
 ---
 
