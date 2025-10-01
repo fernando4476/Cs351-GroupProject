@@ -1,9 +1,9 @@
 # Logistics  
 
 **Q1:** At what time in the week would your group be available to meet online?  
-**Example:**  
-*We are available to meet online on weekends from 12pm-8pm (12-2pm Saturday + Sunday), as well as from 4pm-6pm on Fridays.*  
-*Our weekly meeting will be Thursday 11am-12pm.*  
+
+*We are available after 5:30pm on MWF or weekends 
+Or thursdays at 5*  
 
 ---
 
@@ -11,11 +11,10 @@
 
 **Q2:** What is your goals that your group want to achieve in each weekly meeting?  
 **Example:**  
-*Prior to 3/13: Weekly Meeting we will plan out some preliminary info/idea for the project itself ahead of the scheduled meeting like which data source/API and data structures we will use in our backend. We will browse [the given list of public APIs for inspiration](https://github.com/public-apis/public-apis).*  
-
-*During week of 3/25: Work on the project rough draft itself to make a functioning project with data input, data structure usage, and processing into output on the frontend.*  
-
-*Prior to 4/17: Meet together weekly to target project weakpoints/bugs and possibly visit office hours to get guidance if the progress feels weak.*  
+*Week of 9/30 - pick our project track and topic, and complete Milestone 2
+Week of 10/09 - split up responsibility of the group, and research our tech stack
+Week of 11/27 - make sure project is fully functional 
+12/01 - complete and submit project *  
 
 ---
 
@@ -29,9 +28,10 @@
 *We will use Discord for communication*  
 
 *Usernames:*  
-*Justin - ghostmechanic*  
-*Claudia - ninth.py*  
-*Mauricio - itsperi*  
+*Maria - mclem6*  
+*Ahmad - ahmad9125 *  
+*Fernando - fernando4476* 
+*Kassandra - ka55andr4* 
 *Our expected response time will be within 12 hours.*  
 
 ---
