@@ -97,7 +97,7 @@ roles needed: project manager, frontend, backend
 # Idea Finalization
 
 **From 5 project ideas you have above, please choose one of the project that you are going with for the rest of the semester. Explain why you are going with that project**
-
+to be determined, learning towards track 2
 # Extra Credit (Only do this if you are done with Idea Finalization)
 
 ## Database Design
