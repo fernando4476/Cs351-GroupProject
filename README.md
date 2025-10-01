@@ -3,7 +3,7 @@
 **Q1:** At what time in the week would your group be available to meet online?  
 
 *We are available after 5:30pm on MWF or weekends 
-Or thursdays at 6:45  
+Or thursdays at 5*  
 
 ---
 
@@ -77,21 +77,21 @@ roles needed: project manager, frontend, backend
 
 # Track 2: Technology for Public Goods 
 
-**Problem 2:** Heping find accessable playgrounds or loctions
+**Problem 2:** Difficulty finding accessible playgrounds or locations.
 
-**Solution 2:** making something like google maps that helps find accessable locations like playgrounds.
+**Solution 2:** Develop a tool similar to Google Maps that helps identify accessible locations, such as playgrounds
 
-**Problem 3:**  lack of interactive tools in classrooms
+**Problem 3:**  Lack of interactive tools in classrooms
 
-**Solution 3:**  an interactive real time conspuale map builder
+**Solution 3:**  Build an interactive, real-time map builder for classroom use
 
 # Track 3: Creative Coding and Cultural Expression
 
-**Idea - Story - Inspiration 4:**  Kassandra inspiration was seeing how chicago is a melting pot of different  enicalback rounds and how people tend to good to bigger fast food chain and that we need to shine a light on family own restarnts.
+**Idea - Story - Inspiration 4:**  Kassandra was inspired by seeing how Chicago is a true melting pot of diverse ethnic backgrounds. She noticed that many people tend to flock to larger fast-food chains, and she felt it was important to shine a light on family-owned restaurants instead.
 
 **Implementation 4:**
 
-    we will be making a website using html,react,django, API(google maps), database(sqlite)
+    we will be making a website using html,react,django, API(google maps), database(sql)
 
 **Idea - Story - Inspiration 5:**
 
