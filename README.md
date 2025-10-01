@@ -62,6 +62,8 @@ roles needed: project manager, frontend, backend
 
 **Q6:** Which tech stacks will your group use? (Django + React or Flask + React)
 
+    we will use django + react
+
 ---
 # Full Stack Group Project Track  
 ---
@@ -75,19 +77,21 @@ roles needed: project manager, frontend, backend
 
 # Track 2: Technology for Public Goods 
 
-**Problem 2:**
+**Problem 2:** Heping find accessable playgrounds or loctions
 
-**Solution 2:** 
+**Solution 2:** making something like google maps that helps find accessable locations like playgrounds.
 
-**Problem 3:** 
+**Problem 3:**  lack of interactive tools in classrooms
 
-**Solution 3:**  
+**Solution 3:**  an interactive real time conspuale map builder
 
 # Track 3: Creative Coding and Cultural Expression
 
-**Idea - Story - Inspiration 4:**
+**Idea - Story - Inspiration 4:**  Kassandra inspiration was seeing how chicago is a melting pot of different  enicalback rounds and how people tend to good to bigger fast food chain and that we need to shine a light on family own restarnts.
 
 **Implementation 4:**
+
+    we will be making a website using html,react,django, API(google maps), database(sqlite)
 
 **Idea - Story - Inspiration 5:**
 
@@ -97,7 +101,7 @@ roles needed: project manager, frontend, backend
 # Idea Finalization
 
 **From 5 project ideas you have above, please choose one of the project that you are going with for the rest of the semester. Explain why you are going with that project**
-to be determined, learning towards track 2
+
 # Extra Credit (Only do this if you are done with Idea Finalization)
 
 ## Database Design
