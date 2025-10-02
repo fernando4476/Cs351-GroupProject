@@ -101,29 +101,32 @@ roles needed: project manager, frontend, backend
 # Idea Finalization
 
 **From 5 project ideas you have above, please choose one of the project that you are going with for the rest of the semester. Explain why you are going with that project**
+We are going with Kassandra's idea of finding ethnic restaurants to create a more diverse experience. This'll help people not settle on fast food chains and actually give the spotlight to family owned and culturally diverse restaurants, which will in return help them gain visibility and preserving chicago's food identity.
+
 
 # Extra Credit (Only do this if you are done with Idea Finalization)
 
 ## Database Design
 
 **Q1: What database are you using for your project (SQLite, PostgreSQL, noSQL, MongoDB,...), and why do you choose it?**
-
+We will be using PostgreSQL because it's reliable, scalable and integrates well with django/flask. it also supports advanced queries which will be useful for filtering restaurants by cuisine,rating and the neighborhood.
 **Q2: How will database be helpful to your project? How will you design your database to support your application features?**
-
+The database will store restaurant information such as the address,name and cuisine. It'll also hold the user reviews and ratings.We can also use api's such from yelp and google reviews.
 ## Third-Party API Integration
 
 **Q3: Which third-party API(s) will you integrate into your project? What data will you pull from the API(s), and how will you use it in your application?**
-
+We'll incorporate google maps api and Yelp api. The google map api will show the restaurants on an interactive map and the yelp api will get business hours, contact info and extra reviews that google might not have.
 **Q4: Does your API key has limitations such as rate limits or downtime? How are you going to deal with that?**
-
+They do have limitations for example google map api has daily request limits but to deal with this we'll cache api results in our database so we dont get repeated calls. We'll also use environment variables to store the api key securely.
 ## Authentication and Security
 
 **Q5: What authentication method will you use (e.g., username/password, OAuth, JWT)?**
-
+We will be using username/password authetication using djangos built in auth or even using the flask login.
 **Q6: How will you store and protect sensitive user data (e.g., passwords, tokens)?**
-
+Passwords will be hashed and salted using django's built in hasher. we'll also store api keys and tokens in a .env file. Database connections will use environment variables for credentials
 ## Deployment
 
 **Q7: Where will you deploy your project (e.g., Heroku, AWS, Render)? How will you manage environment variables and secrets during deployment?**
-
+We will deploy our project on Heroku. environment variables will be configured directly in the Heroku dashboard.
 **Q8: How will you ensure your deployment is reliable and easy to update?**
+We will use Github integration with Heroku so that pushing to main automatically updated the deployment. We will run tests locally before pushing. Lastly we will use version control branching to ensure updates don't break the main app
