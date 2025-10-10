@@ -2,8 +2,7 @@
 
 **Q1:** At what time in the week would your group be available to meet online?  
 
-*We are available after 5:30pm on MWF or weekends 
-Or thursdays at 5*  
+*Meeting weekly Thursday at 6:45
 
 ---
 
