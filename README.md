@@ -12,7 +12,10 @@
 **Example:**  
 *Week of 9/30 - pick our project track and topic, and complete Milestone 2
 
-Week of 10/09 - Our group decided to create a UIC MarketPlace web app where UIC students can provide services. On today's agenda we will finalize our tech stack and begin our Figma wireframe. We are using PostgreSQL or MySQL for our database, and intend to implement text prediction Trie for the data structure requirement 
+Week of 10/09 - Our group decided to create a UIC MarketPlace web app where UIC students can provide services. On today's agenda we will finalize our tech stack and begin our Figma wireframe. We are using PostgreSQL or MySQL for our database, and intend to implement text prediction Trie for the data structure requirement
+
+
+                
 
 Notes: Discussed figma wireframe and UML diagram
 
