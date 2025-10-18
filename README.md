@@ -9,6 +9,7 @@
 # Timeline: Weekly Meeting Goals  
 
 **Q2:** What is your goals that your group want to achieve in each weekly meeting?  
+<<<<<<< Updated upstream
 **Example:**  
 *Week of 9/30 - pick our project track and topic, and complete Milestone 2
 
@@ -84,34 +85,40 @@ Week of 11/27 - make sure project is fully functional
 12/01 - complete and submit project *  
 
 ---
+=======
+1. Check off last weeks to-do list
+2. Make decisions on problems encountered. 
+3. Write to do list for upcoming week
+
+>>>>>>> Stashed changes
 
 # Communication  
 
 **Q3a:** How can your group communicate when doing the Full Stack Group Project?  
-**Q3b:** What are the usernames of each group member on that platform?  
+We will use Discord for communication
+
+**Q3b:** What are the usernames of each group member on that platform? 
+Usernames:
+Maria - mclem6
+Ahmad - ahmad9125  
+Fernando - fernando4476
+Kassandra - ka55andr4
+
 **Q3c:** What is your group’s expected response time to messages?  
+Our expected response time will be within 12 hours.
 
-**Example:**  
-*We will use Discord for communication*  
-
-*Usernames:*  
-*Maria - mclem6*  
-*Ahmad - ahmad9125 *  
-*Fernando - fernando4476* 
-*Kassandra - ka55andr4* 
-*Our expected response time will be within 12 hours.*  
 
 ---
 
 # Norms  
 
 **Q4a:** How will your group handle situations when there is conflict in your group?  
-- If its about making a decision, then voting. 
-- Do meeting without missing member, communicate to them their part. Also, record meetings.
-- Give clear tasks and objectives, if person is struggling they need to reach out sooner than later.
+1. If its about making a decision, then voting. 
+2. Do meeting without missing member, communicate to them their part. Also, record meetings.
+3. Give clear tasks and objectives, if person is struggling they need to reach out sooner than later.
 
 **Q4b:** How will your group handle situations when a member is not contributing enough?  
-- Group mediation then give them resources they need. If not they continue not to contribute enough, have meeting with professor. 
+Group mediation then give them resources they need. If not they continue not to contribute enough, have meeting with professor. 
 
 
 # Roles  
@@ -129,7 +136,7 @@ roles needed: project manager, frontend, backend
 
 **Q6:** Which tech stacks will your group use? (Django + React or Flask + React)
 
-    we will use django + react
+e will use django + react
 
 ---
 # Full Stack Group Project Track  
