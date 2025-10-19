@@ -1,17 +1,20 @@
-import React from 'react'
-import Navbar from './Components/Navbar/Navbar.jsx'
-import { Hero } from './Components/Hero/Hero.jsx'
-import Categories from './Components/Categories/Categories.jsx'
-import Programs from './Components/Programs/Programs.jsx'
+import React, { useState } from "react";
+import Navbar from "./Components/Navbar/Navbar";
+import Hero from "./Components/Hero/Hero";
+import Categories from "./Components/Categories/Categories";
+import Programs from "./Components/Programs/Programs";
+import LoginModal from "./Components/Login/LoginModal";
 
-export const App = () => {
+export default function App() {
+  const [showLogin, setShowLogin] = useState(false);
+
   return (
-    <div>
-      <Navbar />
-      <Hero />      {/* This should contain the search bar */}
+    <>
+      <Navbar onSignInClick={() => setShowLogin(true)} />
+      <Hero />
       <Categories />
       <Programs />
-    </div>
-  )
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+    </>
+  );
 }
-export default App
