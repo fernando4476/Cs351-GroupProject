@@ -23,14 +23,12 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Secret key
-SECRET_KEY = os.environ.get("SECRET_KEY", "local-secret-key")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-sj!he3z6(dotaoey1wr$p@es06)@zns^_k(^b)b(daw@7hr2s5'
+SECRET_KEY = os.environ.get("SECRET_KEY", "local-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
