@@ -3,8 +3,7 @@
 from django.shortcuts import render
 from rest_framework import generics
 from .models import CustomerProfile, ServiceProviderProfile, Service
-from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer, ServiceSerializer
-
+from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer, ServiceSerializer, UserRegistrationSerializer
 class CustomerProfileListView(generics.ListCreateAPIView):
     queryset = CustomerProfile.objects.all()
     serializer_class = CustomerProfileSerializer
@@ -19,3 +18,6 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     serializer_class = ServiceSerializer 
 
     
+
+class UserRegistrationView(generics.CreateAPIView):
+    serilaizer_class = UserRegistrationSerializer
