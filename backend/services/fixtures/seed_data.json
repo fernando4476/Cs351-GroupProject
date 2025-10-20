@@ -1,0 +1,126 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "username": "alice",
+      "password": "pbkdf2_sha256$...",
+      "email": "alice@example.com",
+      "is_staff": false
+    }
+  },
+  {
+    "model": "services.customerprofile",
+    "pk": 1,
+    "fields": {
+      "user": 1
+    }
+  },
+  {
+    "model": "services.serviceproviderprofile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "business_name": "NailsQueen",
+      "description": "Regular and no-chip manicures for college students.",
+      "phone": "123-456-7890"
+    }
+  },
+  {
+    "model": "services.service",
+    "pk": 1,
+    "fields": {
+      "provider": 1,
+      "title": "Manicure",
+      "description": "No-chip manicure with long-lasting polish.",
+      "price": 15
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "username": "brian",
+      "password": "pbkdf2_sha256$...",
+      "email": "brian@example.com",
+      "is_staff": false
+    }
+  },
+  {
+    "model": "services.customerprofile",
+    "pk": 2,
+    "fields": {
+      "user": 2
+    }
+  },
+
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "username": "chloe",
+      "password": "pbkdf2_sha256$...",
+      "email": "chloe@example.com",
+      "is_staff": false
+    }
+  },
+  {
+    "model": "services.customerprofile",
+    "pk": 3,
+    "fields": {
+      "user": 3
+    }
+  },
+  {
+    "model": "services.serviceproviderprofile",
+    "pk": 2,
+    "fields": {
+      "user": 3,
+      "business_name": "TutorBoost",
+      "description": "Tutoring for intro CS, Python, and calculus.",
+      "phone": "555-222-3333"
+    }
+  },
+  {
+    "model": "services.service",
+    "pk": 2,
+    "fields": {
+      "provider": 2,
+      "title": "CS Tutoring",
+      "description": "One-on-one help with Python assignments and debugging.",
+      "price": 20
+    }
+  },
+
+  {
+    "model": "auth.user",
+    "pk": 4,
+    "fields": {
+      "username": "david",
+      "password": "pbkdf2_sha256$...",
+      "email": "david@example.com",
+      "is_staff": false
+    }
+  },
+  {
+    "model": "services.serviceproviderprofile",
+    "pk": 3,
+    "fields": {
+      "user": 4,
+      "business_name": "DormTechFix",
+      "description": "Fixing laptops, Wi-Fi, and phone charging issues in dorms.",
+      "phone": "444-111-2222"
+    }
+  },
+  {
+    "model": "services.service",
+    "pk": 3,
+    "fields": {
+      "provider": 3,
+      "title": "Laptop Repair",
+      "description": "Quick laptop or tech repair for students on campus.",
+      "price": 25
+    }
+  }
+]
