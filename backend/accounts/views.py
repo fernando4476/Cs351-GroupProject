@@ -64,8 +64,7 @@ class SignupView(View):
         token = default_token_generator.make_token(user)
         verify_path = reverse("verify-email", args=[uidb64, token])
 
-        backend_origin = f"http://{request.get_host()}"
-        verify_url = f"{backend_origin}{verify_path}"
+        verify_url = request.build_absolute_uri(verify_path)
 
         # Send the email (prints to terminal in dev)
         subject = "Verify your UIC Marketplace account"
@@ -97,7 +96,7 @@ class VerifyEmailView(View):
             user.save(update_fields=["is_active"])
             success = True
 
-        dest = settings.FRONTEND_ORIGIN.rstrip("/")
+        dest = getattr(settings, "FRONTEND_ORIGIN", "http://localhost:5173").rstrip("/")
         return HttpResponseRedirect(f"{dest}/verify?status={'success' if success else 'failed'}")
 
 
