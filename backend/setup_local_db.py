@@ -4,9 +4,9 @@ import subprocess
 import platform
 
 # Configuration
-DB_NAME = "localdb"
-DB_USER = "postgres"
-DB_PASSWORD = "postgres"  # update if you use a different password
+DB_NAME = os.environ.get("DB_NAME", "localdb")
+DB_USER = os.environ.get("DB_USER", "postgres")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
 FIXTURE_FILE = "seed_data.json"  # make sure path is correct relative to backend/
 
 def run_command(command, env=None):
