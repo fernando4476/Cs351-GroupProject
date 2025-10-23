@@ -3,7 +3,7 @@
 from rest_framework import serializers
 from django.conf import settings
 from .models import CustomerProfile , ServiceProviderProfile, Service
-
+from django.contrib.auth import get_user_model
 
 
 class CustomerProfileSerializer(serializers.ModelSerializer):
@@ -19,27 +19,22 @@ class ServiceProviderProfileSerializer(serializers.ModelSerializer):
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        field = ['id', 'provider', 'title', 'description', 'price']
+        fields = ['id', 'provider', 'title', 'description', 'price']
 
+# TEMP USER REGISTRATION 
+User = get_user_model()
         
 #TEMP USER REGISTRATION
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
      
     class Meta:
-        model = settings.AUTH_USER_MODEL
+        model = User
         fields = ['id', 'username', 'email', 'password']
 
     def create(self, validated_data):
-        # get current user model
-        user_model = self.Meta.model
-
-        #create new user
-        user = user_model.objects.create_user(
-            username=validated_data['username'],         # required field
-            email=validated_data.get('email', ''),       # optional field
-            password=validated_data['password']          # password is hashed automatically
+        return User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
         )
-        
-        # Return the new user object so DRF can respond with it
-        return user
