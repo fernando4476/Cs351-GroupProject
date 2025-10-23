@@ -42,10 +42,10 @@ class AutocompleteAPIView(APIView):
         return Response({'results': results})
     
 
-#build trie
+# build trie
 trie = Trie()
 for service in Service.objects.all():
-    trie.insert(service.name)
+    trie.insert(service.title)
     
 
 
