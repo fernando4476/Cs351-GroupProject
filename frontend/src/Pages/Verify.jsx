@@ -8,7 +8,7 @@ export default function Verify() {
   if (status === "success") {
     return (
       <div style={{ maxWidth: 600, margin: "4rem auto", textAlign: "center" }}>
-        <h1>✅ Your email is verified</h1>
+        <h1> Your email is verified</h1>
         <p>You can now sign in to UIC Marketplace.</p>
         <p><Link to="/">Go back to home</Link></p>
       </div>
@@ -18,7 +18,7 @@ export default function Verify() {
   if (status === "failed" || status === "expired") {
     return (
       <div style={{ maxWidth: 600, margin: "4rem auto", textAlign: "center" }}>
-        <h1>❌ Verification failed</h1>
+        <h1> Verification failed</h1>
         <p>The link may be invalid or expired. Please try signing up again.</p>
         <p><Link to="/">Go back to home</Link></p>
       </div>
