@@ -46,3 +46,12 @@ class AutocompleteAPIView(APIView):
         trie = _get_trie()
         results = trie.starts_with(prefix)[:10]
         return Response({'results': results})
+    
+
+# build trie
+trie = Trie()
+for service in Service.objects.all():
+    trie.insert(service.title)
+    
+
+
