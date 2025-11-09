@@ -14,6 +14,12 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate 
+from .models import CustomerProfile, ServiceProviderProfile
+from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer
+from rest_framework import generics
+from rest_framework import generics, permissions
+from rest_framework import filters
+
 
 User = get_user_model()
 
@@ -134,3 +140,15 @@ class LoginView(View):
         if hasattr(user, "first_name"):
             name = user.first_name or ""
         return JsonResponse({"ok": True, "name": name or email.split("@")[0]})
+
+
+class CustomerProfileListView(generics.ListAPIView):
+    queryset = CustomerProfile.objects.all()
+    serializer_class = CustomerProfileSerializer
+
+class ServiceProviderProfileListView(generics.ListAPIView):
+    queryset = ServiceProviderProfile.objects.all()
+    serializer_class = ServiceProviderProfileSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['business_name', 'description', 'user__first_name']
