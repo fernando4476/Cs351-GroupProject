@@ -15,12 +15,10 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     
 class AutocompleteAPIView(APIView):
     def get(self, request):
-        prefix = request.Get.get('prefix', '')
-
-        if not prefix: 
-            return Response({'result': []})
-        
-        #use trie to get suggestions
+        prefix = request.GET.get('prefix', '')   # <-- fixed GET
+        if not prefix:
+            return Response({'results': []})
+        trie = _get_trie()
         results = trie.starts_with(prefix)[:10]
         return Response({'results': results}) 
 
