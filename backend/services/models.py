@@ -12,3 +12,16 @@ class Service(models.Model):
     def __str__(self):
         return f"{self.title} by {self.provider.username}"
     
+class RecentServiceView(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="recent_service_views")
+    service = models.ForeignKey("Service", on_delete=models.CASCADE)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "-viewed_at"]),
+        ]
+        ordering = ["-viewed_at"]
+
+    def __str__(self):
+        return f"{self.user_id} viewed {self.service_id} at {self.viewed_at}"
