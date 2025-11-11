@@ -5,20 +5,43 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-
+from django.db.models import Avg
 from .models import Service, RecentServiceView
-from .serializers import ServiceSerializer, RecentViewInSerializer, ServiceCardSerializer
+from .serializers import ServiceSerializer, ServiceDetailSerializer, RecentViewInSerializer, ServiceCardSerializer
 from .trie import Trie
 from .recent import push_view, get_recent_list
 from .permissions import IsServiceProvider
+from rest_framework import filters
 
 
 
+#get returns list of services, post creates a service 
 class ServiceListCreateView(generics.ListCreateAPIView):
-    queryset = Service.objects.all()
+ 
     serializer_class = ServiceSerializer 
     permission_classes = [IsServiceProvider]
+
+    # adds filtering
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'description', 'provider__first_name']
+
+    #if get request
+    def get_queryset(self):
+        return Service.objects.all().annotate(
+            rating=Avg('review__rating')
+        )
+    def perform_create(self, serializer):
+        # Automatically assign the provider and initialize rating to 0
+        serializer.save(provider=self.request.user.serviceproviderprofile)
     
+#returns the service info 
+class ServiceDetailView(generics.RetrieveAPIView):
+    queryset = Service.objects.annotate(rating=Avg("review__rating"))
+    serializer_class = ServiceDetailSerializer
+   
+    
+
+
 class AutocompleteAPIView(APIView):
     def get(self, request):
         prefix = request.GET.get('prefix', '')   # <-- fixed GET
@@ -47,7 +70,7 @@ class RecentViewRecord(APIView):
         )
         # update skip list
         push_view(request.user, service_id)
-        return Response({"ok": True}, status=status.HTTP_201_CREATED)
+        return Response({"ok": True})
 
 class RecentList(APIView):
     permission_classes = [permissions.IsAuthenticated]

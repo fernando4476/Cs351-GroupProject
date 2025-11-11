@@ -13,6 +13,10 @@ class Service(models.Model):
     def __str__(self):
         return f"{self.title} by {self.provider.username}"
     
+    @property
+    def provider_name(self):
+        return self.provider.username
+    
 class RecentServiceView(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="recent_service_views")
     service = models.ForeignKey("Service", on_delete=models.CASCADE)
@@ -26,3 +30,11 @@ class RecentServiceView(models.Model):
 
     def __str__(self):
         return f"{self.user_id} viewed {self.service_id} at {self.viewed_at}"
+    
+
+class Review(models.Model):
+    service = models.ForeignKey(Service, related_name="review", on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField()  # e.g., 1–5
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
