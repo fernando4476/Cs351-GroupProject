@@ -10,3 +10,10 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'provider', 'title', 'description', 'price']
 
         
+class RecentViewInSerializer(serializers.Serializer):
+    service_id = serializers.IntegerField()
+
+class ServiceCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ["id", "title", "description", "price", "provider"]
