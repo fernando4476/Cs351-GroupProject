@@ -10,18 +10,25 @@ from .models import Service, RecentServiceView
 from .serializers import ServiceSerializer, RecentViewInSerializer, ServiceCardSerializer
 from .trie import Trie
 from .recent import push_view, get_recent_list
+from .permissions import IsServiceProvider
+
 
 
 class ServiceListCreateView(generics.ListCreateAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer 
-
+    permission_classes = [IsServiceProvider]
     
 class AutocompleteAPIView(APIView):
     def get(self, request):
         prefix = request.GET.get('prefix', '')   # <-- fixed GET
         if not prefix:
             return Response({'results': []})
+        
+        # build trie
+        trie = Trie()
+        for service in Service.objects.all():
+                trie.insert(service.title)
         results = trie.starts_with(prefix)[:10] 
         return Response({'results': results}) 
     
@@ -52,11 +59,6 @@ class RecentList(APIView):
         ordered = [svc_map[i] for i in ids if i in svc_map]
         data = ServiceCardSerializer(ordered, many=True).data
         return Response({"results": data})
-
-# build trie
-trie = Trie()
-for service in Service.objects.all():
-    trie.insert(service.title)
     
 
 
