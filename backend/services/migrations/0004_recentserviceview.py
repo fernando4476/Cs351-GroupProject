@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0003_remove_serviceproviderprofile_user_and_more'),
+        ('services', '0002_service'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

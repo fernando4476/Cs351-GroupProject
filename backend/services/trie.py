@@ -15,11 +15,13 @@ class Trie:
     
     def insert(self, word: str)-> bool:
 
+        #check if all characters are chars or space 
+        if not all(c.isalpha() or c.isspace() for c in word):
+            return False
         #check if word exists
         if(self.search(word)):
             return False
-        if(not word.isalpha()):
-            return False
+    
         
         current_node = self.root
         #go through every character in word
@@ -140,7 +142,7 @@ class Trie:
         results = []
 
         #call helper function to find words with prefix
-        self._words(self.root, prefix, results)
+        self._words(node, prefix, results)
 
         return results
 
