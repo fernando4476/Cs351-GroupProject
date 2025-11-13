@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom' // ADD THIS IMPORT
 import './Navbar.css'
 import logo from '../../assets/logo.png'
 
@@ -18,7 +19,7 @@ export const Navbar = () => {
     setMsg('')
     setLoading(true)
     try {
-      const r = await fetch('http://localhost:8000/auth/signup', {
+      const r = await fetch('http://localhost:8000/api/auth/signup/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
@@ -43,7 +44,7 @@ export const Navbar = () => {
     setMsg('')
     setLoading(true)
     try {
-      const r = await fetch('http://localhost:8000/auth/login', {
+      const r = await fetch('http://localhost:8000/api/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -64,6 +65,9 @@ export const Navbar = () => {
     <nav className='container' style={{ position: 'relative' }}>
       <img src={logo} alt='logo' className='logo' />
       <ul>
+        {/* ADD THIS LINE */}
+        <li><Link to="/become-provider">Become a Provider</Link></li>
+        
         <li>
           <button className='btn' onClick={() => { setOpen(true); setTab('signin') }}>
             Sign in

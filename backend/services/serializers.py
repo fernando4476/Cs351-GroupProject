@@ -1,45 +1,45 @@
 #convert models into JSON
-
 from rest_framework import serializers
 from django.conf import settings
-from .models import CustomerProfile , ServiceProviderProfile, Service
+from .models import Service, Review
 
 
 
-class CustomerProfileSerializer(serializers.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
     class Meta:
-        model = CustomerProfile
-        fields =['id','user']
+        model = Review
+        fields = ['id', 'user', 'rating', 'comment', 'created_at']
 
-class ServiceProviderProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ServiceProviderProfile
-        fields = ['id', 'user', 'business_name', 'description', 'phone']
 
 class ServiceSerializer(serializers.ModelSerializer):
+    provider_name = serializers.CharField(source='provider.username', read_only=True)
+    rating = serializers.FloatField(read_only=True)  
+
     class Meta:
         model = Service
-        field = ['id', 'provider', 'title', 'description', 'price']
+        fields = ['id', 'provider','provider_name', 'title', 'description', 'price','location', 'rating']
 
-        
-#TEMP USER REGISTRATION
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-     
+class ServiceDetailSerializer(serializers.ModelSerializer):
+    # TODO: add service photo?
+    provider_name = serializers.CharField(source='provider.username', read_only=True)
+    reviews = ReviewSerializer(source="review", many=True, read_only=True) 
+    rating = serializers.FloatField(read_only=True)  
+    
     class Meta:
-        model = settings.AUTH_USER_MODEL
-        fields = ['id', 'username', 'email', 'password']
-
-    def create(self, validated_data):
-        # get current user model
-        user_model = self.Meta.model
-
-        #create new user
-        user = user_model.objects.create_user(
-            username=validated_data['username'],         # required field
-            email=validated_data.get('email', ''),       # optional field
-            password=validated_data['password']          # password is hashed automatically
-        )
+        model = Service
+        fields = ['id', 'provider','provider_name', 'title', 'description', 'price', 'location', 'rating', 'reviews'] 
         
-        # Return the new user object so DRF can respond with it
-        return user
+class RecentViewInSerializer(serializers.Serializer):
+    service_id = serializers.IntegerField()
+
+class ServiceCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ["id", "title", "description", "price", "provider"]
+
+
+    class Meta:
+        model = Review
+        fields = ['id', 'user', 'rating', 'comment', 'created_at']
