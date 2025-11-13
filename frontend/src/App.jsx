@@ -1,13 +1,24 @@
-import React, { useState } from "react";
-import Navbar from "./Components/Navbar/Navbar";
-import Hero from "./Components/Hero/Hero";
-import Categories from "./Components/Categories/Categories";
-import Programs from "./Components/Programs/Programs";
-import LoginModal from "./Components/Login/LoginModal";
+import React from 'react'
+import { Routes, Route } from "react-router-dom"
+import Navbar from './Components/Navbar/Navbar.jsx'
+import { Hero } from './Components/Hero/Hero.jsx'
+import Categories from './Components/Categories/Categories.jsx'
+import Programs from './Components/Programs/Programs.jsx'
 
-export default function App() {
-  const [showLogin, setShowLogin] = useState(false);
+import Verify from "./Pages/Verify.jsx";
 
+function Home() {
+  return (
+    <div>
+      <Navbar />
+      <Hero />
+      <Categories />
+      <Programs />
+    </div>
+  )
+}
+
+export const App = () => {
   return (
     <>
       <Navbar onSignInClick={() => setShowLogin(true)} />
