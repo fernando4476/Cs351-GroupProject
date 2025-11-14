@@ -47,3 +47,10 @@ nav ul li {
 .btn:hover {
     background: #6C9E7D;
 }
+
+a {
+    color: #6C9E7D;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+}

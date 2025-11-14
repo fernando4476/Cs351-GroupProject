@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom' // ADD THIS IMPORT
 import './Navbar.css'
 import logo from '../../assets/logo.png'
 
@@ -64,6 +65,9 @@ export const Navbar = () => {
     <nav className='container' style={{ position: 'relative' }}>
       <img src={logo} alt='logo' className='logo' />
       <ul>
+        {/* ADD THIS LINE */}
+        <li><Link to="/become-provider">Become a Provider</Link></li>
+        
         <li>
           <button className='btn' onClick={() => { setOpen(true); setTab('signin') }}>
             Sign in
