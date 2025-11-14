@@ -14,22 +14,20 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ServiceSerializer(serializers.ModelSerializer):
-    provider_name = serializers.CharField(source='provider.username', read_only=True)
     rating = serializers.FloatField(read_only=True)  
 
     class Meta:
         model = Service
-        fields = ['id', 'provider','provider_name', 'title', 'description', 'price','location', 'rating']
+        fields = ['id','title', 'description', 'price', 'provider_name','business_name','location', 'rating']
 
 class ServiceDetailSerializer(serializers.ModelSerializer):
     # TODO: add service photo?
-    provider_name = serializers.CharField(source='provider.username', read_only=True)
     reviews = ReviewSerializer(source="review", many=True, read_only=True) 
     rating = serializers.FloatField(read_only=True)  
     
     class Meta:
         model = Service
-        fields = ['id', 'provider','provider_name', 'title', 'description', 'price', 'location', 'rating', 'reviews'] 
+        fields = ['id','title', 'description', 'price', 'provider_name', 'business_name','location', 'rating', 'reviews'] 
         
 class RecentViewInSerializer(serializers.Serializer):
     service_id = serializers.IntegerField()

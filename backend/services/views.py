@@ -32,7 +32,9 @@ class ServiceListCreateView(generics.ListCreateAPIView):
         )
     def perform_create(self, serializer):
         # Automatically assign the provider and initialize rating to 0
-        serializer.save(provider=self.request.user.serviceproviderprofile)
+        serializer.save(provider=self.request.user)
+    
+
     
 #returns the service info 
 class ServiceDetailView(generics.RetrieveAPIView):
