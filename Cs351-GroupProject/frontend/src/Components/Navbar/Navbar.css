@@ -1,0 +1,56 @@
+nav{
+    width: 100%;
+    background: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 8px 0; /* Reduced vertical padding */
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: 40px; /* Set a smaller fixed height */
+}
+
+.logo{
+    width: 80px; /* Make logo smaller */
+    margin-left: 20px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    margin-right: 20px;
+}
+
+nav ul li {
+    margin: 0;
+}
+
+/* Sign in button styles */
+.btn {
+    background: #08003a;
+    color: white;
+    padding: 6px 16px; /* Smaller button */
+    border-radius: 18px;
+    border: none;
+    font-size: 13px; /* Smaller font */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background: #6C9E7D;
+}
+
+a {
+    color: #6C9E7D;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+}
