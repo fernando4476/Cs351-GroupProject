@@ -165,15 +165,26 @@ class ServiceProviderProfileCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-
-
+# get list of customer profiles
 class CustomerProfileListView(generics.ListAPIView):
     queryset = CustomerProfile.objects.all()
     serializer_class = CustomerProfileSerializer
 
+
+# get list of provider profiles, ability to search 
 class ServiceProviderProfileListView(generics.ListAPIView):
     queryset = ServiceProviderProfile.objects.all()
     serializer_class = ServiceProviderProfileSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['business_name', 'description', 'user__first_name']
+
+
+
+#update user photo
+class UpdateProfilePhotoView(generics.UpdateAPIView):
+    serializer_class = CustomerProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.customerprofile 

@@ -6,6 +6,10 @@ from django.conf import settings
 
 class CustomerProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    photo = models.ImageField(
+        upload_to='photos/',
+        default= 'photos/default.png'
+    )
     #add preferred service type list to build recommendation
 
     def __str__(self):

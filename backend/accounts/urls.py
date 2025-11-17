@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SignupView, VerifyEmailView, LoginView
+from .views import SignupView, VerifyEmailView, LoginView, UpdateProfilePhotoView
 from .views import CustomerProfileListView, ServiceProviderProfileListView, ServiceProviderProfileCreateView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -17,5 +17,7 @@ urlpatterns = [
     # refresh token 
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     #create provider profile
-    path("service-provider/", ServiceProviderProfileCreateView.as_view(), name="create-provider")
+    path("service-provider/", ServiceProviderProfileCreateView.as_view(), name="create-provider"),
+    #update user photo
+    path('profile/photo', UpdateProfilePhotoView.as_view())
 ]

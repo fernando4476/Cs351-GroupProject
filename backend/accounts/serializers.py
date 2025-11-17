@@ -8,7 +8,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name')
     class Meta:
         model = CustomerProfile
-        fields = ['id', 'username', 'first_name']
+        fields = ['photo''id', 'username', 'first_name']
 
 class ServiceProviderProfileSerializer(serializers.ModelSerializer):
     class Meta:
