@@ -19,5 +19,5 @@ urlpatterns = [
     #create provider profile
     path("service-provider/", ServiceProviderProfileCreateView.as_view(), name="create-provider"),
     #update user photo
-    path('profile/photo', UpdateProfilePhotoView.as_view())
+    path('profile/photo/', UpdateProfilePhotoView.as_view())
 ]
