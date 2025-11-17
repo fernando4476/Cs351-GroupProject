@@ -16,6 +16,10 @@ class Service(models.Model):
     @property
     def provider_name(self):
         return self.provider.username
+
+    @property
+    def business_name(self):
+        return self.provider.serviceproviderprofile.business_name
     
 class RecentServiceView(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="recent_service_views")

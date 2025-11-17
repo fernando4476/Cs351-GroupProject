@@ -13,4 +13,4 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
 class ServiceProviderProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceProviderProfile
-        fields = ['id', 'business_name', 'description']
+        fields = ['id', 'business_name', 'description', 'phone']

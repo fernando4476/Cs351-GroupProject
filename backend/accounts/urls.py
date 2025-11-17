@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import SignupView, VerifyEmailView, LoginView
-from .views import CustomerProfileListView, ServiceProviderProfileListView
+from .views import CustomerProfileListView, ServiceProviderProfileListView, ServiceProviderProfileCreateView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -13,7 +13,9 @@ urlpatterns = [
     # list all providers
     path('providers/', ServiceProviderProfileListView.as_view(), name='provider-list'),
     # obtain token
-    path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     # refresh token 
-    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    #create provider profile
+    path("service-provider/", ServiceProviderProfileCreateView.as_view(), name="create-provider")
 ]

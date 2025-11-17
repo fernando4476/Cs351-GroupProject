@@ -20,6 +20,7 @@ from rest_framework import generics
 from rest_framework import generics, permissions
 from rest_framework import filters
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import ValidationError
 
 
 User = get_user_model()
@@ -148,6 +149,22 @@ class LoginView(View):
             "access": access_token,
             "refresh": str(refresh)
         })
+
+#create provider profile 
+class ServiceProviderProfileCreateView(generics.CreateAPIView):
+    serializer_class = ServiceProviderProfileSerializer
+    permissions_classes = [permissions.IsAuthenticated]
+
+    #POST method 
+    def perform_create(self, serializer):
+        #check if profile exists
+        if hasattr(self.request.user, "serviceproviderprofile"):
+            raise ValidationError("Provider profile already exists")
+        
+        #sets user field to logged-in user 
+        serializer.save(user=self.request.user)
+
+
 
 
 class CustomerProfileListView(generics.ListAPIView):

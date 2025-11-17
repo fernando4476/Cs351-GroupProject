@@ -2,125 +2,113 @@
   {
     "model": "auth.user",
     "pk": 1,
-    "fields": {
-      "username": "alice",
-      "password": "pbkdf2_sha256$...",
-      "email": "alice@example.com",
-      "is_staff": false
-    }
+    "fields": {"username": "bob@uic.edu", "password": "pbkdf2_sha256$...", "email": "bob@uic.edu", "first_name": "bob"}
   },
-  {
-    "model": "services.customerprofile",
-    "pk": 1,
-    "fields": {
-      "user": 1
-    }
-  },
-  {
-    "model": "services.serviceproviderprofile",
-    "pk": 1,
-    "fields": {
-      "user": 1,
-      "business_name": "NailsQueen",
-      "description": "Regular and no-chip manicures for college students.",
-      "phone": "123-456-7890"
-    }
-  },
-  {
-    "model": "services.service",
-    "pk": 1,
-    "fields": {
-      "provider": 1,
-      "title": "Manicure",
-      "description": "No-chip manicure with long-lasting polish.",
-      "price": 15
-    }
-  },
-  
   {
     "model": "auth.user",
     "pk": 2,
-    "fields": {
-      "username": "brian",
-      "password": "pbkdf2_sha256$...",
-      "email": "brian@example.com",
-      "is_staff": false
-    }
+    "fields": {"username": "quen6@uic.edu", "password": "pbkdf2_sha256$...", "email": "quen6@uic.edu", "first_name": "quen6"}
   },
-  {
-    "model": "services.customerprofile",
-    "pk": 2,
-    "fields": {
-      "user": 2
-    }
-  },
-
   {
     "model": "auth.user",
     "pk": 3,
-    "fields": {
-      "username": "chloe",
-      "password": "pbkdf2_sha256$...",
-      "email": "chloe@example.com",
-      "is_staff": false
-    }
+    "fields": {"username": "carol@uic.edu", "password": "pbkdf2_sha256$...", "email": "carol@uic.edu", "first_name": "carol"}
   },
-  {
-    "model": "services.customerprofile",
-    "pk": 3,
-    "fields": {
-      "user": 3
-    }
-  },
-  {
-    "model": "services.serviceproviderprofile",
-    "pk": 2,
-    "fields": {
-      "user": 3,
-      "business_name": "TutorBoost",
-      "description": "Tutoring for intro CS, Python, and calculus.",
-      "phone": "555-222-3333"
-    }
-  },
-  {
-    "model": "services.service",
-    "pk": 2,
-    "fields": {
-      "provider": 2,
-      "title": "CS Tutoring",
-      "description": "One-on-one help with Python assignments and debugging.",
-      "price": 20
-    }
-  },
-
   {
     "model": "auth.user",
     "pk": 4,
-    "fields": {
-      "username": "david",
-      "password": "pbkdf2_sha256$...",
-      "email": "david@example.com",
-      "is_staff": false
-    }
+    "fields": {"username": "mclem6@uic.edu", "password": "pbkdf2_sha256$...", "email": "mclem6@uic.edu", "first_name": "mclem6"}
   },
   {
-    "model": "services.serviceproviderprofile",
+    "model": "auth.user",
+    "pk": 5,
+    "fields": {"username": "dave@uic.edu", "password": "pbkdf2_sha256$...", "email": "dave@uic.edu", "first_name": "dave"}
+  },
+  {
+    "model": "auth.user",
+    "pk": 6,
+    "fields": {"username": "eve@suic.edu", "password": "pbkdf2_sha256$...", "email": "eve@suic.edu", "first_name": "eve"}
+  },
+  {
+    "model": "auth.user",
+    "pk": 7,
+    "fields": {"username": "frank@uic.edu", "password": "pbkdf2_sha256$...", "email": "frank@uic.edu", "first_name": "frank"}
+  },
+  {
+    "model": "auth.user",
+    "pk": 8,
+    "fields": {"username": "grace@uic.edu", "password": "pbkdf2_sha256$...", "email": "grace@uic.edu", "first_name": "grace"}
+  },
+  {
+    "model": "auth.user",
+    "pk": 9,
+    "fields": {"username": "heidi@uic.edu", "password": "pbkdf2_sha256$...", "email": "heidi@uic.edu", "first_name": "heidi"}
+  },
+  {
+    "model": "auth.user",
+    "pk": 10,
+    "fields": {"username": "ivan@uic.edu", "password": "pbkdf2_sha256$...", "email": "ivan@uic.edu", "first_name": "ivan"}
+  },
+
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 1,
+    "fields": {"user": 4, "business_name": "Glow Studio", "description": "Hey! I’ve been doing braids for a few years and I love helping people look great. I’m a Business major and I run Glow Studio right on campus.", "phone": "555-0001"}
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 2,
+    "fields": {"user": 5, "business_name": "TechFix", "description": "I fix laptops, phones, and anything tech! I’m a CS student and have been helping friends with tech issues for years. Come check out TechFix!", "phone": "555-0002"}
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
     "pk": 3,
-    "fields": {
-      "user": 4,
-      "business_name": "DormTechFix",
-      "description": "Fixing laptops, Wi-Fi, and phone charging issues in dorms.",
-      "phone": "444-111-2222"
-    }
+    "fields": {"user": 6, "business_name": "Hair Lounge", "description": "I love doing creative haircuts and styling. I’m an Arts major and have been styling hair since high school. Let’s make your hair look awesome!", "phone": "555-0003"}
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 4,
+    "fields": {"user": 7, "business_name": "Fitness Pro", "description": "I run fun fitness sessions for students! I’m a Kinesiology major and enjoy helping people stay active. Join my classes at Fitness Pro!", "phone": "555-0004"}
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 5,
+    "fields": {"user": 8, "business_name": "Tutor Hub", "description": "Need help with math or science? I’m a Math major and I love tutoring other students. Check out Tutor Hub for quick help!", "phone": "555-0005"}
+  },
+
+  {
+    "model": "services.service",
+    "pk": 1,
+    "fields": {"provider": 1, "title": "Braids", "description": "Knotless box braids for students who want a fresh new look!", "price": "200.00", "location": "UIC Campus"}
+  },
+  {
+    "model": "services.service",
+    "pk": 2,
+    "fields": {"provider": 2, "title": "Laptop Repair", "description": "Quick laptop or tech repair for students on campus.", "price": "25.00", "location": "UIC Library"}
   },
   {
     "model": "services.service",
     "pk": 3,
-    "fields": {
-      "provider": 3,
-      "title": "Laptop Repair",
-      "description": "Quick laptop or tech repair for students on campus.",
-      "price": 25
-    }
+    "fields": {"provider": 3, "title": "Haircut", "description": "Get a stylish haircut for any occasion!", "price": "30.00", "location": "Arts Building"}
+  },
+  {
+    "model": "services.service",
+    "pk": 4,
+    "fields": {"provider": 4, "title": "Yoga Class", "description": "Relaxing yoga sessions perfect for students after classes.", "price": "10.00", "location": "Recreation Center"}
+  },
+  {
+    "model": "services.service",
+    "pk": 5,
+    "fields": {"provider": 5, "title": "Math Tutoring", "description": "One-on-one tutoring sessions to ace your exams!", "price": "20.00", "location": "Library Study Room"}
+  },
+  {
+    "model": "services.service",
+    "pk": 6,
+    "fields": {"provider": 1, "title": "Hair Highlights", "description": "Add some color to your hair with professional highlights.", "price": "150.00", "location": "Glow Studio"}
+  },
+  {
+    "model": "services.service",
+    "pk": 7,
+    "fields": {"provider": 2, "title": "Phone Screen Repair", "description": "Fix cracked screens fast and affordable.", "price": "50.00", "location": "TechFix Desk"}
   }
 ]
