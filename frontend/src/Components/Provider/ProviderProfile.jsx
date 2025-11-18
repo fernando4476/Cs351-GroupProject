@@ -9,6 +9,7 @@ export default function ProviderProfile() {
     displayName: "",
     about: "",
     phone: "",
+    image: "",
     hours: {
       MONDAY: "9:00 AM - 5:00 PM",
       TUESDAY: "9:00 AM - 5:00 PM",
@@ -49,6 +50,17 @@ export default function ProviderProfile() {
     }));
   };
 
+  const handlePhotoChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handleInputChange("image", reader.result.toString());
+    };
+    reader.readAsDataURL(file);
+  };
+
   const addService = () => {
     setFormData(prev => ({
       ...prev,
@@ -74,6 +86,7 @@ export default function ProviderProfile() {
     };
     
     localStorage.setItem(`provider::${providerData.id}`, JSON.stringify(providerData));
+    window.dispatchEvent(new Event("providersUpdated"));
     
     // Redirect to the new provider profile
     navigate(`/provider/${providerData.id}`);
@@ -113,6 +126,36 @@ export default function ProviderProfile() {
                 placeholder="e.g., Cutz by Jay"
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label>Profile Photo</label>
+              <div className="photo-upload-row">
+                <div className="photo-preview">
+                  {formData.image ? (
+                    <img src={formData.image} alt="Preview" />
+                  ) : (
+                    <div className="photo-placeholder-sm">👤</div>
+                  )}
+                </div>
+                <div className="photo-actions">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                  />
+                  {formData.image && (
+                    <button
+                      type="button"
+                      className="clear-photo-btn"
+                      onClick={() => handleInputChange("image", "")}
+                    >
+                      Remove photo
+                    </button>
+                  )}
+                  <small>Square images look best. This preview will appear on your profile.</small>
+                </div>
+              </div>
             </div>
 
             <div className="form-group">

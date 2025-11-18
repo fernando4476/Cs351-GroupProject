@@ -1,20 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import BookingModal from "../Booking/BookingModal.jsx";
+import { servicesData } from "../../data/services.js";
+import "./ProviderView.css";
 
 export default function Provider() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   useEffect(() => {
     // Load provider data from localStorage
     const providerData = localStorage.getItem(`provider::${id}`);
     if (providerData) {
       setProvider(JSON.parse(providerData));
+    } else {
+      const fallback = servicesData.find((service) => service.id === id);
+      if (fallback) {
+        setProvider(fallback);
+      }
     }
     setLoading(false);
   }, [id]);
+
+  const openBooking = (service) => {
+    setSelectedService(service || provider?.services?.[0]);
+    setBookingOpen(true);
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -31,62 +46,126 @@ export default function Provider() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <button onClick={() => navigate("/")}>← Back to Services</button>
+    <div className="provider-page">
+      <button className="back-link" onClick={() => navigate("/")}>
+        ← Back to Services
+      </button>
 
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1>{provider.displayName}</h1>
-      </div>
-      
-      {/* About Section */}
-      {provider.about && (
-        <div style={{ background: '#f8f9fa', padding: '30px', borderRadius: '12px', marginBottom: '30px' }}>
-          <h2>About</h2>
-          <p>{provider.about}</p>
-        </div>
-      )}
-
-      {/* Contact Information */}
-      <div style={{ background: '#e8f5e8', padding: '30px', borderRadius: '12px', marginBottom: '30px' }}>
-        <h2>Contact Information</h2>
-        {provider.phone && <p><strong>Phone:</strong> {provider.phone}</p>}
-        
-        <h3 style={{ marginTop: '20px' }}>Business Hours</h3>
-        {provider.hours && Object.entries(provider.hours).map(([day, hours]) => (
-          <div key={day} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0' }}>
-            <span>{day}:</span>
-            <span>{hours}</span>
+      <div className="provider-grid">
+        <section className="provider-card">
+          <div className="provider-photo">
+            {provider.image ? (
+              <img src={provider.image} alt={provider.displayName} />
+            ) : (
+              <div className="photo-placeholder" aria-label="Profile placeholder" />
+            )}
           </div>
-        ))}
-      </div>
 
-      {/* Services */}
-      {provider.services && provider.services[0]?.name && (
-        <div style={{ marginBottom: '30px' }}>
-          <h2>Services</h2>
-          {provider.services.map((service, index) => (
-            service.name && (
-              <div key={index} style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3>{service.name}</h3>
-                  <span style={{ fontWeight: 'bold', color: '#6C9E7D' }}>${service.price}</span>
-                </div>
-                {service.description && <p>{service.description}</p>}
-                {service.duration && <p><small>Duration: {service.duration} minutes</small></p>}
-                <button style={{ background: '#6C9E7D', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '20px' }}>
-                  Book This Service
-                </button>
+          <div className="provider-info">
+            <h1>{provider.displayName}</h1>
+            <p className="provider-subtitle">{provider.category || "Custom service"}</p>
+            {provider.about && (
+              <p className="provider-tagline">{provider.about}</p>
+            )}
+            <div className="provider-metrics">
+              <span className="metric-star">★</span>
+              <span className="metric-new">New</span>
+              <span className="metric-dot">•</span>
+              <span className="metric-text">
+                {provider.reviews || 0} reviews
+              </span>
+              <span className="metric-divider">|</span>
+              <span className="metric-score">{provider.rating || 100}</span>
+            </div>
+            <p className="provider-category-label">CUSTOM</p>
+          </div>
+
+          <div className="services-section">
+            <h2>Services</h2>
+            <p className="services-subtitle">Popular Services</p>
+
+            {provider.services && provider.services[0]?.name ? (
+              provider.services.map(
+                (service, index) =>
+                  service.name && (
+                    <div key={index} className="service-row">
+                      <div>
+                        <p className="service-label">
+                          {service.category || provider.category || "Service"}
+                        </p>
+                        <h3>{service.name}</h3>
+                        {service.description && (
+                          <p className="service-desc">{service.description}</p>
+                        )}
+                      </div>
+                      <div className="service-meta">
+                        <div className="service-price-block">
+                          <span className="service-price">
+                            ${service.price || provider.price || 0}
+                          </span>
+                          {service.duration && (
+                            <span className="service-price-sub">
+                              {service.duration}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          className="book-chip"
+                          onClick={() => openBooking(service)}
+                        >
+                          book
+                        </button>
+                      </div>
+                    </div>
+                  )
+              )
+            ) : (
+              <p className="empty-text">Services coming soon.</p>
+            )}
+          </div>
+
+          <div className="primary-cta">
+            <button onClick={() => openBooking(provider.services?.[0])}>
+              Book Appointment
+            </button>
+          </div>
+        </section>
+
+        <aside className="provider-sidecard">
+          <div className="map-placeholder" aria-hidden="true" />
+          <div className="sidecard-body">
+            <h2>About</h2>
+            <p className="sidecard-text">
+              {provider.about || "UIC student-run service"}
+            </p>
+
+            <div className="sidecard-hours">
+              <p className="hours-label">contact & business hours</p>
+              {provider.phone && (
+                <p className="sidecard-phone">
+                  Phone: <span>{provider.phone}</span>
+                </p>
+              )}
+              <div className="hours-table">
+                {provider.hours &&
+                  Object.entries(provider.hours).map(([day, hours]) => (
+                    <div key={day} className="hours-row">
+                      <span>{day}</span>
+                      <span>{hours}</span>
+                    </div>
+                  ))}
               </div>
-            )
-          ))}
-        </div>
-      )}
-
-      <div style={{ textAlign: 'center' }}>
-        <button style={{ background: '#6C9E7D', color: 'white', border: 'none', padding: '15px 40px', borderRadius: '25px', fontSize: '18px' }}>
-          Book Appointment
-        </button>
+            </div>
+          </div>
+        </aside>
       </div>
+
+      <BookingModal
+        open={bookingOpen}
+        provider={provider}
+        service={selectedService}
+        onClose={() => setBookingOpen(false)}
+      />
     </div>
   );
 }
