@@ -1,7 +1,19 @@
 # --- Virtual Environment ---
+backend/venv/
 venv/
 env/
 
 # --- Environment / Secrets ---
 .env
+
+#Python cache
+__pycache__/
+*.pyc
+
+# Node / React (frontend)
+node_modules/
+dist/
+
+#OS File
+.DS_Store
 
