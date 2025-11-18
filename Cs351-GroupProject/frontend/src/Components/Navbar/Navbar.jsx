@@ -109,14 +109,15 @@ export const Navbar = () => {
       <img src={logo} alt="logo" className="logo" />
 
       <ul>
-        {/* Always visible */}
-        <li>
-          <Link to="/become-provider">Become a Provider</Link>
-        </li>
-
         {/* ✅ Logged in view */}
         {isLoggedIn ? (
           <>
+            <li>
+              <Link to="/become-provider" className="btn">
+                Become a Provider
+              </Link>
+            </li>
+
             <li>
               <button
                 className="btn"
