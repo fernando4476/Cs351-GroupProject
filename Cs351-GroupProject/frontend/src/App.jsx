@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useMemo, useState } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar.jsx";
 import { Hero } from "./Components/Hero/Hero.jsx";
 import Categories from "./Components/Categories/Categories.jsx";
@@ -13,23 +13,58 @@ import Feedback from "./Pages/Feedback.jsx";
 import AccountDetails from "./Pages/Profile/AccountDetails.jsx";
 import Settings from "./Pages/Profile/Settings.jsx";
 import Reviews from "./Pages/Profile/Reviews.jsx";
+import SearchResults from "./Pages/SearchResults.jsx";
+import { useProviders } from "./hooks/useProviders";
 
-function Home() {
+const useFilteredProviders = (providers, query) => {
+  return useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return providers;
+
+    return providers.filter((service) => {
+      const haystack = [
+        service.displayName,
+        service.category,
+        service.description,
+        ...(service.tags || []),
+        ...(service.services?.map((s) => s.name) || []),
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(normalized);
+    });
+  }, [providers, query]);
+};
+
+function Home({ providers }) {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+  const filtered = useFilteredProviders(providers, query);
+
+  const handleSearch = (value) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    navigate(`/search?q=${encodeURIComponent(trimmed)}`);
+  };
+
   return (
     <div>
       <Navbar />
-      <Hero />
-      <Categories />
-      <Programs />
+      <Hero query={query} onQueryChange={setQuery} onSearch={handleSearch} />
+      <Categories onSelectCategory={handleSearch} />
+      <Programs services={filtered.slice(0, 3)} fallback={providers.slice(0, 3)} />
     </div>
   );
 }
 
 export default function App() {
+  const providers = useProviders();
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home providers={providers} />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/provider/:id" element={<Provider />} />
         <Route path="/become-provider" element={<ProviderProfile />} />
@@ -39,6 +74,7 @@ export default function App() {
         <Route path="/account-details" element={<AccountDetails />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/reviews" element={<Reviews />} />
+        <Route path="/search" element={<SearchResults providers={providers} />} />
       </Routes>
     </BrowserRouter>
   );
