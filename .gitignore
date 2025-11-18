@@ -5,3 +5,14 @@ env/
 # --- Environment / Secrets ---
 .env
 
+backend/venv/
+venv/
+__pycache__/
+*.py[cod]
+frontend/node_modules/
+backend/venv/
+venv/
+__pycache__/
+*.py[cod]
+frontend/node_modules/
+backend/venv/
