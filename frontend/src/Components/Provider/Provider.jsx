@@ -124,11 +124,6 @@ export default function Provider() {
             )}
           </div>
 
-          <div className="primary-cta">
-            <button onClick={() => openBooking(provider.services?.[0])}>
-              Book Appointment
-            </button>
-          </div>
         </section>
 
         <aside className="provider-sidecard">

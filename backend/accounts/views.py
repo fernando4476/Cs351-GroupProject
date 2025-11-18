@@ -17,7 +17,8 @@ from django.contrib.auth import authenticate
 from .models import CustomerProfile, ServiceProviderProfile
 from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer
 from rest_framework import generics
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
 from rest_framework import filters
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -148,6 +149,23 @@ class LoginView(View):
             "access": access_token,
             "refresh": str(refresh)
         })
+
+#create provider profile 
+class ServiceProviderProfileCreateView(generics.CreateAPIView):
+    serializer_class = ServiceProviderProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        existing = getattr(request.user, "serviceproviderprofile", None)
+        if existing:
+            serializer = self.get_serializer(existing)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
 
 
 class CustomerProfileListView(generics.ListAPIView):

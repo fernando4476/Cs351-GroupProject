@@ -1,21 +1,21 @@
-import React from 'react'
-import './Categories.css'
+import React from 'react';
+import './Categories.css';
 
-const categories = [
-  { name: 'Hair'},
-  { name: 'tutoring'},
-  { name: 'Photography'},
-  { name: 'Tech Help'},
-  { name: 'Events'}
+export const DEFAULT_CATEGORIES = [
+  { name: 'Hair' },
+  { name: 'tutoring' },
+  { name: 'Photography' },
+  { name: 'Tech Help' },
+  { name: 'Events' }
 ];
 
-export const Categories = ({ onSelectCategory }) => {
+export const Categories = ({ onSelectCategory, items = DEFAULT_CATEGORIES }) => {
   return (
     <section className="categories">
       <div className="categories-header">
         <h2>recommended</h2>
         <div className="categories-grid">
-          {categories.map((category, index) => (
+          {items.map((category, index) => (
             <button
               key={index}
               className="category-item"
@@ -31,6 +31,6 @@ export const Categories = ({ onSelectCategory }) => {
         </div>
       </div>
     </section>
-  )
-}
-export default Categories
+  );
+};
+export default Categories;

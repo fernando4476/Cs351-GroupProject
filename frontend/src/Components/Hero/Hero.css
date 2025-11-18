@@ -12,7 +12,8 @@
   align-items: center;
   justify-content: center;
   position: relative;           
-  margin-top: 80px; /* Reduced to match new navbar height */
+  margin-top: 0;
+  padding-top: 70px; /* Offset fixed navbar without leaving a visible gap */
 }
 
 .hero-text{ 

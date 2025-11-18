@@ -1,4 +1,4 @@
-x.provider-form-container {
+.provider-form-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem 1rem;
@@ -14,6 +14,15 @@ x.provider-form-container {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   width: 100%;
+}
+
+.back-link {
+  border: none;
+  background: transparent;
+  color: #1f2937;
+  font-weight: 600;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .form-header {
@@ -336,6 +345,29 @@ x.provider-form-container {
 .submit-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.form-status {
+  margin-bottom: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.form-status--error {
+  color: #e53e3e;
+}
+
+.form-status--success {
+  color: #2f855a;
+}
+
+.form-status--info {
+  color: #2b6cb0;
 }
 
 /* Responsive Design */

@@ -20,3 +20,4 @@ class ServiceProviderProfile(models.Model):
 
     def __str__(self):
         return f"Provider Profile for {self.business_name} ({self.user.username})"
+

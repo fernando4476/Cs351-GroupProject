@@ -6,11 +6,19 @@ from rest_framework.views import APIView
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
-from .models import Service, RecentServiceView
-from .serializers import ServiceSerializer, ServiceDetailSerializer, RecentViewInSerializer, ServiceCardSerializer
+from .models import Service, RecentServiceView, Booking
+from .serializers import (
+    ServiceSerializer,
+    ServiceDetailSerializer,
+    RecentViewInSerializer,
+    ServiceCardSerializer,
+    ReviewSerializer,
+    BookingSerializer,
+    BookingCreateSerializer,
+)
 from .trie import Trie
 from .recent import push_view, get_recent_list
-from .permissions import IsServiceProvider
+from .permissions import IsServiceProvider, IsServiceOwnerOrReadOnly
 from rest_framework import filters
 
 
@@ -32,14 +40,48 @@ class ServiceListCreateView(generics.ListCreateAPIView):
         )
     def perform_create(self, serializer):
         # Automatically assign the provider and initialize rating to 0
-        serializer.save(provider=self.request.user.serviceproviderprofile)
+        serializer.save(provider=self.request.user)
+    
+
     
 #returns the service info 
-class ServiceDetailView(generics.RetrieveAPIView):
+class ServiceDetailView(generics.RetrieveDestroyAPIView):
     queryset = Service.objects.annotate(rating=Avg("review__rating"))
     serializer_class = ServiceDetailSerializer
-   
+    permission_classes = [IsServiceOwnerOrReadOnly]
+class ServiceReviewCreateView(generics.CreateAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        service = get_object_or_404(Service, pk=self.kwargs["pk"])
+        serializer.save(user=self.request.user, service=service)
     
+class ServiceBookingView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        service = get_object_or_404(Service, pk=pk)
+        serializer = BookingCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        slot_date = serializer.validated_data["slot_date"]
+        slot_time = serializer.validated_data["slot_time"]
+
+        if Booking.objects.filter(
+            service=service, slot_date=slot_date, slot_time=slot_time
+        ).exists():
+            return Response(
+                {"error": "This day and time are already booked."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        booking = Booking.objects.create(
+            service=service,
+            user=request.user,
+            **serializer.validated_data,
+        )
+        output = BookingSerializer(booking).data
+        return Response(output, status=status.HTTP_201_CREATED)
 
 
 class AutocompleteAPIView(APIView):
@@ -78,11 +120,13 @@ class RecentList(APIView):
     def get(self, request):
         ids = get_recent_list(request.user, limit=20)
         # fetch in the same order as skip list:
-        svc_map = {s.id: s for s in Service.objects.filter(id__in=ids)}
+        svc_map = {
+            s.id: s
+            for s in Service.objects.filter(id__in=ids).annotate(
+                rating=Avg("review__rating")
+            )
+        }
         ordered = [svc_map[i] for i in ids if i in svc_map]
         data = ServiceCardSerializer(ordered, many=True).data
         return Response({"results": data})
     
-
-
-

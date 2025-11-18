@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
-import logo from "../../assets/logo.png";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -106,7 +105,6 @@ export const Navbar = () => {
 
   return (
     <nav className="container" style={{ position: "relative" }}>
-      <img src={logo} alt="logo" className="logo" />
 
       <ul>
         {/* ✅ Logged in view */}

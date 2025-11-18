@@ -5,61 +5,79 @@ import "./Programs.css";
 const DEFAULT_IMAGE =
   "https://via.placeholder.com/600x380.png?text=UIC+Marketplace";
 
-export default function Programs({
-  services = [],
-  fallback = [],
-  query,
-}) {
+const mapToCard = (service) => {
+  const isApiService = !!service?.title && !service?.displayName;
+  const title =
+    service?.displayName || service?.business_name || service?.title || "Service";
+
+  return {
+    id: service?.id,
+    title,
+    subtitle: isApiService ? service?.provider_name : service?.category,
+    image: service?.image || DEFAULT_IMAGE,
+    price: service?.price,
+    rating: service?.rating,
+    reviews: service?.reviews,
+    nextAvailable: service?.nextAvailable,
+    description: service?.description,
+    link: isApiService ? `/services/${service?.id}` : `/provider/${service?.id}`,
+  };
+};
+
+export default function Programs({ services = [], fallback = [], query }) {
   const listToRender = services.length > 0 ? services : fallback;
   const hasResults = listToRender.length > 0;
 
-  return (
-    <section className="programs-section">
-      {hasResults ? (
-        <div className="cards">
-          {listToRender.map((service) => (
-            <article key={service.id} className="card">
-              <Link to={`/provider/${service.id}`} className="card-link">
-                <div className="card-media">
-                  <img
-                    src={service.image || DEFAULT_IMAGE}
-                    alt={service.displayName}
-                  />
-                </div>
-
-                <div className="card-body">
-                  <h3 className="card-title">
-                    {service.displayName}
-                    {service.category && (
-                      <span className="card-sub"> - {service.category}</span>
-                    )}
-                  </h3>
-
-                  <div className="card-meta">
-                    <span className="star">★ {service.rating || "New"}</span>
-                    <span className="sep">•</span>
-                    <span>{service.reviews || 0} reviews</span>
-                    <span className="sep">|</span>
-                    <span>Top Rated</span>
-                  </div>
-
-                  <div className="card-cta">
-                    <span className="pill time">
-                      {service.nextAvailable || "Today at 4:00 pm"}
-                    </span>
-                    <span className="btn book">View profile</span>
-                  </div>
-                </div>
-              </Link>
-            </article>
-          ))}
-        </div>
-      ) : query ? (
+  if (!hasResults && query) {
+    return (
+      <section className="programs-section">
         <div className="no-results">
           <h3>No results for “{query}”</h3>
           <p>Try searching another term like “hair” or “tutor”.</p>
         </div>
-      ) : null}
+      </section>
+    );
+  }
+
+  if (!hasResults) return null;
+
+  const cardData = listToRender.map(mapToCard);
+
+  return (
+    <section className="programs-section">
+      <div className="cards">
+        {cardData.map((card) => (
+          <article key={card.id} className="card">
+            <Link to={card.link} className="card-link">
+              <div className="card-media">
+                <img src={card.image} alt={card.title} />
+              </div>
+
+              <div className="card-body">
+                <h3 className="card-title">
+                  {card.title}
+                  {card.subtitle && <span className="card-sub"> - {card.subtitle}</span>}
+                </h3>
+
+                <div className="card-meta">
+                  <span className="star">★ {card.rating || "New"}</span>
+                  <span className="sep">•</span>
+                  <span>{card.reviews || 0} reviews</span>
+                  <span className="sep">|</span>
+                  <span>{card.description ? "Popular" : "Top rated"}</span>
+                </div>
+
+                <div className="card-cta">
+                  <span className="pill time">
+                    {card.nextAvailable || "Book this week"}
+                  </span>
+                  <span className="btn book">View details</span>
+                </div>
+              </div>
+            </Link>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }

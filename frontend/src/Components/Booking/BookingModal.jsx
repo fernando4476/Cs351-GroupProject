@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./BookingModal.css";
+import { buildApiUrl } from "../../utils/api";
+import { getAccessToken, getAuthHeaders } from "../../utils/auth";
 
 const defaultTimeSlots = ["1:00 PM", "1:40 PM", "2:20 PM", "3:00 PM", "3:40 PM"];
 
@@ -25,10 +27,21 @@ const buildUpcomingDays = (count = 5) => {
   });
 };
 
-export default function BookingModal({ open, provider, service, onClose }) {
+export default function BookingModal({
+  open,
+  provider,
+  service,
+  onClose,
+  serviceId,
+  useBackendBooking = false,
+  onBookingComplete,
+}) {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [selectedTime, setSelectedTime] = useState("");
   const [status, setStatus] = useState("");
+  const [statusType, setStatusType] = useState("success");
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const days = useMemo(() => buildUpcomingDays(), [open]);
 
@@ -40,6 +53,9 @@ export default function BookingModal({ open, provider, service, onClose }) {
       setSelectedDayIndex(0);
       setSelectedTime(timeSlots[0] || "1:00 PM");
       setStatus("");
+      setStatusType("success");
+      setNotes("");
+      setSubmitting(false);
     }
   }, [open, provider, timeSlots]);
 
@@ -51,12 +67,68 @@ export default function BookingModal({ open, provider, service, onClose }) {
   const activeService = service || provider.services?.[0];
   const total = activeService?.price ?? provider.price ?? 0;
 
-  const confirmBooking = () => {
-    setStatus(
-      `Booked ${activeService?.name ?? provider.displayName} on ${
-        activeDay?.weekday
-      } ${activeDay?.dateNumber} at ${selectedTime}.`
-    );
+  const confirmBooking = async () => {
+    if (!useBackendBooking) {
+      setStatus(
+        `Booked ${activeService?.name ?? provider.displayName} on ${
+          activeDay?.weekday
+        } ${activeDay?.dateNumber} at ${selectedTime}.`
+      );
+      setStatusType("success");
+      return;
+    }
+
+    const token = getAccessToken();
+    if (!token) {
+      setStatus("Please sign in to book this service.");
+      setStatusType("error");
+      return;
+    }
+
+    if (!serviceId) {
+      setStatus("Missing service information.");
+      setStatusType("error");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setStatus("");
+      const response = await fetch(
+        buildApiUrl(`/services/${serviceId}/book/`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+          },
+          body: JSON.stringify({
+            slot_date: activeDay?.iso,
+            slot_time: selectedTime,
+            notes,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          data?.detail || data?.error || "Unable to confirm booking"
+        );
+      }
+
+      const data = await response.json();
+      setStatus(
+        `Booking confirmed for ${activeDay.weekday}, ${activeDay.dateNumber} at ${selectedTime}.`
+      );
+      setStatusType("success");
+      onBookingComplete?.(data);
+    } catch (err) {
+      setStatus(err.message || "Booking failed");
+      setStatusType("error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -112,14 +184,29 @@ export default function BookingModal({ open, provider, service, onClose }) {
 
         {selectedTime && activeDay && (
           <p className="booking-detail">
-            {activeDay.weekday} {activeDay.dateNumber} @ {selectedTime}
+            {activeDay.weekday} {activeDay.dateNumber} at {selectedTime}
           </p>
         )}
 
-        {status && <p className="booking-status">{status}</p>}
+        <textarea
+          className="booking-notes"
+          placeholder="Add any notes for your provider (optional)"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
 
-        <button className="confirm-btn" onClick={confirmBooking}>
-          Confirm &amp; pay in person
+        {status && (
+          <p className={`booking-status booking-status--${statusType}`}>
+            {status}
+          </p>
+        )}
+
+        <button
+          className="confirm-btn"
+          onClick={confirmBooking}
+          disabled={submitting}
+        >
+          {submitting ? "Booking..." : "Confirm & pay in person"}
         </button>
       </div>
     </div>
