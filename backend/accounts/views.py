@@ -180,6 +180,14 @@ class ServiceProviderProfileListView(generics.ListAPIView):
     search_fields = ['business_name', 'description', 'user__first_name']
 
 
+#get single user accoutn detail
+class UserAccountDetailsView(generics.RetrieveAPIView):
+    serializer_class = CustomerProfileSerializer
+    lookup_field = 'user_id'
+
+    def get_object(self):
+        user_id = self.kwargs.get(self.lookup_field)
+        return CustomerProfile.objects.get(user__id=user_id)
 
 #update user photo
 class UpdateProfilePhotoView(generics.UpdateAPIView):
