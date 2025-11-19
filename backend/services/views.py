@@ -71,7 +71,7 @@ class RecentViewRecord(APIView):
             user=request.user, service=svc, viewed_at=timezone.now()
         )
         # update skip list
-        push_view(request.user, service_id)
+        push_view(request.user, svc)
         return Response({"ok": True})
 
 class RecentList(APIView):
@@ -85,6 +85,28 @@ class RecentList(APIView):
         data = ServiceCardSerializer(ordered, many=True).data
         return Response({"results": data})
     
+class UserAppointmentsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        appts = Appointment.objects.filter(user=request.user).order_by("appointment_time")
+        data = AppointmentSerializer(appts, many=True).data
+        return Response({"appointments": data})
+
+
+class ProviderAppointmentsView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsServiceProvider]
+
+    def get(self, request):
+        # Get all services owned by provider
+        services = Service.objects.filter(provider=request.user)
+
+        # Get all appointments belonging to those services
+        appts = Appointment.objects.filter(service__in=services).order_by("appointment_time")
+
+        data = AppointmentSerializer(appts, many=True).data
+        return Response({"appointments": data})
+
 
 
 

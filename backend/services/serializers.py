@@ -41,3 +41,19 @@ class ServiceCardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'user', 'rating', 'comment', 'created_at']
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    service_title = serializers.CharField(source="service.title", read_only=True)
+    provider_name = serializers.CharField(source="service.provider.username", read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = [
+            "id",
+            "service",
+            "service_title",
+            "provider_name",
+            "appointment_time",
+            "status",
+            "created_at",
+        ]
