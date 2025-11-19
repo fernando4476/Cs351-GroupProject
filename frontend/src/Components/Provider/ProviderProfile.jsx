@@ -279,12 +279,12 @@ export default function ProviderProfile() {
             </div>
 
             <div className="form-group">
-              <label>Where do you work?</label>
+              <label>Location</label>
               <input
                 type="text"
                 value={formData.location}
                 onChange={(e) => handleInputChange("location", e.target.value)}
-                placeholder="e.g., Near SCE or remote sessions"
+                placeholder="e.g., Fantanos, 750 S Halsted St, Chicago"
               />
             </div>
           </div>

@@ -21,6 +21,11 @@ class Service(models.Model):
     def business_name(self):
         return self.provider.serviceproviderprofile.business_name
 
+    @property
+    def provider_phone(self):
+        profile = getattr(self.provider, "serviceproviderprofile", None)
+        return profile.phone if profile and profile.phone else ""
+
 
 class RecentServiceView(models.Model):
     user = models.ForeignKey(

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar.jsx";
 import BookingModal from "../Components/Booking/BookingModal.jsx";
@@ -20,6 +20,7 @@ const DEFAULT_HOURS = {
 };
 
 export default function ServiceDetail() {
+  const googleMapsKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   const { id } = useParams();
   const navigate = useNavigate();
   const [service, setService] = useState(null);
@@ -144,6 +145,17 @@ export default function ServiceDetail() {
       }
     : null;
 
+  const providerPhone = service?.provider_phone?.trim() || "";
+  const providerPhoneLink = providerPhone
+    ? `tel:${providerPhone.replace(/[^+\d]/g, "")}`
+    : "";
+
+  const mapSrc = useMemo(() => {
+    if (!googleMapsKey || !service?.location) return null;
+    const encodedLocation = encodeURIComponent(service.location);
+    return `https://www.google.com/maps/embed/v1/place?key=${googleMapsKey}&q=${encodedLocation}`;
+  }, [googleMapsKey, service?.location]);
+
   return (
     <div>
       <Navbar />
@@ -246,7 +258,27 @@ export default function ServiceDetail() {
 
             <aside className="service-sidecard">
               <div className="sidecard-body">
-                <div className="map-placeholder" aria-hidden="true" />
+                <div className="map-container">
+                  {mapSrc ? (
+                    <iframe
+                      title={`Map showing ${service.location}`}
+                      src={mapSrc}
+                      loading="lazy"
+                      allowFullScreen
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  ) : (
+                    <div className="map-placeholder" aria-hidden="true" />
+                  )}
+                  {service.location && (
+                    <p className="map-location">
+                      <span className="map-location__pin" aria-hidden="true">
+                        📍
+                      </span>
+                      <span>{service.location}</span>
+                    </p>
+                  )}
+                </div>
                 <h2>About</h2>
                 <p className="sidecard-text">
                   {service.description || "UIC student-run service"}
@@ -254,11 +286,16 @@ export default function ServiceDetail() {
 
                 <div className="sidecard-hours">
                   <p className="hours-label">contact & business hours</p>
-                  {service.provider_name && (
-                    <p className="sidecard-phone">
-                      Provider: <span>{service.provider_name}</span>
-                    </p>
-                  )}
+                  <p className="sidecard-phone">
+                    Phone:{" "}
+                    <span>
+                      {providerPhone ? (
+                        <a href={providerPhoneLink}>{providerPhone}</a>
+                      ) : (
+                        "Not provided"
+                      )}
+                    </span>
+                  </p>
                   <div className="hours-table">
                     {Object.entries(service.hours || DEFAULT_HOURS).map(
                       ([day, hours]) => (

@@ -16,6 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "local-dev-secret-key")
 
+
 # DEVELOPMENT ONLY — TURN OFF IN PRODUCTION
 DEBUG = True
 
