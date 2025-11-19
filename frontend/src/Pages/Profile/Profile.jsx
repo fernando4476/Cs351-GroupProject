@@ -1,5 +1,6 @@
 import React from "react";
 import "./Profile.css";
+import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
@@ -7,69 +8,91 @@ export default function Profile() {
 
   const name = localStorage.getItem("name") || "UIC Student";
   const email = localStorage.getItem("email") || "student@uic.edu";
+  const profilePic = localStorage.getItem("profilePic") || logo;
 
-  // Placeholder phone (backend doesn’t store it yet)
-  const phone = "(add phone in future)";
+  /* PROFILE UPLOAD */
+  const handleProfileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      localStorage.setItem("profilePic", reader.result);
+      window.location.reload();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  /* SIGN OUT */
+  const handleSignOut = () => {
+    localStorage.clear();
+    navigate("/");
+    window.location.reload();
+  };
 
   return (
-    <div className="profile-container">
-      <div className="profile-header">
-        {/* Placeholder silhouette image */}
-        <img
-          src="https://via.placeholder.com/80?text=👤"
-          alt="Profile"
-          className="profile-img"
-        />
-        <div>
-          <h2>{name}</h2>
-          <p>{email}</p>
-          <p style={{ fontSize: "14px", color: "#555" }}>{phone}</p>
-        </div>
+    <div className="profile-page">
+
+      {/* TOP BAR */}
+      <div className="profile-topbar">
+        <button className="back-btn" onClick={() => navigate("/")}>
+          ← Home
+        </button>
+
+        <button className="signout-btn" onClick={handleSignOut}>
+          Sign Out
+        </button>
       </div>
 
-      <div className="profile-menu">
-        <div
-          className="profile-item"
-          onClick={() => navigate("/account-details")}
-        >
-          <span>Account Details</span>
-          <span>→</span>
+      {/* MAIN LAYOUT */}
+      <div className="profile-content">
+
+        {/* LEFT PANEL */}
+        <div className="profile-left">
+          <label htmlFor="profileUpload" className="profile-img-wrapper">
+            <img src={profilePic} className="profile-img-large" />
+            <div className="profile-img-change">Change</div>
+          </label>
+
+          <input
+            id="profileUpload"
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleProfileUpload}
+          />
+
+          <h2 className="profile-name-large">{name}</h2>
+          <p className="profile-email-large">{email}</p>
         </div>
 
-        <div className="profile-item" onClick={() => navigate("/feedback")}>
-          <span>Feedback & support</span>
-          <span>→</span>
-        </div>
+        {/* RIGHT BUTTON PANEL */}
+        <div className="profile-right">
 
-        <div className="profile-item" onClick={() => navigate("/reviews")}>
-          <span>Reviews</span>
-          <span>→</span>
-        </div>
+          <button className="profile-btn-big" onClick={() => navigate("/account-details")}>
+            Account Details
+          </button>
 
-        <div className="profile-item" onClick={() => navigate("/settings")}>
-          <span>Settings</span>
-          <span>→</span>
-        </div>
+          <button className="profile-btn-big" onClick={() => navigate("/settings")}>
+            Settings
+          </button>
 
-        <div className="profile-item" onClick={() => navigate("/about-uic")}>
-          <span>About UIC</span>
-          <span>→</span>
-        </div>
+          <button className="profile-btn-big" onClick={() => navigate("/appointments")}>
+            Appointments
+          </button>
 
-        <div
-          className="profile-item"
-          onClick={() => {
-            // simple frontend logout to match Navbar
-            localStorage.removeItem("access");
-            localStorage.removeItem("refresh");
-            localStorage.removeItem("name");
-            localStorage.removeItem("email");
-            navigate("/");
-            window.location.reload();
-          }}
-        >
-          <span>Sign out</span>
-          <span>→</span>
+          <button className="profile-btn-big" onClick={() => navigate("/about-uic")}>
+            About UIC
+          </button>
+
+          <button className="profile-btn-big provider" onClick={() => navigate("/become-provider")}>
+            Provider Account
+          </button>
+
+          <button className="profile-btn-big" onClick={() => navigate("/feedback")}>
+            Feedback & Support
+          </button>
+
         </div>
       </div>
     </div>

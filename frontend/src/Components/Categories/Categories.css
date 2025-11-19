@@ -27,6 +27,7 @@
 }
 
 .category-item {
+    border: none;
     background: #f8f9fa;
     padding: 20px 15px;
     border-radius: 12px;
@@ -34,8 +35,13 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border: 2px solid transparent;
+    font: inherit;
 }
 
+.category-item:focus-visible {
+    outline: 3px solid #6c9e7d;
+    outline-offset: 2px;
+}
 .category-item:hover {
     border-color: #08003a;
     transform: translateY(-3px);

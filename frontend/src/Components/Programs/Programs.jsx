@@ -1,65 +1,80 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./Programs.css";
 
-import barber from "../../assets/barber.jpeg";
-import tutoring from "../../assets/tutoring.jpeg";
-import salsa from "../../assets/salsa.jpeg";
+const DEFAULT_IMAGE =
+  "https://via.placeholder.com/600x380.png?text=UIC+Marketplace";
 
-const items = [
-  {
-    img: barber,
-    title: "cutz by Jay",
-    sub: "student barber",
-    rating: "4.0",
-    reviews: 87,
-    time: "Today at 4:00 pm",
-  },
-  {
-    img: tutoring,
-    title: "Tutoring with Sarah",
-    sub: "",
-    rating: "4.0",
-    reviews: 87,
-    time: "Today at 4:00 pm",
-  },
-  {
-    img: salsa,
-    title: "Uic salsa dance",
-    sub: "",
-    rating: "4.0",
-    reviews: 87,
-    time: "Today at 7:00 pm",
-  },
-];
+const mapToCard = (service) => {
+  const isApiService = !!service?.title && !service?.displayName;
+  const title =
+    service?.displayName || service?.business_name || service?.title || "Service";
 
-export default function Programs() {
+  return {
+    id: service?.id,
+    title,
+    subtitle: isApiService ? service?.provider_name : service?.category,
+    image: service?.image || DEFAULT_IMAGE,
+    price: service?.price,
+    rating: service?.rating,
+    reviews: service?.reviews,
+    nextAvailable: service?.nextAvailable,
+    description: service?.description,
+    link: isApiService ? `/services/${service?.id}` : `/provider/${service?.id}`,
+  };
+};
+
+export default function Programs({ services = [], fallback = [], query }) {
+  const listToRender = services.length > 0 ? services : fallback;
+  const hasResults = listToRender.length > 0;
+
+  if (!hasResults && query) {
+    return (
+      <section className="programs-section">
+        <div className="no-results">
+          <h3>No results for “{query}”</h3>
+          <p>Try searching another term like “hair” or “tutor”.</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!hasResults) return null;
+
+  const cardData = listToRender.map(mapToCard);
+
   return (
     <section className="programs-section">
       <div className="cards">
-        {items.map((it) => (
-          <article key={it.title} className="card">
-            <div className="card-media">
-              <img src={it.img} alt={it.title} />
-            </div>
-
-            <div className="card-body">
-              <h3 className="card-title">
-                {it.title} {it.sub && <span className="card-sub">- {it.sub}</span>}
-              </h3>
-
-              <div className="card-meta">
-                <span className="star">★ {it.rating}</span>
-                <span className="sep">•</span>
-                <span>{it.reviews} reviews</span>
-                <span className="sep">|</span>
-                <span>Top Rated</span>
+        {cardData.map((card) => (
+          <article key={card.id} className="card">
+            <Link to={card.link} className="card-link">
+              <div className="card-media">
+                <img src={card.image} alt={card.title} />
               </div>
 
-              <div className="card-cta">
-                <span className="pill time">{it.time}</span>
-                <button className="btn book">Book</button>
+              <div className="card-body">
+                <h3 className="card-title">
+                  {card.title}
+                  {card.subtitle && <span className="card-sub"> - {card.subtitle}</span>}
+                </h3>
+
+                <div className="card-meta">
+                  <span className="star">★ {card.rating || "New"}</span>
+                  <span className="sep">•</span>
+                  <span>{card.reviews || 0} reviews</span>
+                  <span className="sep">|</span>
+                  <span>{card.description ? "Popular" : "Top rated"}</span>
+                </div>
+
+                <div className="card-cta">
+                  <span className="pill time">
+                    {card.nextAvailable || "Book this week"}
+                  </span>
+                  <span className="btn book">View details</span>
+                </div>
               </div>
-            </div>
+            </Link>
           </article>
         ))}
       </div>
