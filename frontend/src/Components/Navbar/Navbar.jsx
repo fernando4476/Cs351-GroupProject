@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
-import logo from "../../assets/logo.png";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -106,17 +105,17 @@ export const Navbar = () => {
 
   return (
     <nav className="container" style={{ position: "relative" }}>
-      <img src={logo} alt="logo" className="logo" />
 
       <ul>
-        {/* Always visible */}
-        <li>
-          <Link to="/become-provider">Become a Provider</Link>
-        </li>
-
         {/* ✅ Logged in view */}
         {isLoggedIn ? (
           <>
+            <li>
+              <Link to="/become-provider" className="btn">
+                Become a Provider
+              </Link>
+            </li>
+
             <li>
               <button
                 className="btn"

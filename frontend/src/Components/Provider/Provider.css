@@ -1,4 +1,4 @@
-x.provider-form-container {
+.provider-form-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem 1rem;
@@ -14,6 +14,15 @@ x.provider-form-container {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   width: 100%;
+}
+
+.back-link {
+  border: none;
+  background: transparent;
+  color: #1f2937;
+  font-weight: 600;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .form-header {
@@ -88,6 +97,57 @@ x.provider-form-container {
   font-size: 0.85rem;
   margin-top: 0.25rem;
   display: block;
+}
+
+.photo-upload-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.photo-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 18px;
+  background: #edf2f7;
+  border: 2px dashed #cbd5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder-sm {
+  font-size: 2rem;
+  color: #a0aec0;
+}
+
+.photo-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.photo-actions input[type="file"] {
+  border: none;
+  padding: 0;
+}
+
+.clear-photo-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #e53e3e;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
 }
 
 /* Business Hours */
@@ -285,6 +345,29 @@ x.provider-form-container {
 .submit-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.form-status {
+  margin-bottom: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.form-status--error {
+  color: #e53e3e;
+}
+
+.form-status--success {
+  color: #2f855a;
+}
+
+.form-status--info {
+  color: #2b6cb0;
 }
 
 /* Responsive Design */
