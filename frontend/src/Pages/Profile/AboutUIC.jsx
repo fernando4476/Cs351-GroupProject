@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function AboutUIC() {
   const navigate = useNavigate();
-
+//this is just a test
   return (
     <div className="about-container">
       <div className="about-card">
