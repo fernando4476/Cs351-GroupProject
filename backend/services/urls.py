@@ -6,7 +6,9 @@ from .views import (
     AutocompleteAPIView,
     RecentViewRecord,   
     RecentList,   
-    ServiceDetailView     
+    ServiceDetailView,
+    UserAppointmentsView,
+    ProviderAppointmentsView,     
 )
 
 urlpatterns = [
@@ -16,4 +18,7 @@ urlpatterns = [
     path('autocomplete/', AutocompleteAPIView.as_view(), name="autocomplete" ),
     path('recent/view/',   RecentViewRecord.as_view(),      name='recent-view'),
     path('recent/',        RecentList.as_view(),            name='recent-list'),
+    # Appointments
+    path('appointments/user/',     UserAppointmentsView.as_view(),     name='user-appointments'),
+    path('appointments/provider/', ProviderAppointmentsView.as_view(), name='provider-appointments'),
 ]

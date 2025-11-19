@@ -13,10 +13,10 @@ def _load_or_build(user):
         sl = SkipList(capacity=CAPACITY)
     return sl
 
-def push_view(user, service_id, ts=None):
+def push_view(user, service, ts=None):
     ts = ts or time.time()
     sl = _load_or_build(user)
-    sl.insert(ts, service_id)
+    sl.insert(ts, service.title)
     cache.set(CACHE_KEY % user.id, sl, TTL)
 
 def get_recent_list(user, limit=20):
