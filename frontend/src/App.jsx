@@ -84,6 +84,9 @@ function Home({ providers, services, servicesLoading, servicesError }) {
     reorderCategories(counts);
     navigate(`/search?q=${encodeURIComponent(trimmed)}`);
   };
+import ProviderAccount from "./Pages/Profile/ProviderAccount.jsx";
+import Appointments from "./Pages/Appointments.jsx";
+
 
   return (
     <div>
@@ -137,6 +140,9 @@ export default function App() {
           }
         />
         <Route path="/services/:id" element={<ServiceDetail />} />
+        <Route path="/account-details" element={<AccountDetails />} />
+        <Route path="/provider-account" element={<ProviderAccount />} />
+        <Route path="/appointments" element={<Appointments />} />
       </Routes>
     </BrowserRouter>
   );
