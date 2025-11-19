@@ -71,7 +71,7 @@ class RecentViewRecord(APIView):
             user=request.user, service=svc, viewed_at=timezone.now()
         )
         # update skip list
-        push_view(request.user, service_id)
+        push_view(request.user, svc)
         return Response({"ok": True})
 
 class RecentList(APIView):
