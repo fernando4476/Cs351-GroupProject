@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Provider.css";
+import { buildApiUrl } from "../../utils/api";
+import { getAuthHeaders } from "../../utils/auth";
 
 export default function ProviderProfile() {
   const navigate = useNavigate();
@@ -9,6 +11,8 @@ export default function ProviderProfile() {
     displayName: "",
     about: "",
     phone: "",
+    image: "",
+    location: "UIC Campus",
     hours: {
       MONDAY: "9:00 AM - 5:00 PM",
       TUESDAY: "9:00 AM - 5:00 PM",
@@ -22,6 +26,8 @@ export default function ProviderProfile() {
       { name: "", description: "", price: "", duration: "" }
     ]
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState({ type: "", message: "" });
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -49,6 +55,17 @@ export default function ProviderProfile() {
     }));
   };
 
+  const handlePhotoChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handleInputChange("image", reader.result.toString());
+    };
+    reader.readAsDataURL(file);
+  };
+
   const addService = () => {
     setFormData(prev => ({
       ...prev,
@@ -63,25 +80,121 @@ export default function ProviderProfile() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const ensureProviderProfile = async () => {
+    const response = await fetch(buildApiUrl("/auth/service-provider/"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({
+        business_name: formData.displayName,
+        description: formData.about,
+        phone: formData.phone,
+      }),
+    });
+
+    if (response.ok) {
+      return response.json();
+    }
+
+    const data = await response.json().catch(() => ({}));
+    const detail =
+      data?.detail || data?.error || "Unable to save provider profile";
+    throw new Error(Array.isArray(detail) ? detail.join(" ") : detail);
+  };
+
+  const createService = async (service) => {
+    const response = await fetch(buildApiUrl("/services/"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({
+        title: service.name.trim(),
+        description:
+          service.description || formData.about || service.name.trim(),
+        price: Number.parseFloat(service.price) || 0,
+        location: formData.location || "UIC Campus",
+        image: formData.image || "",
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      const message = data?.detail || data?.error || "Unable to save service";
+      throw new Error(Array.isArray(message) ? message.join(" ") : message);
+    }
+
+    return response.json();
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Save to localStorage
-    const providerData = {
-      ...formData,
-      id: formData.id.toLowerCase().replace(/\s+/g, '-'),
-      createdAt: new Date().toISOString()
-    };
-    
-    localStorage.setItem(`provider::${providerData.id}`, JSON.stringify(providerData));
-    
-    // Redirect to the new provider profile
-    navigate(`/provider/${providerData.id}`);
+    const token = localStorage.getItem("access");
+    if (!token) {
+      setStatus({
+        type: "error",
+        message: "Please sign in before creating a provider profile.",
+      });
+      return;
+    }
+
+    if (!formData.displayName.trim()) {
+      setStatus({ type: "error", message: "Business name is required." });
+      return;
+    }
+
+    const servicesToCreate = formData.services.filter(
+      (service) => service.name && service.name.trim()
+    );
+
+    if (servicesToCreate.length === 0) {
+      setStatus({
+        type: "error",
+        message: "Add at least one service with a name.",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    setStatus({ type: "info", message: "Publishing your profile..." });
+
+    try {
+      await ensureProviderProfile();
+      const created = [];
+      for (const service of servicesToCreate) {
+        const saved = await createService(service);
+        created.push(saved);
+      }
+      window.dispatchEvent(new Event("providersUpdated"));
+      window.dispatchEvent(new Event("servicesUpdated"));
+      setStatus({
+        type: "success",
+        message: "Profile published! Redirecting to your listing...",
+      });
+      navigate(`/services/${created[0].id}`);
+    } catch (err) {
+      setStatus({
+        type: "error",
+        message: err.message || "Failed to publish provider profile.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="provider-form-container">
       <div className="provider-form">
+        <button
+          type="button"
+          className="back-link"
+          onClick={() => navigate("/")}
+        >
+          ← Back to Home
+        </button>
         <div className="form-header">
           <h1>Become a Service Provider</h1>
           <p>Fill out your information to create your provider profile</p>
@@ -116,6 +229,36 @@ export default function ProviderProfile() {
             </div>
 
             <div className="form-group">
+              <label>Profile Photo</label>
+              <div className="photo-upload-row">
+                <div className="photo-preview">
+                  {formData.image ? (
+                    <img src={formData.image} alt="Preview" />
+                  ) : (
+                    <div className="photo-placeholder-sm">👤</div>
+                  )}
+                </div>
+                <div className="photo-actions">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                  />
+                  {formData.image && (
+                    <button
+                      type="button"
+                      className="clear-photo-btn"
+                      onClick={() => handleInputChange("image", "")}
+                    >
+                      Remove photo
+                    </button>
+                  )}
+                  <small>Square images look best. This preview will appear on your profile.</small>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
               <label>About Your Business</label>
               <textarea
                 value={formData.about}
@@ -132,6 +275,16 @@ export default function ProviderProfile() {
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 placeholder="e.g., 773-123-4567"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Location</label>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) => handleInputChange("location", e.target.value)}
+                placeholder="e.g., Fantanos, 750 S Halsted St, Chicago"
               />
             </div>
           </div>
@@ -216,8 +369,14 @@ export default function ProviderProfile() {
             </div>
           </div>
 
-          <button type="submit" className="submit-btn">
-            Create Provider Profile
+          {status.message && (
+            <p className={`form-status form-status--${status.type}`}>
+              {status.message}
+            </p>
+          )}
+
+          <button type="submit" className="submit-btn" disabled={submitting}>
+            {submitting ? "Publishing..." : "Create Provider Profile"}
           </button>
         </form>
       </div>
