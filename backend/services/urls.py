@@ -9,6 +9,7 @@ from .views import (
     ServiceDetailView,
     UserAppointmentsView,
     ProviderAppointmentsView,     
+    CreateReviewView
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
     # Appointments
     path('appointments/user/',     UserAppointmentsView.as_view(),     name='user-appointments'),
     path('appointments/provider/', ProviderAppointmentsView.as_view(), name='provider-appointments'),
+    path('providers/<int:provider_id>/reviews/', CreateReviewView.as_view())
 ]

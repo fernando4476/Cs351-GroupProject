@@ -196,3 +196,5 @@ class UpdateProfilePhotoView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.user.customerprofile 
+    
+

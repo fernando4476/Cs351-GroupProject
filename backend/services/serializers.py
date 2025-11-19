@@ -1,16 +1,15 @@
 #convert models into JSON
 from rest_framework import serializers
 from django.conf import settings
-from .models import Service, Review
+from .models import Service, Review, Appointment
 
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True)
-
     class Meta:
         model = Review
-        fields = ['id', 'user', 'rating', 'comment', 'created_at']
+        fields = ['id', 'service_id', 'rating', 'comment', 'created_at']
+        read_only_fields = ['provider', 'c®eated_at']
 
 
 class ServiceSerializer(serializers.ModelSerializer):

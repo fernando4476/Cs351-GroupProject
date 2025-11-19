@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from accounts.models import ServiceProviderProfile
 
 
 class Service(models.Model):
@@ -38,11 +38,18 @@ class RecentServiceView(models.Model):
     
 
 class Review(models.Model):
+    #user leaving review
+    customer = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='reviews')
+    #the provider the review is for
+    provider = models.ForeignKey(ServiceProviderProfile, on_delete=models.CASCADE, related_name='reviews')
+    #the service the review is for 
     service = models.ForeignKey(Service, related_name="review", on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     rating = models.PositiveSmallIntegerField()  # e.g., 1–5
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+    
 
 class Appointment(models.Model):
     user = models.ForeignKey(

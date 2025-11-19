@@ -6,13 +6,19 @@ from rest_framework.views import APIView
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
-from .models import Service, RecentServiceView
-from .serializers import ServiceSerializer, ServiceDetailSerializer, RecentViewInSerializer, ServiceCardSerializer
+from .models import Service, RecentServiceView, Appointment
+from .serializers import (
+    ServiceSerializer, 
+    ServiceDetailSerializer, 
+    RecentViewInSerializer, 
+    ServiceCardSerializer,
+    ReviewSerializer,
+    AppointmentSerializer) 
 from .trie import Trie
 from .recent import push_view, get_recent_list
 from .permissions import IsServiceProvider
 from rest_framework import filters
-
+from accounts.models import ServiceProviderProfile 
 
 
 #get returns list of services, post creates a service 
@@ -42,8 +48,7 @@ class ServiceDetailView(generics.RetrieveAPIView):
     serializer_class = ServiceDetailSerializer
    
     
-
-
+# returns list matching prefix 
 class AutocompleteAPIView(APIView):
     def get(self, request):
         prefix = request.GET.get('prefix', '')   # <-- fixed GET
@@ -110,3 +115,15 @@ class ProviderAppointmentsView(APIView):
 
 
 
+#post reviews
+class CreateReviewView(generics.CreateAPIView):
+    serializer_class = ReviewSerializer
+
+    def perform_create(self, serializer):
+        provider_id = self.kwargs["provider_id"]
+        provider = ServiceProviderProfile.objects.get(id=provider_id)
+
+        serializer.save(
+            customer= self.request.user.user,
+            provider=provider
+        )
