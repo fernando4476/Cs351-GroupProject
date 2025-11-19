@@ -1,57 +1,114 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import "./Settings.css";
+import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import "./Profile.css";
 
 export default function Settings() {
   const navigate = useNavigate();
 
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [showInSearch, setShowInSearch] = useState(true);
+  const storedName = localStorage.getItem("name") || "UIC Student";
+  const storedEmail = localStorage.getItem("email") || "student@uic.edu";
+  const storedCountry = localStorage.getItem("country") || "United States";
+  const profilePic = localStorage.getItem("profilePic") || logo;
 
-  // Load from localStorage
-  useEffect(() => {
-    const en = localStorage.getItem("settings:emailNotifications");
-    const ss = localStorage.getItem("settings:showInSearch");
-    if (en !== null) setEmailNotifications(en === "true");
-    if (ss !== null) setShowInSearch(ss === "true");
-  }, []);
+  const [name, setName] = useState(storedName);
+  const [email, setEmail] = useState(storedEmail);
+  const [country, setCountry] = useState(storedCountry);
+  const [saved, setSaved] = useState(false);
 
-  // Save to localStorage
-  useEffect(() => {
-    localStorage.setItem("settings:emailNotifications", String(emailNotifications));
-    localStorage.setItem("settings:showInSearch", String(showInSearch));
-  }, [emailNotifications, showInSearch]);
+  const handleSave = () => {
+    localStorage.setItem("name", name);
+    localStorage.setItem("email", email);
+    localStorage.setItem("country", country);
+
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("name");
+    localStorage.removeItem("email");
+    localStorage.removeItem("country");
+    localStorage.removeItem("profilePic");
+    navigate("/");
+    window.location.reload();
+  };
 
   return (
-    <div className="profile-container">
-      <button
-        style={{ marginBottom: "20px" }}
-        className="btn"
-        onClick={() => navigate("/profile")}
-      >
-        ← Back to Profile
-      </button>
+    <div className="settings-page">
 
-      <h2>Settings</h2>
+      {/* TOP BAR */}
+      <div className="settings-topbar">
+        <button className="back-btn" onClick={() => navigate("/profile")}>
+          ← Back to Profile
+        </button>
 
-      <div style={{ marginTop: "20px", display: "grid", gap: "16px" }}>
-        <label style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>Email notifications</span>
+        <button className="signout-btn" onClick={handleSignOut}>
+          Sign Out
+        </button>
+      </div>
+
+      <div className="settings-layout">
+
+        {/* LEFT PROFILE SIDEBAR */}
+        <div className="settings-profile-box">
+          <img src={profilePic} alt="Profile" className="settings-profile-pic" />
+          <h2 className="settings-profile-name">{storedName}</h2>
+          <p className="settings-profile-email">{storedEmail}</p>
+
+          <p className="settings-info-text">
+            Edit your profile information here.
+          </p>
+        </div>
+
+        {/* RIGHT SIDE BORDERED CONTAINER */}
+        <div className="settings-right-wrapper">
+          <h1 className="settings-title">Settings</h1>
+
+          <label>Full Name</label>
           <input
-            type="checkbox"
-            checked={emailNotifications}
-            onChange={(e) => setEmailNotifications(e.target.checked)}
+            type="text"
+            className="settings-input"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
-        </label>
 
-        <label style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>Show my profile in search</span>
+          <label>UIC Email</label>
           <input
-            type="checkbox"
-            checked={showInSearch}
-            onChange={(e) => setShowInSearch(e.target.checked)}
+            type="text"
+            className="settings-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
-        </label>
+
+          <label>Language</label>
+          <input
+            type="text"
+            className="settings-input disabled"
+            value="English"
+            disabled
+          />
+
+          <label>Country</label>
+          <select
+            className="settings-input"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+          >
+            <option>United States</option>
+            <option>Canada</option>
+            <option>United Kingdom</option>
+            <option>Australia</option>
+          </select>
+
+          <button className="settings-save-btn" onClick={handleSave}>
+            Save Changes
+          </button>
+
+          {saved && <p className="settings-saved-text">✓ Changes saved!</p>}
+        </div>
       </div>
     </div>
   );
