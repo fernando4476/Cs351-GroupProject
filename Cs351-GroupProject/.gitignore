@@ -1,7 +1,0 @@
-# --- Virtual Environment ---
-venv/
-env/
-
-# --- Environment / Secrets ---
-.env
-

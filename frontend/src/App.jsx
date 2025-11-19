@@ -18,6 +18,8 @@ import ServiceDetail from "./Pages/ServiceDetail.jsx";
 import { useProviders } from "./hooks/useProviders";
 import { useServicesApi } from "./hooks/useServicesApi";
 import { recordSearchTerm, readSearchCounts } from "./utils/searchHistory";
+import ProviderAccount from "./Pages/Profile/ProviderAccount.jsx";
+import Appointments from "./Pages/Appointments.jsx";
 
 const useFilteredProviders = (providers, query) => {
   return useMemo(() => {
@@ -84,8 +86,7 @@ function Home({ providers, services, servicesLoading, servicesError }) {
     reorderCategories(counts);
     navigate(`/search?q=${encodeURIComponent(trimmed)}`);
   };
-import ProviderAccount from "./Pages/Profile/ProviderAccount.jsx";
-import Appointments from "./Pages/Appointments.jsx";
+
 
 
   return (

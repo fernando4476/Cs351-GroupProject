@@ -1,1 +1,0 @@
-*Week of 9/30 - pick our project track and topic, and complete Milestone 2
