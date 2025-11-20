@@ -1,0 +1,112 @@
+/* Full-page layout */
+.feedback-page {
+  min-height: 100vh;
+  background: #faf8f8;
+}
+
+/* Red Top Bar */
+.topbar-red {
+  background: #c40000;
+  width: 100%;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Back Button */
+.back-btn {
+  background: white;
+  border: 2px solid white;
+  color: #c40000;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.back-btn:hover {
+  background: #c40000;
+  color: white;
+}
+
+/* Signout Button */
+.signout-btn {
+  background: white;
+  border: none;
+  color: #c40000;
+  padding: 8px 18px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.signout-btn:hover {
+  background: #b00000;
+  color: white;
+}
+
+/* Main container */
+.feedback-container {
+  width: 750px;
+  margin: 50px auto;
+  background: white;
+  padding: 40px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* Titles */
+.feedback-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #c40000;
+}
+
+.section-title {
+  color: #c40000;
+  margin-bottom: 10px;
+  border-left: 4px solid #c40000;
+  padding-left: 8px;
+}
+
+/* Form styling */
+.feedback-form input,
+.feedback-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.feedback-form textarea {
+  resize: none;
+}
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, #c40000, #c40000);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
+}
+
+/* FAQ Section */
+.faq-section p {
+  margin-bottom: 15px;
+  line-height: 1.5;
+}

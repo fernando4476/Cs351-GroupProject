@@ -1,0 +1,98 @@
+import React, { useState } from "react";
+import "./Feedback.css";
+import { useNavigate } from "react-router-dom";
+
+export default function Feedback() {
+  const navigate = useNavigate();
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert("Feedback submitted!");
+    setFullName("");
+    setEmail("");
+    setMessage("");
+  };
+
+  return (
+    <div className="feedback-page">
+
+      {/* Red header bar */}
+      <div className="topbar-red">
+        <button className="back-btn" onClick={() => navigate("/profile")}>
+          ← Back to Profile
+        </button>
+        <button
+          className="signout-btn"
+          onClick={() => {
+            localStorage.clear();
+            navigate("/");
+            window.location.reload();
+          }}
+        >
+          Sign out
+        </button>
+      </div>
+
+      {/* Centered card */}
+      <div className="feedback-container">
+        <h1 className="feedback-title">Feedback & Support</h1>
+
+        <div className="faq-section">
+          <h2 className="section-title">Frequently Asked Questions</h2>
+
+          <p><strong>How do I become a service provider?</strong><br />
+            Go to the “Become a Provider” page and fill out your application.
+          </p>
+
+          <p><strong>How do I contact support?</strong><br />
+            Email us at <a href="mailto:support@uicconnect.com">support@uicconnect.com</a>.
+          </p>
+
+          <p><strong>How do I report a provider?</strong><br />
+            Go to the provider’s profile and click “Report Provider.” Our team will respond within 24 hours.
+          </p>
+
+          <p><strong>Why do I need a @uic.edu email?</strong><br />
+            UIC Connect is for UIC students and staff only.
+          </p>
+        </div>
+
+        <div className="feedback-form-section">
+          <h2 className="section-title">Send Feedback</h2>
+
+          <form onSubmit={handleSubmit} className="feedback-form">
+            <input
+              type="text"
+              placeholder="Full name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+            />
+
+            <input
+              type="email"
+              placeholder="UIC Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <textarea
+              placeholder="Your message..."
+              rows="5"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+
+            <button type="submit" className="submit-btn">
+              Submit Feedback
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  );
+}

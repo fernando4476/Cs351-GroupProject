@@ -1,40 +1,45 @@
 #convert models into JSON
 from rest_framework import serializers
 from django.conf import settings
-from .models import Service, Review
+from .models import Service, Review, Booking
+from accounts.serializers import ( CustomerProfileSerializer, 
+                                  ServiceProviderProfileSerializer
+                                  )
 
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True)
+    provider = ServiceProviderProfileSerializer(read_only=True)
+    customer = CustomerProfileSerializer(read_only=True)
 
     class Meta:
         model = Review
-        fields = ['id', 'user', 'rating', 'comment', 'created_at']
+        fields = ['id', 'rating', 'comment', 'created_at', 'provider', 'customer']
+        read_only_fields = ['provider', 'customer', 'created_at']
 
+
+class RatingSerializer(serializers.Serializer):
+    average_rating = serializers.FloatField()
 
 class ServiceSerializer(serializers.ModelSerializer):
-    provider_name = serializers.CharField(source='provider.username', read_only=True)
-    rating = serializers.FloatField(read_only=True)  
+    provider = ServiceProviderProfileSerializer(read_only=True)
 
     class Meta:
         model = Service
-        fields = ['id', 'provider','provider_name', 'title', 'description', 'price','location', 'rating']
+        fields = ['id','photo','title', 'description', 'price','location', 'duration', 'provider']
 
-class ServiceDetailSerializer(serializers.ModelSerializer):
-    # TODO: add service photo?
-    provider_name = serializers.CharField(source='provider.username', read_only=True)
-    reviews = ReviewSerializer(source="review", many=True, read_only=True) 
-    rating = serializers.FloatField(read_only=True)  
-    
-    class Meta:
-        model = Service
-        fields = ['id', 'provider','provider_name', 'title', 'description', 'price', 'location', 'rating', 'reviews'] 
-        
+        read_only_fields = ['provider']
+
+
+
+
 class RecentViewInSerializer(serializers.Serializer):
     service_id = serializers.IntegerField()
 
+## KASSANDRA - WHAT IS THIS FOR?
+#----------------------------------------------------------------------
 class ServiceCardSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Service
         fields = ["id", "title", "description", "price", "provider"]
@@ -43,3 +48,33 @@ class ServiceCardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'user', 'rating', 'comment', 'created_at']
+
+#----------------------------------------------------------------------
+
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    customer = CustomerProfileSerializer(read_only=True)
+    provider = ServiceProviderProfileSerializer(read_only=True)
+    service = ServiceSerializer(read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            'id',
+            'customer',
+            'provider',
+            'service',
+            'date',
+            'time',
+            'note',
+            'created_at'
+        ]
+
+        read_only_fields = [
+            'customer',
+            'provider',
+            'created_at'
+        ]
+
+

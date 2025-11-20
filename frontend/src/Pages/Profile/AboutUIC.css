@@ -1,0 +1,40 @@
+/* Reuse account details/
+@import "./AccountDetails.css";
+
+/* TITLE ROW */
+.about-title-row {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+/* Bigger UIC logo */
+.about-uic-logo {
+  width: 130px;
+  height: 130px;
+}
+
+/* HEADERS */
+.about-header {
+  font-size: 26px;
+  font-weight: 800;
+  color: #c40000;
+  margin-top: 25px;
+}
+
+/* TEXT BODY */
+.about-text {
+  font-size: 20px;
+  color: #333;
+  margin-top: 8px;
+  line-height: 1.55;
+}
+
+/* IMAGE */
+.about-photo {
+  width: 100%;
+  margin-top: 40px;
+  border-radius: 12px;
+  box-shadow: 0px 8px 18px rgba(0,0,0,0.18);
+}
