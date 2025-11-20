@@ -45,9 +45,6 @@ class SignupView(View):
         email = (data.get("email") or "").strip().lower()
         password = data.get("password") or ""
 
-        if not (len(name.split()) == 2):
-            return JsonResponse({"error": "Provide first and last name"}, status=400)
-
         if not (name and email and password):
             return JsonResponse({"error": "Missing name/email/password"}, status=400)
 
@@ -66,8 +63,9 @@ class SignupView(View):
             password=password,
             is_active=False,  # key: locked until they verify via email
         )
-        user.first_name, user.last_name = name.split()
-        user.save(update_fields=["first_name", "last_name"])
+        if hasattr(user, "first_name"):
+            user.first_name = name
+            user.save(update_fields=["first_name"])
 
         # Build verification link containing uid + token
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
@@ -182,20 +180,21 @@ class ServiceProviderProfileListView(generics.ListAPIView):
     search_fields = ['business_name', 'description', 'user__first_name']
 
 
-#get user account detail
+#get single user accoutn detail
 class UserAccountDetailsView(generics.RetrieveAPIView):
     serializer_class = CustomerProfileSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'user_id'
 
     def get_object(self):
-        return CustomerProfile.objects.get(user=self.request.user)
+        user_id = self.kwargs.get(self.lookup_field)
+        return CustomerProfile.objects.get(user__id=user_id)
 
-#update user profile
-class UpdateProfileView(generics.UpdateAPIView):
+#update user photo
+class UpdateProfilePhotoView(generics.UpdateAPIView):
     serializer_class = CustomerProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        return self.request.user.customer
+        return self.request.user.customerprofile 
     
 

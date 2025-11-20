@@ -1,21 +1,15 @@
 from django.db import models
 from django.conf import settings
-from accounts.models import ServiceProviderProfile, CustomerProfile
-
+from accounts.models import ServiceProviderProfile
 
 
 class Service(models.Model):
-    provider = models.ForeignKey(ServiceProviderProfile, on_delete=models.CASCADE)
+    provider = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.IntegerField(default=2)
     location = models.TextField(blank=True)
-    
-    photo = models.ImageField(
-        upload_to='photos/',
-        default= 'photos/default-service.jpeg'
-    )
 
     def __str__(self):
         return f"{self.title} by {self.provider.username}"
@@ -45,26 +39,40 @@ class RecentServiceView(models.Model):
 
 class Review(models.Model):
     #user leaving review
-    customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE, null=True)
+    customer = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='reviews')
     #the provider the review is for
-    provider = models.ForeignKey(ServiceProviderProfile, on_delete=models.CASCADE, related_name='reviews',null=True)
+    provider = models.ForeignKey(ServiceProviderProfile, on_delete=models.CASCADE, related_name='reviews')
     #the service the review is for 
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
-    rating = models.PositiveSmallIntegerField(null=True) 
+    service = models.ForeignKey(Service, related_name="review", on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField()  # e.g., 1–5
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class Booking(models.Model):
-    customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE)
-    provider = models.ForeignKey(ServiceProviderProfile, on_delete=models.CASCADE)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    date = models.DateField()
-    time = models.TimeField()
-    note = models.TextField(blank=True)
+    
+
+class Appointment(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="appointments"
+    )
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name="appointments"
+    )
+    appointment_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("confirmed", "Confirmed"),
+        ("cancelled", "Cancelled"),
+    ]
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="pending"
+    )
+
     def __str__(self):
-        return f"{self.customer.user.username} → {self.provider.user.username} ({self.service.name})"
-
-
+        return f"{self.user.username} → {self.service.title} at {self.appointment_time}"
