@@ -2,9 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./Programs.css";
 import { resolveMediaUrl } from "../../utils/api";
+import uicLogo from "../../assets/uiclogo.png";
 
-const DEFAULT_IMAGE =
-  "https://via.placeholder.com/600x380.png?text=UIC+Marketplace";
+const DEFAULT_IMAGE = uicLogo;
+
+const isDefaultServicePhoto = (photoPath) =>
+  typeof photoPath === "string" && /default-service/i.test(photoPath);
 
 const mapToCard = (service) => {
   const isApiService = !!service?.provider;
@@ -13,6 +16,16 @@ const mapToCard = (service) => {
     service?.title ||
     service?.provider?.business_name ||
     "Service";
+  const providerPhoto = service?.provider?.photo
+    ? resolveMediaUrl(service.provider.photo)
+    : "";
+  const servicePhoto =
+    (service?.photo && !isDefaultServicePhoto(service.photo)
+      ? resolveMediaUrl(service.photo)
+      : "") ||
+    providerPhoto ||
+    service?.image ||
+    DEFAULT_IMAGE;
 
   return {
     id: service?.id,
@@ -20,8 +33,7 @@ const mapToCard = (service) => {
     subtitle: isApiService
       ? service?.provider?.business_name || "UIC student"
       : service?.category,
-    image:
-      resolveMediaUrl(service?.photo) || service?.image || DEFAULT_IMAGE,
+    image: servicePhoto,
     price: service?.price,
     rating: service?.provider?.rating ?? service?.rating,
     reviews: service?.review_count ?? service?.reviews ?? 0,

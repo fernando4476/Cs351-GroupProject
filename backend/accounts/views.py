@@ -16,12 +16,11 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate 
 from .models import CustomerProfile, ServiceProviderProfile
 from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer
-from rest_framework import generics
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, parsers, status
 from rest_framework import filters
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.exceptions import ValidationError
-
+from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 User = get_user_model()
 
@@ -155,16 +154,34 @@ class LoginView(View):
 #create provider profile 
 class ServiceProviderProfileCreateView(generics.CreateAPIView):
     serializer_class = ServiceProviderProfileSerializer
-    permissions_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
-    #POST method 
     def perform_create(self, serializer):
-        #check if profile exists
-        if hasattr(self.request.user, "serviceproviderprofile"):
-            raise ValidationError("Provider profile already exists")
-        
-        #sets user field to logged-in user 
         serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        profile = getattr(request.user, "serviceproviderprofile", None)
+        if profile:
+            serializer = self.get_serializer(
+                profile, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return super().create(request, *args, **kwargs)
+
+
+class ServiceProviderProfileMeView(generics.RetrieveUpdateAPIView):
+    serializer_class = ServiceProviderProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+
+    def get_object(self):
+        try:
+            return self.request.user.serviceproviderprofile
+        except ServiceProviderProfile.DoesNotExist:
+            raise NotFound("Provider profile not found")
 
 
 # get list of customer profiles
@@ -198,4 +215,3 @@ class UpdateProfileView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user.customer
     
-

@@ -5,6 +5,7 @@ import BookingModal from "../Components/Booking/BookingModal.jsx";
 import "./ServiceDetail.css";
 import { getAccessToken } from "../utils/auth";
 import { resolveMediaUrl } from "../utils/api";
+import uicLogo from "../assets/uiclogo.png";
 import {
   fetchServiceDetail,
   fetchProviderReviews,
@@ -13,8 +14,7 @@ import {
   fetchProviderRating,
 } from "../api/client";
 
-const DEFAULT_IMAGE =
-  "https://via.placeholder.com/600x600.png?text=UIC+Service";
+const DEFAULT_IMAGE = uicLogo;
 
 const DEFAULT_HOURS = {
   Monday: "9:00 AM – 5:00 PM",
@@ -164,8 +164,16 @@ export default function ServiceDetail() {
     providerProfile?.displayName ||
     service?.title ||
     "Service";
+  const providerPhoto = providerProfile?.photo
+    ? resolveMediaUrl(providerProfile.photo)
+    : "";
+  const hasCustomServicePhoto =
+    service?.photo && !/default-service/i.test(service.photo);
   const servicePhoto =
-    resolveMediaUrl(service?.photo) || service?.image || DEFAULT_IMAGE;
+    providerPhoto ||
+    (hasCustomServicePhoto ? resolveMediaUrl(service.photo) : "") ||
+    service?.image ||
+    DEFAULT_IMAGE;
   const providerPhone = providerProfile?.phone?.trim() || "";
 
   const mapSrc = useMemo(() => {
