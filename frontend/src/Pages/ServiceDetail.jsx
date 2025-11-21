@@ -3,8 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar.jsx";
 import BookingModal from "../Components/Booking/BookingModal.jsx";
 import "./ServiceDetail.css";
-import { buildApiUrl } from "../utils/api";
-import { getAccessToken, getAuthHeaders } from "../utils/auth";
+import { getAccessToken } from "../utils/auth";
+import { resolveMediaUrl } from "../utils/api";
+import {
+  fetchServiceDetail,
+  fetchProviderReviews,
+  createProviderReview,
+  recordRecentView,
+  fetchProviderRating,
+} from "../api/client";
 
 const DEFAULT_IMAGE =
   "https://via.placeholder.com/600x600.png?text=UIC+Service";
@@ -30,59 +37,94 @@ export default function ServiceDetail() {
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
   const [reviewStatus, setReviewStatus] = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const storedEmail = localStorage.getItem("email")?.toLowerCase() || "";
-  const isOwner =
-    storedEmail && service?.provider_name?.toLowerCase() === storedEmail;
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState(null);
+  const [rating, setRating] = useState(null);
 
   useEffect(() => {
+    if (!id) return;
     const controller = new AbortController();
+    setLoading(true);
+    setError(null);
 
-    const loadService = async () => {
-      setLoading(true);
-      setError(null);
+    const load = async () => {
       try {
-        const response = await fetch(buildApiUrl(`/services/${id}/`), {
-          signal: controller.signal,
-        });
-        if (!response.ok) {
-          throw new Error("Service not found");
+        const data = await fetchServiceDetail(id, { signal: controller.signal });
+        if (!controller.signal.aborted) {
+          setService(data);
         }
-        const data = await response.json();
-        setService(data);
       } catch (err) {
-        if (err.name === "AbortError") return;
+        if (err.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
         setError(err.message || "Unable to load service");
         setService(null);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
-    if (id) {
-      loadService();
-    }
-
+    load();
     return () => controller.abort();
   }, [id]);
 
   useEffect(() => {
-    const token = getAccessToken();
-    if (!service?.id || !token) return;
+    const providerId = service?.provider?.id;
+    if (!providerId) {
+      setReviews([]);
+      setRating(null);
+      return;
+    }
 
-    fetch(buildApiUrl("/recent/view/"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(),
-      },
-      body: JSON.stringify({ service_id: service.id }),
-    })
-      .then(() => {
-        window.dispatchEvent(new Event("recentUpdated"));
+    const controller = new AbortController();
+    setReviewsLoading(true);
+    setReviewsError(null);
+
+    fetchProviderReviews(providerId, { signal: controller.signal })
+      .then((data) => {
+        if (!controller.signal.aborted) {
+          setReviews(Array.isArray(data) ? data : []);
+        }
+      })
+      .catch((err) => {
+        if (!controller.signal.aborted) {
+          setReviews([]);
+          setReviewsError(err.message || "Unable to load reviews");
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setReviewsLoading(false);
+        }
+      });
+
+    fetchProviderRating(providerId, { signal: controller.signal })
+      .then((data) => {
+        if (!controller.signal.aborted) {
+          setRating(
+            typeof data?.average_rating === "number"
+              ? data.average_rating
+              : null
+          );
+        }
       })
       .catch(() => {
-        /* non-blocking */
+        if (!controller.signal.aborted) {
+          setRating(null);
+        }
       });
+
+    return () => controller.abort();
+  }, [service?.provider?.id]);
+
+  useEffect(() => {
+    if (!service?.id || !getAccessToken()) return;
+    recordRecentView(service.id)
+      .then(() => window.dispatchEvent(new Event("recentUpdated")))
+      .catch(() => {});
   }, [service?.id]);
 
   const handleReviewSubmit = async (e) => {
@@ -92,36 +134,21 @@ export default function ServiceDetail() {
       setReviewStatus("Please sign in to leave a review.");
       return;
     }
+    const providerId = service?.provider?.id;
+    if (!providerId) {
+      setReviewStatus("Missing provider information.");
+      return;
+    }
 
     try {
       setReviewSubmitting(true);
       setReviewStatus("");
-      const response = await fetch(buildApiUrl(`/services/${id}/reviews/`), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
-        body: JSON.stringify({
-          rating: Number(reviewForm.rating),
-          comment: reviewForm.comment,
-        }),
+      const saved = await createProviderReview({
+        providerId,
+        rating: Number(reviewForm.rating),
+        comment: reviewForm.comment,
       });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data?.detail || "Unable to save review");
-      }
-
-      const saved = await response.json();
-      setService((prev) =>
-        prev
-          ? {
-              ...prev,
-              reviews: [saved, ...(prev.reviews || [])],
-            }
-          : prev
-      );
+      setReviews((prev) => [saved, ...prev]);
       setReviewStatus("Review submitted!");
       setReviewForm({ rating: 5, comment: "" });
     } catch (err) {
@@ -131,21 +158,15 @@ export default function ServiceDetail() {
     }
   };
 
-  const providerInfo = service
-    ? {
-        displayName: service.business_name || service.title,
-        price: service.price,
-        services: [
-          {
-            name: service.title,
-            description: service.description,
-            price: service.price,
-          },
-        ],
-      }
-    : null;
-
-  const providerPhone = service?.provider_phone?.trim() || "";
+  const providerProfile = service?.provider || null;
+  const providerDisplayName =
+    providerProfile?.business_name ||
+    providerProfile?.displayName ||
+    service?.title ||
+    "Service";
+  const servicePhoto =
+    resolveMediaUrl(service?.photo) || service?.image || DEFAULT_IMAGE;
+  const providerPhone = providerProfile?.phone?.trim() || "";
   const providerPhoneLink = providerPhone
     ? `tel:${providerPhone.replace(/[^+\d]/g, "")}`
     : "";
@@ -178,8 +199,8 @@ export default function ServiceDetail() {
           <div className="service-grid">
             <section className="service-maincard">
               <div className="service-photo">
-                {service.image ? (
-                  <img src={service.image} alt={service.title} />
+                {servicePhoto ? (
+                  <img src={servicePhoto} alt={service.title} />
                 ) : (
                   <div className="photo-placeholder" aria-hidden="true" />
                 )}
@@ -188,28 +209,17 @@ export default function ServiceDetail() {
               <div className="service-info">
                 <p className="service-subtitle">Service</p>
                 <h1>{service.title}</h1>
-                <p className="service-provider">
-                  {service.business_name || service.provider_name}
-                </p>
-                {isOwner && (
-                    <button
-                      type="button"
-                      className="service-delete"
-                      onClick={handleDelete}
-                    >
-                      Delete Listing
-                    </button>
-                  )}
+                <p className="service-provider">{providerDisplayName}</p>
                 <div className="service-metrics">
                   <span className="metric-star">★</span>
                   <span className="metric-new">New</span>
                   <span className="metric-dot">•</span>
-                  <span>{service.reviews?.length || 0} reviews</span>
-                  {service.rating && (
+                  <span>{reviews.length} reviews</span>
+                  {rating !== null && (
                     <>
                       <span className="metric-divider">|</span>
                       <span className="metric-score">
-                        {Number(service.rating).toFixed(1)}
+                        {Number(rating).toFixed(1)}
                       </span>
                     </>
                   )}
@@ -318,14 +328,25 @@ export default function ServiceDetail() {
         <section className="reviews-section container">
           <div className="reviews-card">
             <h2>Reviews</h2>
-            {(service.reviews || []).length === 0 ? (
+            {reviewsLoading && (
+              <p className="reviews-status">Loading reviews…</p>
+            )}
+            {reviewsError && !reviewsLoading && (
+              <p className="reviews-status reviews-status--error">
+                {reviewsError}
+              </p>
+            )}
+            {!reviewsLoading && reviews.length === 0 && (
               <p className="empty-text">No reviews yet. Be the first!</p>
-            ) : (
+            )}
+            {!reviewsLoading && reviews.length > 0 && (
               <ul className="reviews-list">
-                {service.reviews.map((review) => (
+                {reviews.map((review) => (
                   <li key={review.id} className="review-card">
                     <div className="review-header">
-                      <span className="review-user">{review.user}</span>
+                      <span className="review-user">
+                        {review.customer?.full_name || "UIC student"}
+                      </span>
                       <span className="review-rating">★ {review.rating}</span>
                     </div>
                     <p>{review.comment}</p>
@@ -385,41 +406,10 @@ export default function ServiceDetail() {
 
       <BookingModal
         open={bookingOpen}
-        provider={providerInfo}
-        service={providerInfo?.services?.[0]}
+        service={service}
         onClose={() => setBookingOpen(false)}
-        serviceId={service?.id}
         useBackendBooking
       />
     </div>
   );
 }
-
-  const handleDelete = async () => {
-    if (!service) return;
-    const token = getAccessToken();
-    if (!token) {
-      alert("Please sign in to delete this listing.");
-      return;
-    }
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this listing?"
-    );
-    if (!confirmed) return;
-
-    try {
-      const response = await fetch(buildApiUrl(`/services/${service.id}/`), {
-        method: "DELETE",
-        headers: {
-          ...getAuthHeaders(),
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Unable to delete service");
-      }
-      window.dispatchEvent(new Event("servicesUpdated"));
-      navigate("/");
-    } catch (err) {
-      alert(err.message || "Failed to delete listing.");
-    }
-  };

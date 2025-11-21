@@ -29,7 +29,7 @@ export default function SearchResults({
       const haystack = [
         service.title,
         service.business_name,
-        service.provider_name,
+        service.provider?.business_name,
         service.description,
       ]
         .filter(Boolean)

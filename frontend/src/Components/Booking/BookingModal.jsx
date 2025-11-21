@@ -1,9 +1,30 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./BookingModal.css";
-import { buildApiUrl } from "../../utils/api";
-import { getAccessToken, getAuthHeaders } from "../../utils/auth";
+import { getAccessToken } from "../../utils/auth";
+import { bookService } from "../../api/client";
 
 const defaultTimeSlots = ["1:00 PM", "1:40 PM", "2:20 PM", "3:00 PM", "3:40 PM"];
+
+const to24Hour = (value = "") => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (/^\d{2}:\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+  const match = trimmed.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!match) {
+    return trimmed;
+  }
+  let [_, hours, minutes, period] = match;
+  let hourNum = parseInt(hours, 10);
+  if (period.toUpperCase() === "PM" && hourNum !== 12) {
+    hourNum += 12;
+  }
+  if (period.toUpperCase() === "AM" && hourNum === 12) {
+    hourNum = 0;
+  }
+  return `${String(hourNum).padStart(2, "0")}:${minutes}`;
+};
 
 const buildUpcomingDays = (count = 5) => {
   const now = new Date();
@@ -45,8 +66,34 @@ export default function BookingModal({
 
   const days = useMemo(() => buildUpcomingDays(), [open]);
 
+  const providerProfile = provider || service?.provider || null;
+  const serviceRecord =
+    service && service.title
+      ? {
+          id: service.id,
+          name: service.title,
+          description: service.description,
+          price: service.price,
+        }
+      : service;
+  const displayName =
+    providerProfile?.displayName ||
+    providerProfile?.business_name ||
+    serviceRecord?.name ||
+    "Service";
+  const servicePrice =
+    serviceRecord?.price ??
+    providerProfile?.price ??
+    providerProfile?.services?.[0]?.price ??
+    0;
+  const providerId = providerProfile?.id || service?.provider?.id || null;
+  const backendServiceId = serviceRecord?.id ?? serviceId ?? service?.id ?? null;
   const timeSlots =
-    provider?.timeSlots?.length > 0 ? provider.timeSlots : defaultTimeSlots;
+    provider?.timeSlots?.length > 0
+      ? provider.timeSlots
+      : providerProfile?.timeSlots?.length > 0
+      ? providerProfile.timeSlots
+      : defaultTimeSlots;
 
   useEffect(() => {
     if (open) {
@@ -57,20 +104,20 @@ export default function BookingModal({
       setNotes("");
       setSubmitting(false);
     }
-  }, [open, provider, timeSlots]);
+  }, [open, provider, service, timeSlots]);
 
-  if (!open || !provider) {
+  if (!open || (!providerProfile && !serviceRecord)) {
     return null;
   }
 
   const activeDay = days[selectedDayIndex];
-  const activeService = service || provider.services?.[0];
-  const total = activeService?.price ?? provider.price ?? 0;
+  const activeService = serviceRecord || providerProfile?.services?.[0];
+  const total = Number(servicePrice || 0);
 
   const confirmBooking = async () => {
     if (!useBackendBooking) {
       setStatus(
-        `Booked ${activeService?.name ?? provider.displayName} on ${
+        `Booked ${activeService?.name ?? displayName} on ${
           activeDay?.weekday
         } ${activeDay?.dateNumber} at ${selectedTime}.`
       );
@@ -85,7 +132,7 @@ export default function BookingModal({
       return;
     }
 
-    if (!serviceId) {
+    if (!providerId || !backendServiceId) {
       setStatus("Missing service information.");
       setStatusType("error");
       return;
@@ -94,35 +141,18 @@ export default function BookingModal({
     try {
       setSubmitting(true);
       setStatus("");
-      const response = await fetch(
-        buildApiUrl(`/services/${serviceId}/book/`),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...getAuthHeaders(),
-          },
-          body: JSON.stringify({
-            slot_date: activeDay?.iso,
-            slot_time: selectedTime,
-            notes,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(
-          data?.detail || data?.error || "Unable to confirm booking"
-        );
-      }
-
-      const data = await response.json();
+      const booking = await bookService({
+        providerId,
+        serviceId: backendServiceId,
+        date: activeDay?.iso,
+        time: to24Hour(selectedTime),
+        note: notes,
+      });
       setStatus(
         `Booking confirmed for ${activeDay.weekday}, ${activeDay.dateNumber} at ${selectedTime}.`
       );
       setStatusType("success");
-      onBookingComplete?.(data);
+      onBookingComplete?.(booking);
     } catch (err) {
       setStatus(err.message || "Booking failed");
       setStatusType("error");
@@ -176,10 +206,15 @@ export default function BookingModal({
 
         <div className="booking-summary">
           <div>
-            <p className="provider-name">{provider.displayName}</p>
-            <p className="service-name">{activeService?.name}</p>
+            <p className="provider-name">{displayName}</p>
+            <p className="service-name">
+              {activeService?.name ||
+                activeService?.title ||
+                providerProfile?.services?.[0]?.name ||
+                displayName}
+            </p>
           </div>
-          <p className="total">${Number(total || 0).toFixed(2)}</p>
+          <p className="total">${total.toFixed(2)}</p>
         </div>
 
         {selectedTime && activeDay && (

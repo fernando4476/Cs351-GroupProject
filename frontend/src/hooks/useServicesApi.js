@@ -1,7 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { buildApiUrl } from "../utils/api";
-
-const SERVICES_URL = buildApiUrl("/services/");
+import { fetchServices as fetchServicesApi } from "../api/client";
 
 export const useServicesApi = () => {
   const [services, setServices] = useState([]);
@@ -12,11 +10,7 @@ export const useServicesApi = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(SERVICES_URL);
-      if (!response.ok) {
-        throw new Error("Unable to load services");
-      }
-      const data = await response.json();
+      const data = await fetchServicesApi();
       setServices(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message || "Failed to load services");

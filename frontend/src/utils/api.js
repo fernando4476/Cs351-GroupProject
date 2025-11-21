@@ -12,3 +12,14 @@ export const buildApiUrl = (path = "") => {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${API_BASE_URL}${normalizedPath}`;
 };
+
+export const API_ORIGIN = API_BASE_URL.replace(/\/api$/, "");
+
+export const resolveMediaUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `${API_ORIGIN}${normalized}`;
+};

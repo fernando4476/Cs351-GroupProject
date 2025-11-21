@@ -1,23 +1,30 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Programs.css";
+import { resolveMediaUrl } from "../../utils/api";
 
 const DEFAULT_IMAGE =
   "https://via.placeholder.com/600x380.png?text=UIC+Marketplace";
 
 const mapToCard = (service) => {
-  const isApiService = !!service?.title && !service?.displayName;
+  const isApiService = !!service?.provider;
   const title =
-    service?.displayName || service?.business_name || service?.title || "Service";
+    service?.displayName ||
+    service?.title ||
+    service?.provider?.business_name ||
+    "Service";
 
   return {
     id: service?.id,
     title,
-    subtitle: isApiService ? service?.provider_name : service?.category,
-    image: service?.image || DEFAULT_IMAGE,
+    subtitle: isApiService
+      ? service?.provider?.business_name || "UIC student"
+      : service?.category,
+    image:
+      resolveMediaUrl(service?.photo) || service?.image || DEFAULT_IMAGE,
     price: service?.price,
-    rating: service?.rating,
-    reviews: service?.reviews,
+    rating: service?.provider?.rating ?? service?.rating,
+    reviews: service?.review_count ?? service?.reviews ?? 0,
     nextAvailable: service?.nextAvailable,
     description: service?.description,
     link: isApiService ? `/services/${service?.id}` : `/provider/${service?.id}`,
