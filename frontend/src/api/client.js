@@ -7,7 +7,7 @@ const parseError = async (response) => {
     const data = await response.json();
     detail = data?.detail || data?.error || data?.message || detail;
   } catch (error) {
-    /* ignore json parse failures */
+   
   }
   if (Array.isArray(detail)) {
     return detail.join(" ");
