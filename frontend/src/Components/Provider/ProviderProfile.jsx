@@ -29,6 +29,22 @@ export default function ProviderProfile() {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
+  const parseErrorMessage = (payload, fallback = "Unable to save provider profile") => {
+    if (!payload) return fallback;
+    if (typeof payload === "string") return payload;
+    if (payload.detail) return payload.detail;
+    if (payload.error) return payload.error;
+    const messages = [];
+    Object.values(payload).forEach((value) => {
+      if (Array.isArray(value)) {
+        messages.push(value.join(" "));
+      } else if (typeof value === "string") {
+        messages.push(value);
+      }
+    });
+    return messages.join(" ") || fallback;
+  };
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -99,8 +115,17 @@ export default function ProviderProfile() {
     }
 
     const data = await response.json().catch(() => ({}));
-    const detail =
-      data?.detail || data?.error || "Unable to save provider profile";
+    const detail = parseErrorMessage(data);
+
+    if (
+      response.status === 400 &&
+      typeof detail === "string" &&
+      detail.toLowerCase().includes("already")
+    ) {
+      // profile already set up earlier; safe to continue
+      return null;
+    }
+
     throw new Error(Array.isArray(detail) ? detail.join(" ") : detail);
   };
 
@@ -116,15 +141,15 @@ export default function ProviderProfile() {
         description:
           service.description || formData.about || service.name.trim(),
         price: Number.parseFloat(service.price) || 0,
+        duration: Number.parseInt(service.duration, 10) || 60,
         location: formData.location || "UIC Campus",
-        image: formData.image || "",
       }),
     });
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
-      const message = data?.detail || data?.error || "Unable to save service";
-      throw new Error(Array.isArray(message) ? message.join(" ") : message);
+      const message = parseErrorMessage(data, "Unable to save service");
+      throw new Error(message);
     }
 
     return response.json();

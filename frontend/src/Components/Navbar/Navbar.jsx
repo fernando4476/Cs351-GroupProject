@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
+import { login as loginRequest, signup as signupRequest } from "../../api/client";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -48,15 +49,7 @@ export const Navbar = () => {
     setLoading(true);
 
     try {
-      const r = await fetch("http://localhost:8000/api/auth/signup/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Signup failed");
-
+      await signupRequest({ name, email, password });
       setMsg("Verification email sent! Check your @uic.edu inbox.");
       setName("");
       setEmail("");
@@ -75,15 +68,7 @@ export const Navbar = () => {
     setLoading(true);
 
     try {
-      const r = await fetch("http://localhost:8000/api/auth/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Sign in failed");
-
+      const data = await loginRequest({ email, password });
       // Backend returns: ok, name, access, refresh
       setMsg(`Welcome, ${data.name}!`);
 
@@ -110,11 +95,11 @@ export const Navbar = () => {
         {/* ✅ Logged in view */}
         {isLoggedIn ? (
           <>
-            <li>
+            {/* <li>
               <Link to="/become-provider" className="btn">
                 Become a Provider
               </Link>
-            </li>
+            </li> */}
 
             <li>
               <button

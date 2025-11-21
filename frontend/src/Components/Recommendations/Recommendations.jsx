@@ -46,17 +46,21 @@ export default function Recommendations({ services = [], loading, error }) {
                 <div className="recommendation-card__body">
                   <div className="recommendation-card__meta">
                     <span className="badge">
-                      ★ {formatRating(service.rating)}
+                      ★{" "}
+                      {formatRating(
+                        service.provider?.rating ?? service.rating
+                      )}
                     </span>
                     {service.location && (
                       <span className="location">{service.location}</span>
                     )}
                   </div>
-                  <h3>
-                    {service.business_name || service.title || "New Service"}
-                  </h3>
-                  {service.provider_name && (
-                    <p className="provider">{service.provider_name}</p>
+                  <h3>{service.title || "New Service"}</h3>
+                  {(service.provider?.business_name ||
+                    service.business_name) && (
+                    <p className="provider">
+                      {service.provider?.business_name || service.business_name}
+                    </p>
                   )}
                   {service.description && (
                     <p className="description">{service.description}</p>
