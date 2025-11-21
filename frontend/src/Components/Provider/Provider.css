@@ -150,6 +150,27 @@
   padding: 0;
 }
 
+.update-photo-btn {
+  align-self: flex-start;
+  background: #0050ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.update-photo-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.update-photo-btn:not(:disabled):hover {
+  background: #0636a5;
+}
+
 /* Business Hours */
 .hours-grid {
   display: grid;
