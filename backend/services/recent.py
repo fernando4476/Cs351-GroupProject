@@ -16,7 +16,7 @@ def _load_or_build(user):
 def push_view(user, service, ts=None):
     ts = ts or time.time()
     sl = _load_or_build(user)
-    sl.insert(ts, service.title)
+    sl.insert(ts, service.id)
     cache.set(CACHE_KEY % user.id, sl, TTL)
 
 def get_recent_list(user, limit=20):

@@ -39,15 +39,11 @@ class RecentViewInSerializer(serializers.Serializer):
 ## KASSANDRA - WHAT IS THIS FOR?
 #----------------------------------------------------------------------
 class ServiceCardSerializer(serializers.ModelSerializer):
-    
+    provider = ServiceProviderProfileSerializer(read_only=True)
+
     class Meta:
         model = Service
-        fields = ["id", "title", "description", "price", "provider"]
-
-
-    class Meta:
-        model = Review
-        fields = ['id', 'user', 'rating', 'comment', 'created_at']
+        fields = ["id", "title", "description", "price", "location", "duration", "photo", "provider"]
 
 #----------------------------------------------------------------------
 
