@@ -49,7 +49,7 @@ export default function Feedback() {
           </p>
 
           <p><strong>How do I contact support?</strong><br />
-            Email us at <a href="mailto:support@uicconnect.com">support@uicconnect.com</a>.
+            Email us at <a href="mailto:uicmarketplaceverify@gmail.com">uicmarketplaceverify@gmail.com</a>.
           </p>
 
           <p><strong>How do I report a provider?</strong><br />
@@ -96,3 +96,4 @@ export default function Feedback() {
     </div>
   );
 }
+

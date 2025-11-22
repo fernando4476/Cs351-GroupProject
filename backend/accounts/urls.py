@@ -18,6 +18,7 @@ urlpatterns = [
     path('customers/', CustomerProfileListView.as_view(), name='customer-list'),
     # list all providers
     path('providers/', ServiceProviderProfileListView.as_view(), name='provider-list'),
+    path("service-provider/me/", ServiceProviderProfileMeView.as_view(), name="provider-me"),
     # obtain token
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     # refresh token 

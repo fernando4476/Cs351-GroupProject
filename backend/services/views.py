@@ -42,10 +42,21 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     
 
     
-#returns the service info 
-class ServiceDetailView(generics.RetrieveAPIView):
+#returns the service info; allow provider to update/delete their own service
+class ServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ServiceSerializer
-    queryset = Service.objects.all()
+    permission_classes = [IsServiceProvider]
+
+    def get_queryset(self):
+        qs = Service.objects.all()
+        if self.request.method in ["PUT", "PATCH", "DELETE"]:
+            if not hasattr(self.request.user, "serviceproviderprofile"):
+                return Service.objects.none()
+            return qs.filter(provider=self.request.user.serviceproviderprofile)
+        return qs
+
+    def perform_update(self, serializer):
+        serializer.save(provider=self.request.user.serviceproviderprofile)
     
    
     
@@ -164,3 +175,15 @@ class MyBookingsListView(generics.ListAPIView):
         customer = CustomerProfile.objects.get(user=self.request.user)
         return Booking.objects.filter(customer=customer)
     
+
+class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        customer = CustomerProfile.objects.get(user=self.request.user)
+        return Booking.objects.filter(customer=customer)
+
+    def perform_update(self, serializer):
+        customer = CustomerProfile.objects.get(user=self.request.user)
+        serializer.save(customer=customer)

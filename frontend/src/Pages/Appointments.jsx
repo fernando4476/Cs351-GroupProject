@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./Appointments.css";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { fetchMyBookings, updateBooking, deleteBooking } from "../api/client";
 
 export default function Appointments() {
   const navigate = useNavigate();
@@ -19,10 +20,23 @@ export default function Appointments() {
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
 
-  // Load appointments from localStorage
+  // Load appointments from API (fallback to localStorage)
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("appointments")) || [];
-    setAppointments(stored);
+    const load = async () => {
+      try {
+        const data = await fetchMyBookings();
+        if (Array.isArray(data)) {
+          setAppointments(data);
+          localStorage.setItem("appointments", JSON.stringify(data));
+          return;
+        }
+      } catch (err) {
+        // ignore and fallback
+      }
+      const stored = JSON.parse(localStorage.getItem("appointments")) || [];
+      setAppointments(stored);
+    };
+    load();
   }, []);
 
   // Helper to persist to localStorage
@@ -43,19 +57,27 @@ export default function Appointments() {
   };
 
   // Confirm cancel
-  const confirmCancel = () => {
+  const confirmCancel = async () => {
     if (selectedIndex === null) return;
-    const updated = appointments.filter((_, i) => i !== selectedIndex);
-    saveAppointments(updated);
-    closeCancelModal();
+    const booking = appointments[selectedIndex];
+    if (!booking?.id) return;
+    try {
+      await deleteBooking(booking.id);
+      const updated = appointments.filter((_, i) => i !== selectedIndex);
+      saveAppointments(updated);
+    } catch (err) {
+      console.error("Cancel booking failed", err);
+    } finally {
+      closeCancelModal();
+    }
   };
 
   // Open reschedule modal
   const openReschedModal = (index) => {
     const appt = appointments[index];
     setSelectedIndex(index);
-    setNewDate(appt.date || "");
-    setNewTime(appt.time || "");
+    setNewDate(appt?.date || "");
+    setNewTime(appt?.time || "");
     setShowReschedModal(true);
   };
 
@@ -67,16 +89,24 @@ export default function Appointments() {
   };
 
   // Confirm reschedule
-  const confirmReschedule = () => {
+  const confirmReschedule = async () => {
     if (selectedIndex === null) return;
     const updated = [...appointments];
-    updated[selectedIndex] = {
-      ...updated[selectedIndex],
-      date: newDate || updated[selectedIndex].date,
-      time: newTime || updated[selectedIndex].time,
+    const booking = updated[selectedIndex];
+    if (!booking?.id) return;
+    const payload = {
+      date: newDate || booking.date,
+      time: newTime || booking.time,
     };
-    saveAppointments(updated);
-    closeReschedModal();
+    try {
+      const saved = await updateBooking(booking.id, payload);
+      updated[selectedIndex] = { ...booking, ...saved };
+      saveAppointments(updated);
+    } catch (err) {
+      console.error("Reschedule failed", err);
+    } finally {
+      closeReschedModal();
+    }
   };
 
   const handleSignOut = () => {
@@ -85,15 +115,12 @@ export default function Appointments() {
     localStorage.removeItem("name");
     localStorage.removeItem("email");
     localStorage.removeItem("profilePic");
-    // appointments could stay, but you can clear them too if you want:
-    // localStorage.removeItem("appointments");
     navigate("/");
     window.location.reload();
   };
 
   return (
     <div className="appointments-page">
-      {/* 🔴 TOP BAR */}
       <div className="appointments-topbar">
         <button className="back-btn" onClick={() => navigate("/profile")}>
           ← Back to Profile
@@ -104,9 +131,7 @@ export default function Appointments() {
         </button>
       </div>
 
-      {/* MAIN LAYOUT */}
       <div className="appointments-layout">
-        {/* LEFT PROFILE PANEL */}
         <div className="appointments-profile-panel">
           <img src={profilePic} className="appt-profile-pic" alt="Profile" />
           <h2 className="appt-profile-name">{name}</h2>
@@ -116,7 +141,6 @@ export default function Appointments() {
           </p>
         </div>
 
-        {/* RIGHT CONTENT PANEL */}
         <div className="appointments-content">
           <h1 className="appt-title">Upcoming Appointments</h1>
 
@@ -134,19 +158,26 @@ export default function Appointments() {
                 <div className="appt-card" key={index}>
                   <div className="appt-info">
                     <h3 className="appt-service">
-                      {appt.serviceName || "Service"}
+                      {appt?.service?.title || appt.serviceName || "Service"}
                     </h3>
                     <p className="appt-provider">
                       Provider:{" "}
-                      <strong>{appt.provider || "UIC Service Provider"}</strong>
+                      <strong>
+                        {appt?.provider?.business_name ||
+                          appt?.service?.provider?.business_name ||
+                          appt.provider ||
+                          "UIC Service Provider"}
+                      </strong>
                     </p>
                     <p className="appt-date">
-                      📅 {appt.date || "Date not set"} —{" "}
+                      📅 {appt.date || "Date not set"} ·{" "}
                       {appt.time || "Time not set"}
                     </p>
-                    {appt.location && (
-                      <p className="appt-location">📍 {appt.location}</p>
-                    )}
+                    {appt?.service?.location || appt.location ? (
+                      <p className="appt-location">
+                        📍 {appt?.service?.location || appt.location}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div className="appt-actions">
@@ -171,7 +202,6 @@ export default function Appointments() {
         </div>
       </div>
 
-      {/* ❌ CANCEL MODAL */}
       {showCancelModal && (
         <div className="modal-overlay" onClick={closeCancelModal}>
           <div
@@ -180,9 +210,8 @@ export default function Appointments() {
           >
             <h2>Cancel Appointment?</h2>
             <p>
-              Are you sure you want to{" "}
-              <strong>cancel this appointment</strong>? This action cannot be
-              undone.
+              Are you sure you want to <strong>cancel this appointment</strong>?
+              This action cannot be undone.
             </p>
             <div className="modal-actions">
               <button className="modal-btn secondary" onClick={closeCancelModal}>
@@ -196,7 +225,6 @@ export default function Appointments() {
         </div>
       )}
 
-      {/* 🔁 RESCHEDULE MODAL */}
       {showReschedModal && (
         <div className="modal-overlay" onClick={closeReschedModal}>
           <div

@@ -273,6 +273,9 @@ export default function ProviderProfile() {
         const saved = await createService(service);
         created.push(saved);
       }
+      if (created[0]?.id) {
+        localStorage.setItem("providerServiceId", created[0].id);
+      }
       window.dispatchEvent(new Event("providersUpdated"));
       window.dispatchEvent(new Event("servicesUpdated"));
       setStatus({

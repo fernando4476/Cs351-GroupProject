@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import "./Settings.css";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { fetchMe, updateProfile } from "../../api/client";
+import { resolveMediaUrl } from "../../utils/api";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -9,20 +11,88 @@ export default function Settings() {
   const storedName = localStorage.getItem("name") || "UIC Student";
   const storedEmail = localStorage.getItem("email") || "student@uic.edu";
   const storedCountry = localStorage.getItem("country") || "United States";
-  const profilePic = localStorage.getItem("profilePic") || logo;
+  const storedPic = localStorage.getItem("profilePic") || logo;
 
   const [name, setName] = useState(storedName);
   const [email, setEmail] = useState(storedEmail);
   const [country, setCountry] = useState(storedCountry);
   const [saved, setSaved] = useState(false);
+  const [avatar, setAvatar] = useState(storedPic);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Load profile from backend
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const me = await fetchMe();
+        const fullName =
+          me?.full_name || [me?.first_name, me?.last_name].filter(Boolean).join(" ");
+        const photo = resolveMediaUrl(me?.photo) || storedPic;
+        if (fullName) {
+          setName(fullName);
+          localStorage.setItem("name", fullName);
+        }
+        if (me?.email) {
+          setEmail(me.email);
+          localStorage.setItem("email", me.email);
+        }
+        if (photo) {
+          setAvatar(photo);
+          localStorage.setItem("profilePic", photo);
+        }
+      } catch (err) {
+        // ignore; fall back to local storage defaults
+      }
+    };
+    load();
+  }, [storedPic]);
 
   const handleSave = () => {
     localStorage.setItem("name", name);
     localStorage.setItem("email", email);
     localStorage.setItem("country", country);
 
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    const [first_name = "", last_name = ""] = (name || "").split(" ");
+    updateProfile({
+      first_name,
+      last_name,
+      photo: avatarFile || fileInputRef.current?.files?.[0],
+    })
+      .then((resp) => {
+        const newAvatar = resolveMediaUrl(resp?.photo);
+        if (newAvatar) {
+          setAvatar(newAvatar);
+          localStorage.setItem("profilePic", newAvatar);
+        }
+      })
+      .catch((err) => console.error("Profile update failed", err))
+      .finally(() => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      });
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const preview = ev.target?.result || avatar;
+      setAvatar(preview);
+    };
+    reader.readAsDataURL(file);
+
+    updateProfile({ photo: file })
+      .then((resp) => {
+        const newAvatar = resolveMediaUrl(resp?.photo);
+        if (newAvatar) {
+          setAvatar(newAvatar);
+          localStorage.setItem("profilePic", newAvatar);
+        }
+      })
+      .catch((err) => console.error("Avatar update failed", err));
   };
 
   const handleSignOut = () => {
@@ -54,7 +124,23 @@ export default function Settings() {
 
         {/* LEFT PROFILE SIDEBAR */}
         <div className="settings-profile-box">
-          <img src={profilePic} alt="Profile" className="settings-profile-pic" />
+          <div className="settings-avatar-wrap">
+            <img src={avatar} alt="Profile" className="settings-profile-pic" />
+            <button
+              type="button"
+              className="settings-avatar-btn"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Change Photo
+            </button>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleAvatarChange}
+            />
+          </div>
           <h2 className="settings-profile-name">{storedName}</h2>
           <p className="settings-profile-email">{storedEmail}</p>
 
