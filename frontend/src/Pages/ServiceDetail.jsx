@@ -5,6 +5,7 @@ import BookingModal from "../Components/Booking/BookingModal.jsx";
 import "./ServiceDetail.css";
 import { getAccessToken } from "../utils/auth";
 import { resolveMediaUrl } from "../utils/api";
+import uicLogo from "../assets/uiclogo.png";
 import {
   fetchServiceDetail,
   fetchProviderReviews,
@@ -13,8 +14,7 @@ import {
   fetchProviderRating,
 } from "../api/client";
 
-const DEFAULT_IMAGE =
-  "https://via.placeholder.com/600x600.png?text=UIC+Service";
+const DEFAULT_IMAGE = uicLogo;
 
 const DEFAULT_HOURS = {
   Monday: "9:00 AM – 5:00 PM",
@@ -164,12 +164,17 @@ export default function ServiceDetail() {
     providerProfile?.displayName ||
     service?.title ||
     "Service";
-  const servicePhoto =
-    resolveMediaUrl(service?.photo) || service?.image || DEFAULT_IMAGE;
-  const providerPhone = providerProfile?.phone?.trim() || "";
-  const providerPhoneLink = providerPhone
-    ? `tel:${providerPhone.replace(/[^+\d]/g, "")}`
+  const providerPhoto = providerProfile?.photo
+    ? resolveMediaUrl(providerProfile.photo)
     : "";
+  const hasCustomServicePhoto =
+    service?.photo && !/default-service/i.test(service.photo);
+  const servicePhoto =
+    providerPhoto ||
+    (hasCustomServicePhoto ? resolveMediaUrl(service.photo) : "") ||
+    service?.image ||
+    DEFAULT_IMAGE;
+  const providerPhone = providerProfile?.phone?.trim() || "";
 
   const mapSrc = useMemo(() => {
     if (!googleMapsKey || !service?.location) return null;
@@ -298,13 +303,7 @@ export default function ServiceDetail() {
                   <p className="hours-label">contact & business hours</p>
                   <p className="sidecard-phone">
                     Phone:{" "}
-                    <span>
-                      {providerPhone ? (
-                        <a href={providerPhoneLink}>{providerPhone}</a>
-                      ) : (
-                        "Not provided"
-                      )}
-                    </span>
+                    <span>{providerPhone || "Not provided"}</span>
                   </p>
                   <div className="hours-table">
                     {Object.entries(service.hours || DEFAULT_HOURS).map(

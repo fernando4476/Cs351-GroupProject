@@ -25,6 +25,7 @@ urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     #create provider profile
     path("service-provider/", ServiceProviderProfileCreateView.as_view(), name="create-provider"),
+    path("service-provider/me/", ServiceProviderProfileMeView.as_view(), name="provider-me"),
     #update user profile
     path('profile/update/', UpdateProfileView.as_view()),
     #get user account details

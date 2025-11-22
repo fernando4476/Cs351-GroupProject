@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Provider.css";
-import { buildApiUrl } from "../../utils/api";
-import { getAuthHeaders } from "../../utils/auth";
+import { buildApiUrl, resolveMediaUrl } from "../../utils/api";
+import { getAuthHeaders, getAccessToken } from "../../utils/auth";
+import { fetchMyProviderProfile } from "../../api/client";
 
 export default function ProviderProfile() {
   const navigate = useNavigate();
@@ -28,6 +29,40 @@ export default function ProviderProfile() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [existingProfile, setExistingProfile] = useState(null);
+  const [photoUpdating, setPhotoUpdating] = useState(false);
+
+  useEffect(() => {
+    const token = getAccessToken();
+    if (!token) return;
+    let active = true;
+    const loadProfile = async () => {
+      setProfileLoading(true);
+      try {
+        const profile = await fetchMyProviderProfile();
+        if (!active || !profile) return;
+        setExistingProfile(profile);
+        setFormData((prev) => ({
+          ...prev,
+          displayName: profile.business_name || prev.displayName,
+          about: profile.description || prev.about,
+          phone: profile.phone || prev.phone,
+          image: profile.photo ? resolveMediaUrl(profile.photo) : prev.image,
+        }));
+        setPhotoFile(null);
+      } catch (err) {
+        // ignore if profile not found for this user
+      } finally {
+        if (active) setProfileLoading(false);
+      }
+    };
+    loadProfile();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const parseErrorMessage = (payload, fallback = "Unable to save provider profile") => {
     if (!payload) return fallback;
@@ -75,9 +110,10 @@ export default function ProviderProfile() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setPhotoFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      handleInputChange("image", reader.result.toString());
+      handleInputChange("image", reader.result?.toString() || "");
     };
     reader.readAsDataURL(file);
   };
@@ -89,6 +125,57 @@ export default function ProviderProfile() {
     }));
   };
 
+  const handlePhotoUpdateOnly = async () => {
+    if (!existingProfile) {
+      setStatus({
+        type: "error",
+        message: "Create a provider profile before updating the photo.",
+      });
+      return;
+    }
+    if (!photoFile) {
+      setStatus({
+        type: "error",
+        message: "Choose a new photo to upload.",
+      });
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append("photo", photoFile);
+
+    setPhotoUpdating(true);
+    setStatus({ type: "info", message: "Updating profile photo..." });
+    try {
+      const response = await fetch(buildApiUrl("/auth/service-provider/me/"), {
+        method: "PATCH",
+        headers: {
+          ...getAuthHeaders(),
+        },
+        body: payload,
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const detail = parseErrorMessage(data);
+        throw new Error(detail);
+      }
+
+      setExistingProfile(data);
+      handleInputChange("image", data.photo ? resolveMediaUrl(data.photo) : "");
+      setPhotoFile(null);
+      setStatus({ type: "success", message: "Profile photo updated!" });
+    } catch (err) {
+      setStatus({
+        type: "error",
+        message: err.message || "Failed to update photo.",
+      });
+    } finally {
+      setPhotoUpdating(false);
+    }
+  };
+
   const removeService = (index) => {
     setFormData(prev => ({
       ...prev,
@@ -97,36 +184,29 @@ export default function ProviderProfile() {
   };
 
   const ensureProviderProfile = async () => {
+    const payload = new FormData();
+    payload.append("business_name", formData.displayName);
+    payload.append("description", formData.about);
+    payload.append("phone", formData.phone || "");
+    if (photoFile) {
+      payload.append("photo", photoFile);
+    }
+
     const response = await fetch(buildApiUrl("/auth/service-provider/"), {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         ...getAuthHeaders(),
       },
-      body: JSON.stringify({
-        business_name: formData.displayName,
-        description: formData.about,
-        phone: formData.phone,
-      }),
+      body: payload,
     });
 
-    if (response.ok) {
-      return response.json();
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      const detail = parseErrorMessage(data);
+      throw new Error(Array.isArray(detail) ? detail.join(" ") : detail);
     }
 
-    const data = await response.json().catch(() => ({}));
-    const detail = parseErrorMessage(data);
-
-    if (
-      response.status === 400 &&
-      typeof detail === "string" &&
-      detail.toLowerCase().includes("already")
-    ) {
-      // profile already set up earlier; safe to continue
-      return null;
-    }
-
-    throw new Error(Array.isArray(detail) ? detail.join(" ") : detail);
+    return response.json();
   };
 
   const createService = async (service) => {
@@ -227,7 +307,16 @@ export default function ProviderProfile() {
           <h1>Become a Service Provider</h1>
           <p>Fill out your information to create your provider profile</p>
         </div>
-        
+        {profileLoading && (
+          <p className="form-status">Loading your provider profile…</p>
+        )}
+        {!profileLoading && existingProfile && (
+          <p className="form-status form-status--info">
+            Update your info or use the button below to change your profile
+            photo.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit}>
           {/* Basic Information */}
           <div className="form-section">
@@ -276,9 +365,22 @@ export default function ProviderProfile() {
                     <button
                       type="button"
                       className="clear-photo-btn"
-                      onClick={() => handleInputChange("image", "")}
+                      onClick={() => {
+                        handleInputChange("image", "");
+                        setPhotoFile(null);
+                      }}
                     >
                       Remove photo
+                    </button>
+                  )}
+                  {existingProfile && (
+                    <button
+                      type="button"
+                      className="update-photo-btn"
+                      onClick={handlePhotoUpdateOnly}
+                      disabled={photoUpdating || !photoFile}
+                    >
+                      {photoUpdating ? "Saving photo..." : "Update profile photo"}
                     </button>
                   )}
                   <small>Square images look best. This preview will appear on your profile.</small>

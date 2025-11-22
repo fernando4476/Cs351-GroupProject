@@ -13,7 +13,7 @@ const parseError = async (response) => {
     const data = await response.json();
     detail = data?.detail || data?.error || data?.message || detail;
   } catch (error) {
-    /* ignore json parse failures */
+   
   }
   if (Array.isArray(detail)) {
     return detail.join(" ");
@@ -117,14 +117,40 @@ export const login = ({ email, password }) =>
     body: JSON.stringify({ email, password }),
   });
 
-export const createProviderProfile = ({ business_name, description, phone }) =>
-  jsonRequest("/auth/service-provider/", {
+export const createProviderProfile = ({
+  business_name,
+  description,
+  phone,
+  photo,
+}) => {
+  const formData = new FormData();
+  formData.append("business_name", business_name || "");
+  formData.append("description", description || "");
+  formData.append("phone", phone || "");
+  if (photo) {
+    formData.append("photo", photo);
+  }
+
+  return fetch(buildApiUrl("/auth/service-provider/"), {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       ...getAuthHeaders(),
     },
-    body: JSON.stringify({ business_name, description, phone }),
+    body: formData,
+  }).then(async (response) => {
+    if (!response.ok) {
+      const message = await parseError(response);
+      throw new Error(message);
+    }
+    return response.json();
+  });
+};
+
+export const fetchMyProviderProfile = () =>
+  jsonRequest("/auth/service-provider/me/", {
+    headers: {
+      ...getAuthHeaders(),
+    },
   });
 
 export const createServiceListing = ({ title, description, price, duration, location }) =>
