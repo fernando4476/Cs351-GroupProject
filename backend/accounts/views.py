@@ -17,10 +17,12 @@ from django.contrib.auth import authenticate
 from .models import CustomerProfile, ServiceProviderProfile
 from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer
 from rest_framework import generics
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
 from rest_framework import filters
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
 
 User = get_user_model()
@@ -155,7 +157,14 @@ class LoginView(View):
 #create provider profile 
 class ServiceProviderProfileCreateView(generics.CreateAPIView):
     serializer_class = ServiceProviderProfileSerializer
-    permissions_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Idempotent: if profile already exists, return it instead of failing
+        if hasattr(request.user, "serviceproviderprofile"):
+            serializer = self.get_serializer(request.user.serviceproviderprofile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return super().post(request, *args, **kwargs)
 
     #POST method 
     def perform_create(self, serializer):
@@ -165,6 +174,13 @@ class ServiceProviderProfileCreateView(generics.CreateAPIView):
         
         #sets user field to logged-in user 
         serializer.save(user=self.request.user)
+
+class ServiceProviderProfileMeView(generics.RetrieveAPIView):
+    serializer_class = ServiceProviderProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return get_object_or_404(ServiceProviderProfile, user=self.request.user)
 
 
 # get list of customer profiles

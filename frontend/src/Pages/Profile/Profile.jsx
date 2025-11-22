@@ -9,6 +9,7 @@ export default function Profile() {
   const name = localStorage.getItem("name") || "UIC Student";
   const email = localStorage.getItem("email") || "student@uic.edu";
   const profilePic = localStorage.getItem("profilePic") || logo;
+  const providerServiceId = localStorage.getItem("providerServiceId");
 
   /* PROFILE UPLOAD */
   const handleProfileUpload = (e) => {
@@ -21,6 +22,14 @@ export default function Profile() {
       window.location.reload();
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleProviderNavigate = () => {
+    if (providerServiceId) {
+      navigate("/provider-settings");
+      return;
+    }
+    navigate("/become-provider");
   };
 
   /* SIGN OUT */
@@ -85,7 +94,7 @@ export default function Profile() {
             About UIC
           </button>
 
-          <button className="profile-btn-big provider" onClick={() => navigate("/become-provider")}>
+          <button className="profile-btn-big provider" onClick={handleProviderNavigate}>
             Provider Account
           </button>
 

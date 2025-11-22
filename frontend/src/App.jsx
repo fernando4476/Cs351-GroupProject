@@ -20,6 +20,8 @@ import { useServicesApi } from "./hooks/useServicesApi";
 import { recordSearchTerm, readSearchCounts } from "./utils/searchHistory";
 import ProviderAccount from "./Pages/Profile/ProviderAccount.jsx";
 import Appointments from "./Pages/Appointments.jsx";
+import ProviderSettings from "./Pages/Profile/ProviderSettings.jsx";
+
 
 const useFilteredProviders = (providers, query) => {
   return useMemo(() => {
@@ -129,6 +131,7 @@ export default function App() {
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/account-details" element={<AccountDetails />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/provider-settings" element={<ProviderSettings />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route
           path="/search"
@@ -141,7 +144,6 @@ export default function App() {
           }
         />
         <Route path="/services/:id" element={<ServiceDetail />} />
-        <Route path="/account-details" element={<AccountDetails />} />
         <Route path="/provider-account" element={<ProviderAccount />} />
         <Route path="/appointments" element={<Appointments />} />
       </Routes>
