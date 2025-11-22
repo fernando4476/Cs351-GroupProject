@@ -13,17 +13,14 @@ from django.conf import settings
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.contrib.auth import authenticate 
+from django.contrib.auth import authenticate
 from .models import CustomerProfile, ServiceProviderProfile
 from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer
-from rest_framework import generics
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
-from rest_framework import filters
+from rest_framework import generics, permissions, parsers, status, filters
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.generics import get_object_or_404
-
 
 User = get_user_model()
 
@@ -112,7 +109,6 @@ class VerifyEmailView(View):
         return HttpResponseRedirect(f"{dest}/verify?status={'success' if success else 'failed'}")
 
 
-
 class LoginView(View):
     """
     POST /auth/login
@@ -141,46 +137,48 @@ class LoginView(View):
         if not user.is_active:
             return JsonResponse({"error": "Please verify your email first"}, status=403)
 
-        # generate JWT access and refresh tokens for authorization 
+        # generate JWT access and refresh tokens for authorization
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
 
-        #return user info and tokens 
-        user_name = email.split("@")[0] # saves email w/o address
-        return JsonResponse ({
+        # return user info and tokens
+        user_name = email.split("@")[0]  # saves email w/o address
+        return JsonResponse({
             "ok": True,
             "name": user_name,
             "access": access_token,
             "refresh": str(refresh)
         })
 
-#create provider profile 
+# create provider profile
 class ServiceProviderProfileCreateView(generics.CreateAPIView):
     serializer_class = ServiceProviderProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
     def post(self, request, *args, **kwargs):
-        # Idempotent: if profile already exists, return it instead of failing
-        if hasattr(request.user, "serviceproviderprofile"):
-            serializer = self.get_serializer(request.user.serviceproviderprofile)
+        # If profile exists, update/return it (idempotent)
+        profile = getattr(request.user, "serviceproviderprofile", None)
+        if profile:
+            serializer = self.get_serializer(profile, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return super().post(request, *args, **kwargs)
 
-    #POST method 
     def perform_create(self, serializer):
-        #check if profile exists
-        if hasattr(self.request.user, "serviceproviderprofile"):
-            raise ValidationError("Provider profile already exists")
-        
-        #sets user field to logged-in user 
         serializer.save(user=self.request.user)
 
-class ServiceProviderProfileMeView(generics.RetrieveAPIView):
+class ServiceProviderProfileMeView(generics.RetrieveUpdateAPIView):
     serializer_class = ServiceProviderProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
     def get_object(self):
-        return get_object_or_404(ServiceProviderProfile, user=self.request.user)
+        try:
+            return self.request.user.serviceproviderprofile
+        except ServiceProviderProfile.DoesNotExist:
+            raise NotFound("Provider profile not found")
 
 
 # get list of customer profiles
@@ -189,7 +187,7 @@ class CustomerProfileListView(generics.ListAPIView):
     serializer_class = CustomerProfileSerializer
 
 
-# get list of provider profiles, ability to search 
+# get list of provider profiles, ability to search
 class ServiceProviderProfileListView(generics.ListAPIView):
     queryset = ServiceProviderProfile.objects.all()
     serializer_class = ServiceProviderProfileSerializer
@@ -198,7 +196,7 @@ class ServiceProviderProfileListView(generics.ListAPIView):
     search_fields = ['business_name', 'description', 'user__first_name']
 
 
-#get user account detail
+# get user account detail
 class UserAccountDetailsView(generics.RetrieveAPIView):
     serializer_class = CustomerProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -206,12 +204,10 @@ class UserAccountDetailsView(generics.RetrieveAPIView):
     def get_object(self):
         return CustomerProfile.objects.get(user=self.request.user)
 
-#update user profile
+# update user profile
 class UpdateProfileView(generics.UpdateAPIView):
     serializer_class = CustomerProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         return self.request.user.customer
-    
-
