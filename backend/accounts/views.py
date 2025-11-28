@@ -14,8 +14,8 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate
-from .models import CustomerProfile, ServiceProviderProfile
-from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer
+from .models import CustomerProfile, ServiceProviderProfile, Feedback
+from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer, FeedbackSerializer
 from rest_framework import generics, permissions, parsers, status
 from rest_framework import filters
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -210,7 +210,15 @@ class UserAccountDetailsView(generics.RetrieveAPIView):
 class UpdateProfileView(generics.UpdateAPIView):
     serializer_class = CustomerProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
 
     def get_object(self):
         return self.request.user.customer
+
+
+class FeedbackCreateView(generics.CreateAPIView):
+    serializer_class = FeedbackSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = Feedback.objects.all()
+    parser_classes = [parsers.JSONParser, parsers.FormParser]
     

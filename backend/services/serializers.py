@@ -23,10 +23,12 @@ class RatingSerializer(serializers.Serializer):
 
 class ServiceSerializer(serializers.ModelSerializer):
     provider = ServiceProviderProfileSerializer(read_only=True)
+    rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Service
-        fields = ['id','photo','title', 'description', 'price','location', 'duration', 'provider']
+        fields = ['id','photo','title', 'description', 'price','location', 'duration', 'provider', 'rating', 'review_count']
 
         read_only_fields = ['provider']
 
@@ -40,10 +42,12 @@ class RecentViewInSerializer(serializers.Serializer):
 #----------------------------------------------------------------------
 class ServiceCardSerializer(serializers.ModelSerializer):
     provider = ServiceProviderProfileSerializer(read_only=True)
+    rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Service
-        fields = ["id", "title", "description", "price", "location", "duration", "photo", "provider"]
+        fields = ["id", "title", "description", "price", "location", "duration", "photo", "provider", "rating", "review_count"]
 
 #----------------------------------------------------------------------
 

@@ -13,7 +13,9 @@ from .views import (
     ProviderBookingsListView,
     MyBookingsListView,
     ProviderRatingView,
-    BookingDetailView
+    BookingDetailView,
+    MyReviewsListView,
+    MyReviewDetailView
 )
 
 urlpatterns = [
@@ -34,6 +36,8 @@ urlpatterns = [
     path('providers/<int:provider_id>/reviews/create/', CreateReviewView.as_view()),
     #get list of reviews left for provider 
     path('providers/<int:provider_id>/reviews/', ProviderReviewsListView.as_view()),
+    path('reviews/my/', MyReviewsListView.as_view()),
+    path('reviews/my/<int:pk>/', MyReviewDetailView.as_view()),
     #book an appointment 
     path('providers/<provider_id>/services/<service_id>/bookings/', CreateBookingView.as_view()),
     #get provider's rating

@@ -2,7 +2,7 @@ nav{
     width: 100%;
     background: #c8102e; /* UIC red */
     color: #ffffff;
-    padding: 8px 0; /* Reduced vertical padding */
+    padding: 16px 0; /* Taller bar */
     position: fixed;
     top: 0;
     left: 0;
@@ -11,7 +11,7 @@ nav{
     justify-content: flex-end;
     z-index: 10;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: 40px; /* Set a smaller fixed height */
+    height: 72px; /* Taller fixed height */
 }
 
 nav ul {

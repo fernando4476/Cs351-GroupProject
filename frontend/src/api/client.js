@@ -198,14 +198,23 @@ export const fetchProviders = () =>
 export const fetchProviderReviews = (providerId, options) =>
   jsonRequest(`/providers/${providerId}/reviews/`, options);
 
-export const createProviderReview = ({ providerId, rating, comment }) =>
+export const createProviderReview = ({ providerId, serviceId, rating, comment }) =>
   jsonRequest(`/providers/${providerId}/reviews/create/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...getAuthHeaders(),
     },
-    body: JSON.stringify({ rating, comment }),
+    body: JSON.stringify({ rating, comment, service: serviceId }),
+  });
+
+export const submitFeedback = ({ full_name, email, message }) =>
+  jsonRequest("/auth/feedback/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ full_name, email, message }),
   });
 
 export const fetchProviderRating = (providerId, options) =>
@@ -221,6 +230,32 @@ export const recordRecentView = (serviceId) =>
     body: JSON.stringify({ service_id: serviceId }),
   });
 
+export const fetchMyReviews = () =>
+  jsonRequest("/reviews/my/", {
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+
+export const updateMyReview = (id, payload) =>
+  jsonRequest(`/reviews/my/${id}/`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+
+export const deleteMyReview = (id) =>
+  jsonRequest(`/reviews/my/${id}/`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
 export const bookService = ({ providerId, serviceId, date, time, note }) =>
   jsonRequest(`/providers/${providerId}/services/${serviceId}/bookings/`, {
     method: "POST",
@@ -240,10 +275,12 @@ export const fetchMe = () =>
     },
   });
 
-export const updateProfile = ({ first_name, last_name, photo }) => {
+export const updateProfile = ({ first_name, last_name, email, country, photo }) => {
   const form = new FormData();
   if (first_name) form.append("first_name", first_name);
   if (last_name) form.append("last_name", last_name);
+  if (email) form.append("email", email);
+   if (country) form.append("country", country);
   if (photo instanceof File) form.append("photo", photo);
   return jsonRequest("/auth/profile/update/", {
     method: "PATCH",
@@ -271,6 +308,22 @@ export const fetchProviderProfile = async () => {
     if (!Array.isArray(providers)) return null;
     return providers.find((p) => `${p.user}` === `${userId}`) || null;
   }
+};
+
+// Update provider profile (e.g., business_name, photo)
+export const updateProviderProfile = ({ business_name, description, phone, photo }) => {
+  const form = new FormData();
+  if (business_name) form.append("business_name", business_name);
+  if (description !== undefined) form.append("description", description);
+  if (phone !== undefined) form.append("phone", phone);
+  if (photo instanceof File) form.append("photo", photo);
+  return jsonRequest("/auth/service-provider/me/", {
+    method: "PATCH",
+    headers: {
+      ...getAuthHeaders(),
+    },
+    body: form,
+  });
 };
 
 // Provider services filtered by provider_id

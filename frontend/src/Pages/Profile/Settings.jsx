@@ -26,21 +26,25 @@ export default function Settings() {
     const load = async () => {
       try {
         const me = await fetchMe();
-        const fullName =
-          me?.full_name || [me?.first_name, me?.last_name].filter(Boolean).join(" ");
-        const photo = resolveMediaUrl(me?.photo) || storedPic;
-        if (fullName) {
-          setName(fullName);
-          localStorage.setItem("name", fullName);
-        }
-        if (me?.email) {
-          setEmail(me.email);
-          localStorage.setItem("email", me.email);
-        }
-        if (photo) {
-          setAvatar(photo);
-          localStorage.setItem("profilePic", photo);
-        }
+    const fullName =
+      me?.full_name || [me?.first_name, me?.last_name].filter(Boolean).join(" ");
+    const photo = resolveMediaUrl(me?.photo) || storedPic;
+    if (fullName) {
+      setName(fullName);
+      localStorage.setItem("name", fullName);
+    }
+    if (me?.email) {
+      setEmail(me.email);
+      localStorage.setItem("email", me.email);
+    }
+    if (me?.country) {
+      setCountry(me.country);
+      localStorage.setItem("country", me.country);
+    }
+    if (photo) {
+      setAvatar(photo);
+      localStorage.setItem("profilePic", photo);
+    }
       } catch (err) {
         // ignore; fall back to local storage defaults
       }
@@ -49,21 +53,33 @@ export default function Settings() {
   }, [storedPic]);
 
   const handleSave = () => {
-    localStorage.setItem("name", name);
-    localStorage.setItem("email", email);
-    localStorage.setItem("country", country);
-
     const [first_name = "", last_name = ""] = (name || "").split(" ");
     updateProfile({
       first_name,
       last_name,
+      email,
+      country,
       photo: avatarFile || fileInputRef.current?.files?.[0],
     })
       .then((resp) => {
+        if (resp?.email) {
+          localStorage.setItem("email", resp.email);
+        }
+        const newName =
+          resp?.full_name ||
+          [resp?.first_name, resp?.last_name].filter(Boolean).join(" ").trim();
+        if (newName) {
+          localStorage.setItem("name", newName);
+          setName(newName);
+        }
         const newAvatar = resolveMediaUrl(resp?.photo);
         if (newAvatar) {
           setAvatar(newAvatar);
           localStorage.setItem("profilePic", newAvatar);
+        }
+        if (resp?.country) {
+          localStorage.setItem("country", resp.country);
+          setCountry(resp.country);
         }
       })
       .catch((err) => console.error("Profile update failed", err))

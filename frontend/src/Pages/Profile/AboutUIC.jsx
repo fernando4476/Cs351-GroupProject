@@ -63,7 +63,7 @@ export default function AboutUIC() {
             <h3 className="about-header">Connection to UIC Marketplace</h3>
             <p className="about-text">
               UIC Marketplace lets students share talents such as tutoring, graphic design,
-              music, photography, and more — enabling student-to-student collaboration that
+              music, photography, and more enabling student-to-student collaboration that
               strengthens the UIC community.
             </p>
 
@@ -71,7 +71,7 @@ export default function AboutUIC() {
             <p className="about-text">
               Located just west of downtown Chicago, UIC provides access to opportunities in
               business, healthcare, tech, and the arts. Nearby landmarks include Student Center
-              East, the UIC Pavilion, and the Jane Addams Hull-House Museum.
+              East, the UIC Pavilion, and the Jane Addams Hull House Museum.
             </p>
 
             <h3 className="about-header">Contact Info</h3>

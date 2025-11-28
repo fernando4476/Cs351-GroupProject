@@ -35,8 +35,22 @@ const mapToCard = (service) => {
       : service?.category,
     image: servicePhoto,
     price: service?.price,
-    rating: service?.provider?.rating ?? service?.rating,
-    reviews: service?.review_count ?? service?.reviews ?? 0,
+    rating:
+      service?.provider?.rating ??
+      service?.provider?.average_rating ??
+      service?.average_rating ??
+      service?.rating,
+    reviews:
+      service?.provider?.review_count ??
+      service?.provider?.reviews_count ??
+      service?.review_count ??
+      service?.reviews_count ??
+      service?.reviews ??
+      (Array.isArray(service?.provider?.reviews)
+        ? service.provider.reviews.length
+        : Array.isArray(service?.reviews)
+        ? service.reviews.length
+        : 0),
     nextAvailable: service?.nextAvailable,
     description: service?.description,
     link: isApiService ? `/services/${service?.id}` : `/provider/${service?.id}`,

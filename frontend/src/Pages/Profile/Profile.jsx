@@ -2,30 +2,57 @@ import React from "react";
 import "./Profile.css";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { fetchProviderProfile, fetchMe } from "../../api/client";
 
 export default function Profile() {
   const navigate = useNavigate();
 
-  const name = localStorage.getItem("name") || "UIC Student";
-  const email = localStorage.getItem("email") || "student@uic.edu";
-  const profilePic = localStorage.getItem("profilePic") || logo;
-  const providerServiceId = localStorage.getItem("providerServiceId");
+  const [name, setName] = React.useState(
+    localStorage.getItem("name") || "UIC Student"
+  );
+  const [email, setEmail] = React.useState(
+    localStorage.getItem("email") || "student@uic.edu"
+  );
+  const [avatar, setAvatar] = React.useState(
+    localStorage.getItem("profilePic") || logo
+  );
+  const [providerProfile, setProviderProfile] = React.useState(null);
 
-  /* PROFILE UPLOAD */
-  const handleProfileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  React.useEffect(() => {
+    fetchMe()
+      .then((me) => {
+        const photo = me?.photo;
+        const fullName =
+          me?.full_name || [me?.first_name, me?.last_name].filter(Boolean).join(" ");
+        if (fullName) {
+          setName(fullName);
+          localStorage.setItem("name", fullName);
+        }
+        if (me?.email) {
+          setEmail(me.email);
+          localStorage.setItem("email", me.email);
+        }
+        if (photo) {
+          setAvatar(photo);
+          localStorage.setItem("profilePic", photo);
+        }
+      })
+      .catch(() => {});
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      localStorage.setItem("profilePic", reader.result);
-      window.location.reload();
-    };
-    reader.readAsDataURL(file);
-  };
+    fetchProviderProfile()
+      .then((profile) => {
+        if (profile && profile.id) {
+          setProviderProfile(profile);
+          localStorage.setItem("providerServiceId", profile.id);
+        }
+      })
+      .catch(() => {
+        // ignore errors; treat as no provider profile
+      });
+  }, []);
 
   const handleProviderNavigate = () => {
-    if (providerServiceId) {
+    if (providerProfile?.id) {
       navigate("/provider-settings");
       return;
     }
@@ -34,7 +61,11 @@ export default function Profile() {
 
   /* SIGN OUT */
   const handleSignOut = () => {
+    const savedPic = localStorage.getItem("profilePic"); // keep avatar across sign-outs
     localStorage.clear();
+    if (savedPic) {
+      localStorage.setItem("profilePic", savedPic);
+    }
     navigate("/");
     window.location.reload();
   };
@@ -58,18 +89,9 @@ export default function Profile() {
 
         {/* LEFT PANEL */}
         <div className="profile-left">
-          <label htmlFor="profileUpload" className="profile-img-wrapper">
-            <img src={profilePic} className="profile-img-large" />
-            <div className="profile-img-change">Change</div>
-          </label>
-
-          <input
-            id="profileUpload"
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleProfileUpload}
-          />
+          <div className="profile-img-wrapper">
+            <img src={avatar} className="profile-img-large" />
+          </div>
 
           <h2 className="profile-name-large">{name}</h2>
           <p className="profile-email-large">{email}</p>
@@ -100,6 +122,10 @@ export default function Profile() {
 
           <button className="profile-btn-big" onClick={() => navigate("/feedback")}>
             Feedback & Support
+          </button>
+
+          <button className="profile-btn-big" onClick={() => navigate("/my-feedback")}>
+            My Feedback
           </button>
 
         </div>
