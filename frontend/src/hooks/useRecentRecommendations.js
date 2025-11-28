@@ -1,3 +1,4 @@
+// Hook that loads personalized recommendation feeds if a user is signed in.
 import { useCallback, useEffect, useState } from "react";
 import { buildApiUrl } from "../utils/api";
 import { getAccessToken, getAuthHeaders } from "../utils/auth";
