@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
-import { login as loginRequest, signup as signupRequest } from "../../api/client";
+import {
+  login as loginRequest,
+  signup as signupRequest,
+  fetchMe,
+} from "../../api/client";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -15,6 +19,61 @@ export const Navbar = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  const overlayStyle = {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.45)",
+    backdropFilter: "blur(4px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 50,
+    padding: 16,
+  };
+
+  const modalStyle = {
+    background: "#fff",
+    padding: 36,
+    borderRadius: 18,
+    width: 620,
+    maxWidth: "96vw",
+    boxShadow: "0 22px 60px rgba(0,0,0,0.18)",
+  };
+
+  const tabsStyle = { display: "flex", gap: 12, marginBottom: 16 };
+  const tabButton = (active) => ({
+    background: active ? "#0f9b63" : "#f3f4f6",
+    color: active ? "#fff" : "#111",
+    padding: "10px 18px",
+    borderRadius: 14,
+    border: "none",
+    fontWeight: 700,
+    cursor: "pointer",
+    boxShadow: active ? "0 8px 18px rgba(15,155,99,0.25)" : "none",
+    transition: "all 0.2s ease",
+  });
+
+  const inputStyle = {
+    padding: "14px 16px",
+    borderRadius: 12,
+    border: "1px solid #e5e7eb",
+    background: "#f8fafc",
+    fontSize: 16,
+  };
+
+  const formStyle = { display: "grid", gap: 18, marginTop: 8 };
+  const primaryButtonStyle = {
+    background: "linear-gradient(90deg, #0f9b63 0%, #10b981 100%)",
+    color: "#fff",
+    border: "none",
+    borderRadius: 14,
+    padding: "16px 18px",
+    fontWeight: 800,
+    cursor: "pointer",
+    boxShadow: "0 10px 24px rgba(16,185,129,0.22)",
+  };
+  const subtleTextStyle = { marginTop: 8, color: "#6b7280", fontSize: 14 };
 
   // ✅ Logged-in state based on JWT in localStorage
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -75,7 +134,20 @@ export const Navbar = () => {
       // Save tokens + user info
       localStorage.setItem("access", data.access);
       localStorage.setItem("refresh", data.refresh);
-      localStorage.setItem("name", data.name);
+      // Try to hydrate full name from backend profile
+      try {
+        const me = await fetchMe();
+        const fullName =
+          me?.full_name ||
+          [me?.first_name, me?.last_name].filter(Boolean).join(" ").trim();
+        if (fullName) {
+          localStorage.setItem("name", fullName);
+        } else {
+          localStorage.setItem("name", data.name);
+        }
+      } catch {
+        localStorage.setItem("name", data.name);
+      }
       localStorage.setItem("email", email);
 
       setIsLoggedIn(true);
@@ -136,40 +208,19 @@ export const Navbar = () => {
 
       {/* ✅ SIGN IN / SIGN UP MODAL */}
       {open && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
-          onClick={() => setOpen(false)}
-        >
-          <div
-            style={{
-              background: "#fff",
-              padding: 24,
-              borderRadius: 12,
-              width: 360,
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div style={overlayStyle} onClick={() => setOpen(false)}>
+          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
             {/* Tabs */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+            <div style={tabsStyle}>
               <button
-                className="btn"
-                style={{ opacity: tab === "signin" ? 1 : 0.5 }}
+                style={tabButton(tab === "signin")}
                 onClick={() => setTab("signin")}
               >
                 Sign in
               </button>
 
               <button
-                className="btn"
-                style={{ opacity: tab === "signup" ? 1 : 0.5 }}
+                style={tabButton(tab === "signup")}
                 onClick={() => setTab("signup")}
               >
                 Sign up
@@ -180,12 +231,14 @@ export const Navbar = () => {
             {tab === "signin" ? (
               <>
                 <h3 style={{ marginTop: 0 }}>Welcome back</h3>
-                <form onSubmit={signin} style={{ display: "grid", gap: 10 }}>
+                <p style={subtleTextStyle}>Access your account to book services.</p>
+                <form onSubmit={signin} style={formStyle}>
                   <input
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    style={inputStyle}
                     required
                   />
                   <input
@@ -193,9 +246,10 @@ export const Navbar = () => {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    style={inputStyle}
                     required
                   />
-                  <button className="btn" type="submit" disabled={loading}>
+                  <button style={primaryButtonStyle} type="submit" disabled={loading}>
                     {loading ? "Signing in..." : "Sign in"}
                   </button>
                 </form>
@@ -204,12 +258,14 @@ export const Navbar = () => {
               // SIGN UP FORM
               <>
                 <h3 style={{ marginTop: 0 }}>Create your account</h3>
-                <form onSubmit={signup} style={{ display: "grid", gap: 10 }}>
+                <p style={subtleTextStyle}>Use your @uic.edu email to get started.</p>
+                <form onSubmit={signup} style={formStyle}>
                   <input
                     type="text"
                     placeholder="Full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    style={inputStyle}
                     required
                   />
                   <input
@@ -217,6 +273,7 @@ export const Navbar = () => {
                     placeholder="UIC email (must end with @uic.edu)"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    style={inputStyle}
                     required
                   />
                   <input
@@ -224,9 +281,10 @@ export const Navbar = () => {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    style={inputStyle}
                     required
                   />
-                  <button className="btn" type="submit" disabled={loading}>
+                  <button style={primaryButtonStyle} type="submit" disabled={loading}>
                     {loading ? "Sending..." : "Sign up"}
                   </button>
                 </form>
@@ -251,7 +309,11 @@ export const Navbar = () => {
 
             {/* CLOSE BUTTON */}
             <div style={{ textAlign: "right", marginTop: 10 }}>
-              <button className="btn" onClick={() => setOpen(false)}>
+              <button
+                className="btn"
+                style={{ background: "#f3f4f6", color: "#111", borderRadius: 12 }}
+                onClick={() => setOpen(false)}
+              >
                 Close
               </button>
             </div>

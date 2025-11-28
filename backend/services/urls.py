@@ -12,7 +12,10 @@ from .views import (
     CreateBookingView,
     ProviderBookingsListView,
     MyBookingsListView,
-    ProviderRatingView
+    ProviderRatingView,
+    BookingDetailView,
+    MyReviewsListView,
+    MyReviewDetailView
 )
 
 urlpatterns = [
@@ -33,6 +36,8 @@ urlpatterns = [
     path('providers/<int:provider_id>/reviews/create/', CreateReviewView.as_view()),
     #get list of reviews left for provider 
     path('providers/<int:provider_id>/reviews/', ProviderReviewsListView.as_view()),
+    path('reviews/my/', MyReviewsListView.as_view()),
+    path('reviews/my/<int:pk>/', MyReviewDetailView.as_view()),
     #book an appointment 
     path('providers/<provider_id>/services/<service_id>/bookings/', CreateBookingView.as_view()),
     #get provider's rating
@@ -40,5 +45,7 @@ urlpatterns = [
     #get provider's bookings 
     path('providers/<provider_id>/bookings/', ProviderBookingsListView.as_view()),
     #get customer's booking
-    path('bookings/my/', MyBookingsListView.as_view())
+    path('bookings/my/', MyBookingsListView.as_view()),
+    # booking detail (customer)
+    path('bookings/<int:pk>/', BookingDetailView.as_view()),
 ]

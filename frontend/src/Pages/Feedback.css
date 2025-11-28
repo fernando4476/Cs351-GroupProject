@@ -105,6 +105,20 @@
   opacity: 0.9;
 }
 
+.feedback-success {
+  margin-top: 10px;
+  color: #0f9b63;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.feedback-error {
+  margin-top: 10px;
+  color: #c40000;
+  font-weight: 700;
+  font-size: 15px;
+}
+
 /* FAQ Section */
 .faq-section p {
   margin-bottom: 15px;

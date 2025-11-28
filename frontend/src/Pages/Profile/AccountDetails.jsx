@@ -2,15 +2,53 @@ import React from "react";
 import "./AccountDetails.css";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import { fetchMe } from "../../api/client";
 
 export default function AccountDetails() {
   const navigate = useNavigate();
 
-  const name = localStorage.getItem("name") || "UIC Student";
-  const email = localStorage.getItem("email") || "student@uic.edu";
-  const language = localStorage.getItem("language") || "English";
-  const country = localStorage.getItem("country") || "United States";
-  const profilePic = localStorage.getItem("profilePic") || logo;
+  const [name, setName] = React.useState(
+    localStorage.getItem("name") || "UIC Student"
+  );
+  const [email, setEmail] = React.useState(
+    localStorage.getItem("email") || "student@uic.edu"
+  );
+  const [language] = React.useState(
+    localStorage.getItem("language") || "English"
+  );
+  const [country, setCountry] = React.useState(
+    localStorage.getItem("country") || "United States"
+  );
+  const [profilePic, setProfilePic] = React.useState(
+    localStorage.getItem("profilePic") || logo
+  );
+
+  React.useEffect(() => {
+    fetchMe()
+      .then((me) => {
+        const fullName =
+          me?.full_name ||
+          [me?.first_name, me?.last_name].filter(Boolean).join(" ");
+        if (fullName) {
+          setName(fullName);
+          localStorage.setItem("name", fullName);
+        }
+        if (me?.email) {
+          setEmail(me.email);
+          localStorage.setItem("email", me.email);
+        }
+        if (me?.country) {
+          setCountry(me.country);
+          localStorage.setItem("country", me.country);
+        }
+        const photo = me?.photo;
+        if (photo) {
+          setProfilePic(photo);
+          localStorage.setItem("profilePic", photo);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   /* SIGN OUT */
   const handleSignOut = () => {

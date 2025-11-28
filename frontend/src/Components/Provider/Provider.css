@@ -1,10 +1,11 @@
 .provider-form-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem 1rem;
+  padding: 3rem 1rem 2rem; /* standard top padding */
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  position: relative;
 }
 
 .provider-form {
@@ -16,13 +17,58 @@
   width: 100%;
 }
 
-.back-link {
-  border: none;
-  background: transparent;
-  color: #1f2937;
-  font-weight: 600;
-  margin-bottom: 10px;
+.provider-form-container .back-link {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: auto;
+  bottom: auto;
+  background: #fff;
+  color: #c40000;
+  padding: 11px 25px;
+  border-radius: 30px;
+  border: 2px solid #fff;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  z-index: 10;
+  margin: 0;
+}
+
+.provider-form-container .back-link:hover {
+  background: transparent;
+  color: #fff;
+  border-color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.provider-form-container .signout-link {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: #fff;
+  color: #c40000;
+  padding: 11px 25px;
+  border-radius: 30px;
+  border: 2px solid #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  z-index: 10;
+  margin: 0;
+}
+
+.provider-form-container .signout-link:hover {
+  background: transparent;
+  color: #fff;
+  border-color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 
 .form-header {
@@ -349,9 +395,9 @@
   box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
 }
 
-.submit-btn {
+.provider-form .submit-btn {
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -363,12 +409,12 @@
   margin-top: 1rem;
 }
 
-.submit-btn:hover {
+.provider-form .submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
 }
 
-.submit-btn:disabled {
+.provider-form .submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }

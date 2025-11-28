@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./Appointments.css";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { fetchMyBookings, updateBooking, deleteBooking, createProviderReview } from "../api/client";
 
 export default function Appointments() {
   const navigate = useNavigate();
@@ -18,18 +19,27 @@ export default function Appointments() {
   const [showReschedModal, setShowReschedModal] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewProviderId, setReviewProviderId] = useState(null);
+  const [reviewStatus, setReviewStatus] = useState("");
 
-  // Load appointments from localStorage
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("appointments")) || [];
-    setAppointments(stored);
-  }, []);
-
-  // Helper to persist to localStorage
-  const saveAppointments = (updated) => {
-    setAppointments(updated);
-    localStorage.setItem("appointments", JSON.stringify(updated));
+  const refreshAppointments = async () => {
+    try {
+      const data = await fetchMyBookings();
+      if (Array.isArray(data)) {
+        setAppointments(data);
+      }
+    } catch (err) {
+      console.error("Failed to load appointments", err);
+    }
   };
+
+  // Load appointments from API
+  useEffect(() => {
+    refreshAppointments();
+  }, []);
 
   // Open cancel modal
   const openCancelModal = (index) => {
@@ -43,19 +53,26 @@ export default function Appointments() {
   };
 
   // Confirm cancel
-  const confirmCancel = () => {
+  const confirmCancel = async () => {
     if (selectedIndex === null) return;
-    const updated = appointments.filter((_, i) => i !== selectedIndex);
-    saveAppointments(updated);
-    closeCancelModal();
+    const booking = appointments[selectedIndex];
+    if (!booking?.id) return;
+    try {
+      await deleteBooking(booking.id);
+      await refreshAppointments();
+    } catch (err) {
+      console.error("Cancel booking failed", err);
+    } finally {
+      closeCancelModal();
+    }
   };
 
   // Open reschedule modal
   const openReschedModal = (index) => {
     const appt = appointments[index];
     setSelectedIndex(index);
-    setNewDate(appt.date || "");
-    setNewTime(appt.time || "");
+    setNewDate(appt?.date || "");
+    setNewTime(appt?.time || "");
     setShowReschedModal(true);
   };
 
@@ -67,16 +84,68 @@ export default function Appointments() {
   };
 
   // Confirm reschedule
-  const confirmReschedule = () => {
+  const confirmReschedule = async () => {
     if (selectedIndex === null) return;
     const updated = [...appointments];
-    updated[selectedIndex] = {
-      ...updated[selectedIndex],
-      date: newDate || updated[selectedIndex].date,
-      time: newTime || updated[selectedIndex].time,
+    const booking = updated[selectedIndex];
+    if (!booking?.id) return;
+    const payload = {
+      date: newDate || booking.date,
+      time: newTime || booking.time,
     };
-    saveAppointments(updated);
-    closeReschedModal();
+    try {
+      const saved = await updateBooking(booking.id, payload);
+      updated[selectedIndex] = { ...booking, ...saved };
+      setAppointments(updated);
+      await refreshAppointments();
+    } catch (err) {
+      console.error("Reschedule failed", err);
+    } finally {
+      closeReschedModal();
+    }
+  };
+
+  // Open review modal
+  const openReviewModal = (index) => {
+    const appt = appointments[index];
+    const providerId =
+      appt?.provider?.id ||
+      appt?.provider_id ||
+      appt?.service?.provider?.id ||
+      appt?.service?.provider;
+    if (!providerId) return;
+    setSelectedIndex(index);
+    setReviewProviderId(providerId);
+    setReviewRating(5);
+    setReviewComment("");
+    setReviewStatus("");
+    setShowReviewModal(true);
+  };
+
+  const closeReviewModal = () => {
+    setSelectedIndex(null);
+    setReviewProviderId(null);
+    setShowReviewModal(false);
+    setReviewStatus("");
+  };
+
+  const submitReview = async (e) => {
+    e.preventDefault();
+    if (!reviewProviderId) return;
+    try {
+      await createProviderReview({
+        providerId: reviewProviderId,
+        serviceId:
+          appointments[selectedIndex]?.service?.id ||
+          appointments[selectedIndex]?.service_id,
+        rating: Number(reviewRating),
+        comment: reviewComment.trim(),
+      });
+      setReviewStatus("Review submitted!");
+      setTimeout(closeReviewModal, 1200);
+    } catch (err) {
+      setReviewStatus(err.message || "Failed to submit review");
+    }
   };
 
   const handleSignOut = () => {
@@ -85,15 +154,12 @@ export default function Appointments() {
     localStorage.removeItem("name");
     localStorage.removeItem("email");
     localStorage.removeItem("profilePic");
-    // appointments could stay, but you can clear them too if you want:
-    // localStorage.removeItem("appointments");
     navigate("/");
     window.location.reload();
   };
 
   return (
     <div className="appointments-page">
-      {/* 🔴 TOP BAR */}
       <div className="appointments-topbar">
         <button className="back-btn" onClick={() => navigate("/profile")}>
           ← Back to Profile
@@ -104,9 +170,7 @@ export default function Appointments() {
         </button>
       </div>
 
-      {/* MAIN LAYOUT */}
       <div className="appointments-layout">
-        {/* LEFT PROFILE PANEL */}
         <div className="appointments-profile-panel">
           <img src={profilePic} className="appt-profile-pic" alt="Profile" />
           <h2 className="appt-profile-name">{name}</h2>
@@ -116,7 +180,6 @@ export default function Appointments() {
           </p>
         </div>
 
-        {/* RIGHT CONTENT PANEL */}
         <div className="appointments-content">
           <h1 className="appt-title">Upcoming Appointments</h1>
 
@@ -134,23 +197,29 @@ export default function Appointments() {
                 <div className="appt-card" key={index}>
                   <div className="appt-info">
                     <h3 className="appt-service">
-                      {appt.serviceName || "Service"}
+                      {appt?.service?.title || appt.serviceName || "Service"}
                     </h3>
                     <p className="appt-provider">
                       Provider:{" "}
-                      <strong>{appt.provider || "UIC Service Provider"}</strong>
+                      <strong>
+                        {appt?.provider?.business_name ||
+                          appt?.service?.provider?.business_name ||
+                          appt.provider ||
+                          "UIC Service Provider"}
+                      </strong>
                     </p>
                     <p className="appt-date">
-                      📅 {appt.date || "Date not set"} —{" "}
+                      📅 {appt.date || "Date not set"} ·{" "}
                       {appt.time || "Time not set"}
                     </p>
-                    {appt.location && (
-                      <p className="appt-location">📍 {appt.location}</p>
-                    )}
+                    {appt?.service?.location || appt.location ? (
+                      <p className="appt-location">
+                        📍 {appt?.service?.location || appt.location}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div className="appt-actions">
-                    <button className="appt-btn view-btn">View</button>
                     <button
                       className="appt-btn resched-btn"
                       onClick={() => openReschedModal(index)}
@@ -163,6 +232,17 @@ export default function Appointments() {
                     >
                       Cancel
                     </button>
+                    {(appt?.provider?.id ||
+                      appt?.provider_id ||
+                      appt?.service?.provider?.id ||
+                      appt?.service?.provider) && (
+                      <button
+                        className="appt-btn review-btn"
+                        onClick={() => openReviewModal(index)}
+                      >
+                        Leave Review
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -171,7 +251,6 @@ export default function Appointments() {
         </div>
       </div>
 
-      {/* ❌ CANCEL MODAL */}
       {showCancelModal && (
         <div className="modal-overlay" onClick={closeCancelModal}>
           <div
@@ -180,9 +259,8 @@ export default function Appointments() {
           >
             <h2>Cancel Appointment?</h2>
             <p>
-              Are you sure you want to{" "}
-              <strong>cancel this appointment</strong>? This action cannot be
-              undone.
+              Are you sure you want to <strong>cancel this appointment</strong>?
+              This action cannot be undone.
             </p>
             <div className="modal-actions">
               <button className="modal-btn secondary" onClick={closeCancelModal}>
@@ -196,7 +274,6 @@ export default function Appointments() {
         </div>
       )}
 
-      {/* 🔁 RESCHEDULE MODAL */}
       {showReschedModal && (
         <div className="modal-overlay" onClick={closeReschedModal}>
           <div
@@ -240,6 +317,54 @@ export default function Appointments() {
                 Save Changes
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showReviewModal && (
+        <div className="modal-overlay" onClick={closeReviewModal}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+            <h2>Leave a Review</h2>
+            <p className="modal-subtext">Share your feedback with this provider.</p>
+            <form className="modal-form" onSubmit={submitReview}>
+              <label className="modal-field">
+                Rating
+                <select
+                  value={reviewRating}
+                  onChange={(e) => setReviewRating(e.target.value)}
+                >
+                  {[5, 4, 3, 2, 1].map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="modal-field">
+                Comment
+                <textarea
+                  rows="3"
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Optional"
+                />
+              </label>
+              {reviewStatus && (
+                <p className="modal-status">{reviewStatus}</p>
+              )}
+              <div className="modal-actions">
+                <button
+                  className="modal-btn secondary"
+                  type="button"
+                  onClick={closeReviewModal}
+                >
+                  Cancel
+                </button>
+                <button className="modal-btn primary" type="submit">
+                  Submit Review
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

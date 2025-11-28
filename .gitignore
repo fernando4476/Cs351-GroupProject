@@ -1,7 +1,21 @@
 # --- Virtual Environment ---
 venv/
 env/
+.venv/
 
 # --- Environment / Secrets ---
 .env
+# Project-specific env
+backend/.env
 
+# --- Python Artifacts ---
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+
+# --- Database ---
+db.sqlite3
+
+# --- Media uploads ---
+backend/media/photos/

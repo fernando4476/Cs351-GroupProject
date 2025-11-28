@@ -2,7 +2,7 @@ nav{
     width: 100%;
     background: #c8102e; /* UIC red */
     color: #ffffff;
-    padding: 8px 0; /* Reduced vertical padding */
+    padding: 16px 0; /* Taller bar */
     position: fixed;
     top: 0;
     left: 0;

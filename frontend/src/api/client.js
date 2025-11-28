@@ -1,5 +1,11 @@
 import { buildApiUrl } from "../utils/api";
-import { getAuthHeaders } from "../utils/auth";
+import {
+  getAuthHeaders,
+  getUserIdFromToken,
+  clearAuthStorage,
+  getRefreshToken,
+  setAccessToken,
+} from "../utils/auth";
 
 const parseError = async (response) => {
   let detail = "Request failed";
@@ -18,18 +24,70 @@ const parseError = async (response) => {
   return detail;
 };
 
+let refreshInFlight = null;
+
+const refreshAccessToken = async () => {
+  if (refreshInFlight) return refreshInFlight;
+  const refresh = getRefreshToken();
+  if (!refresh) throw new Error("No refresh token");
+  refreshInFlight = fetch(buildApiUrl("/auth/token/refresh/"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh }),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const message = await parseError(res);
+        throw new Error(message || "Refresh failed");
+      }
+      return res.json();
+    })
+    .then((data) => {
+      if (data?.access) {
+        setAccessToken(data.access);
+        return data.access;
+      }
+      throw new Error("Refresh failed");
+    })
+    .finally(() => {
+      refreshInFlight = null;
+    });
+  return refreshInFlight;
+};
+
 const jsonRequest = async (
   path,
-  { method = "GET", body, headers = {}, signal } = {}
+  { method = "GET", body, headers = {}, signal } = {},
+  attempt = 0
 ) => {
+  const mergedHeaders = {
+    ...headers,
+    ...getAuthHeaders(),
+  };
+
   const response = await fetch(buildApiUrl(path), {
     method,
-    headers,
+    headers: mergedHeaders,
     body,
     signal,
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+        // Try to refresh once if we had an auth header and a refresh token
+      const hasAuth = !!mergedHeaders.Authorization;
+      if (hasAuth && attempt === 0 && getRefreshToken()) {
+        try {
+          await refreshAccessToken();
+          return jsonRequest(path, { method, body, headers, signal }, attempt + 1);
+        } catch (err) {
+          clearAuthStorage();
+          throw new Error("Session expired. Please sign in again.");
+        }
+      }
+      clearAuthStorage();
+      throw new Error("Unauthorized. Please sign in again.");
+    }
     const message = await parseError(response);
     throw new Error(message);
   }
@@ -110,17 +168,53 @@ export const fetchServices = (options) => jsonRequest("/services/", options);
 export const fetchServiceDetail = (id, options) =>
   jsonRequest(`/services/${id}/`, options);
 
+export const updateService = (id, payload) =>
+  jsonRequest(`/services/${id}/`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+
+export const deleteService = (id) =>
+  jsonRequest(`/services/${id}/`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+
+export const fetchProviders = () =>
+  jsonRequest("/auth/providers/", {
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+
 export const fetchProviderReviews = (providerId, options) =>
   jsonRequest(`/providers/${providerId}/reviews/`, options);
 
-export const createProviderReview = ({ providerId, rating, comment }) =>
+export const createProviderReview = ({ providerId, serviceId, rating, comment }) =>
   jsonRequest(`/providers/${providerId}/reviews/create/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...getAuthHeaders(),
     },
-    body: JSON.stringify({ rating, comment }),
+    body: JSON.stringify({ rating, comment, service: serviceId }),
+  });
+
+export const submitFeedback = ({ full_name, email, message }) =>
+  jsonRequest("/auth/feedback/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ full_name, email, message }),
   });
 
 export const fetchProviderRating = (providerId, options) =>
@@ -136,6 +230,32 @@ export const recordRecentView = (serviceId) =>
     body: JSON.stringify({ service_id: serviceId }),
   });
 
+export const fetchMyReviews = () =>
+  jsonRequest("/reviews/my/", {
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+
+export const updateMyReview = (id, payload) =>
+  jsonRequest(`/reviews/my/${id}/`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+
+export const deleteMyReview = (id) =>
+  jsonRequest(`/reviews/my/${id}/`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
 export const bookService = ({ providerId, serviceId, date, time, note }) =>
   jsonRequest(`/providers/${providerId}/services/${serviceId}/bookings/`, {
     method: "POST",
@@ -144,4 +264,115 @@ export const bookService = ({ providerId, serviceId, date, time, note }) =>
       ...getAuthHeaders(),
     },
     body: JSON.stringify({ service: serviceId, date, time, note }),
+  });
+
+// Auth / profile
+export const fetchMe = () =>
+  jsonRequest("/auth/profile/me/", {
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+
+export const updateProfile = ({ first_name, last_name, email, country, photo }) => {
+  const form = new FormData();
+  if (first_name) form.append("first_name", first_name);
+  if (last_name) form.append("last_name", last_name);
+  if (email) form.append("email", email);
+   if (country) form.append("country", country);
+  if (photo instanceof File) form.append("photo", photo);
+  return jsonRequest("/auth/profile/update/", {
+    method: "PATCH",
+    headers: {
+      ...getAuthHeaders(),
+    },
+    body: form,
+  });
+};
+
+// Provider profile for current user
+export const fetchProviderProfile = async () => {
+  try {
+    return await jsonRequest("/auth/service-provider/me/", {
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+    });
+  } catch (err) {
+    // Fallback to list + match if direct endpoint missing
+    const userId = getUserIdFromToken();
+    if (!userId) return null;
+    const providers = await fetchProviders();
+    if (!Array.isArray(providers)) return null;
+    return providers.find((p) => `${p.user}` === `${userId}`) || null;
+  }
+};
+
+// Update provider profile (e.g., business_name, photo)
+export const updateProviderProfile = ({ business_name, description, phone, photo }) => {
+  const form = new FormData();
+  if (business_name) form.append("business_name", business_name);
+  if (description !== undefined) form.append("description", description);
+  if (phone !== undefined) form.append("phone", phone);
+  if (photo instanceof File) form.append("photo", photo);
+  return jsonRequest("/auth/service-provider/me/", {
+    method: "PATCH",
+    headers: {
+      ...getAuthHeaders(),
+    },
+    body: form,
+  });
+};
+
+// Provider services filtered by provider_id
+export const fetchProviderServices = async (providerId) => {
+  const services = await fetchServices({
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+  if (!Array.isArray(services)) return [];
+  return services.filter(
+    (svc) => `${svc?.provider?.id ?? svc?.provider}` === `${providerId}`
+  );
+};
+
+// Provider bookings
+export const fetchProviderBookings = (providerId) =>
+  jsonRequest(`/providers/${providerId}/bookings/`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+
+// Customer bookings
+export const fetchMyBookings = () =>
+  jsonRequest("/bookings/my/", {
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+
+export const updateBooking = (bookingId, payload) =>
+  jsonRequest(`/bookings/${bookingId}/`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+
+export const deleteBooking = (bookingId) =>
+  jsonRequest(`/bookings/${bookingId}/`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
   });

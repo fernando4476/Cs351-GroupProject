@@ -13,7 +13,7 @@ import Profile from "./Pages/Profile/Profile.jsx";
 import Feedback from "./Pages/Feedback.jsx";
 import AccountDetails from "./Pages/Profile/AccountDetails.jsx";
 import Settings from "./Pages/Profile/Settings.jsx";
-import Reviews from "./Pages/Profile/Reviews.jsx";
+import MyReviews from "./Pages/Profile/MyReviews.jsx";
 import SearchResults from "./Pages/SearchResults.jsx";
 import ServiceDetail from "./Pages/ServiceDetail.jsx";
 import { useProviders } from "./hooks/useProviders";
@@ -22,6 +22,8 @@ import useRecentRecommendations from "./hooks/useRecentRecommendations";
 import { recordSearchTerm, readSearchCounts } from "./utils/searchHistory";
 import ProviderAccount from "./Pages/Profile/ProviderAccount.jsx";
 import Appointments from "./Pages/Appointments.jsx";
+import ProviderSettings from "./Pages/Profile/ProviderSettings.jsx";
+
 
 const useFilteredProviders = (providers, query) => {
   return useMemo(() => {
@@ -132,7 +134,8 @@ export default function App() {
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/account-details" element={<AccountDetails />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/reviews" element={<Reviews />} />
+        <Route path="/provider-settings" element={<ProviderSettings />} />
+        <Route path="/my-feedback" element={<MyReviews />} />
         <Route
           path="/search"
           element={
@@ -144,7 +147,6 @@ export default function App() {
           }
         />
         <Route path="/services/:id" element={<ServiceDetail />} />
-        <Route path="/account-details" element={<AccountDetails />} />
         <Route path="/provider-account" element={<ProviderAccount />} />
         <Route path="/appointments" element={<Appointments />} />
       </Routes>
