@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./Feedback.css";
 import { useNavigate } from "react-router-dom";
+import { submitFeedback } from "../api/client";
 
 export default function Feedback() {
   const navigate = useNavigate();
@@ -8,13 +9,26 @@ export default function Feedback() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Feedback submitted!");
-    setFullName("");
-    setEmail("");
-    setMessage("");
+    setError("");
+    try {
+      await submitFeedback({
+        full_name: fullName.trim(),
+        email: email.trim(),
+        message: message.trim(),
+      });
+      setSubmitted(true);
+      setFullName("");
+      setEmail("");
+      setMessage("");
+      setTimeout(() => setSubmitted(false), 2000);
+    } catch (err) {
+      setError(err.message || "Failed to submit feedback");
+    }
   };
 
   return (
@@ -52,8 +66,8 @@ export default function Feedback() {
             Email us at <a href="mailto:uicmarketplaceverify@gmail.com">uicmarketplaceverify@gmail.com</a>.
           </p>
 
-          <p><strong>How do I report a provider?</strong><br />
-            Go to the provider’s profile and click “Report Provider.” Our team will respond within 24 hours.
+          <p><strong>How do I pay for a service?</strong><br />
+            Pay your provider directly using Venmo, Cash App, or Zelle/QuickPay. Your provider will share their handle after your service.
           </p>
 
           <p><strong>Why do I need a @uic.edu email?</strong><br />
@@ -89,6 +103,10 @@ export default function Feedback() {
             <button type="submit" className="submit-btn">
               Submit Feedback
             </button>
+            {submitted && (
+              <p className="feedback-success">Feedback submitted!</p>
+            )}
+            {error && <p className="feedback-error">{error}</p>}
           </form>
         </div>
 

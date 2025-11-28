@@ -6,7 +6,8 @@ from .views import ( SignupView,
 from .views import ( CustomerProfileListView,
                      ServiceProviderProfileListView,
                      ServiceProviderProfileCreateView,
-                     ServiceProviderProfileMeView )
+                     ServiceProviderProfileMeView,
+                     FeedbackCreateView )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -29,5 +30,7 @@ urlpatterns = [
     #update user profile
     path('profile/update/', UpdateProfileView.as_view()),
     #get user account details
-    path('profile/me/', UserAccountDetailsView.as_view())
+    path('profile/me/', UserAccountDetailsView.as_view()),
+    # feedback
+    path('feedback/', FeedbackCreateView.as_view(), name='feedback-create'),
 ]

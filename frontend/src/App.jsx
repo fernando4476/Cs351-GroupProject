@@ -12,7 +12,7 @@ import Profile from "./Pages/Profile/Profile.jsx";
 import Feedback from "./Pages/Feedback.jsx";
 import AccountDetails from "./Pages/Profile/AccountDetails.jsx";
 import Settings from "./Pages/Profile/Settings.jsx";
-import Reviews from "./Pages/Profile/Reviews.jsx";
+import MyReviews from "./Pages/Profile/MyReviews.jsx";
 import SearchResults from "./Pages/SearchResults.jsx";
 import ServiceDetail from "./Pages/ServiceDetail.jsx";
 import { useProviders } from "./hooks/useProviders";
@@ -132,7 +132,7 @@ export default function App() {
         <Route path="/account-details" element={<AccountDetails />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/provider-settings" element={<ProviderSettings />} />
-        <Route path="/reviews" element={<Reviews />} />
+        <Route path="/my-feedback" element={<MyReviews />} />
         <Route
           path="/search"
           element={

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-from django.db.models import Avg
+from django.db.models import Avg, Count
 from .models import Service, RecentServiceView, Booking, Review
 from .serializers import (
     ServiceSerializer, 
@@ -34,7 +34,8 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     #if get request
     def get_queryset(self):
         return Service.objects.all().annotate(
-            rating=Avg('review__rating')
+            rating=Avg('review__rating'),
+            review_count=Count('review', distinct=True),
         )
     def perform_create(self, serializer):
         provider = self.request.user.serviceproviderprofile 
@@ -45,10 +46,13 @@ class ServiceListCreateView(generics.ListCreateAPIView):
 #returns the service info; allow provider to update/delete their own service
 class ServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ServiceSerializer
-    permission_classes = [IsServiceProvider]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        qs = Service.objects.all()
+        qs = Service.objects.all().annotate(
+            rating=Avg('review__rating'),
+            review_count=Count('review', distinct=True),
+        )
         if self.request.method in ["PUT", "PATCH", "DELETE"]:
             if not hasattr(self.request.user, "serviceproviderprofile"):
                 return Service.objects.none()
@@ -111,10 +115,13 @@ class CreateReviewView(generics.CreateAPIView):
     def perform_create(self, serializer):
         provider_id = self.kwargs["provider_id"]
         provider = ServiceProviderProfile.objects.get(id=provider_id)
+        service_id = self.request.data.get("service")
+        service = Service.objects.filter(id=service_id).first() if service_id else None
 
         serializer.save(
             customer= self.request.user.customer,
-            provider=provider
+            provider=provider,
+            service=service
         )
 
     
@@ -125,6 +132,22 @@ class ProviderReviewsListView(generics.ListAPIView):
     def get_queryset(self):
         provider_id = self.kwargs["provider_id"]
         return Review.objects.filter(provider_id=provider_id)
+
+# get current customer's reviews
+class MyReviewsListView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Review.objects.filter(customer__user=self.request.user).order_by("-created_at")
+
+# update/delete a review owned by the current user
+class MyReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Review.objects.filter(customer__user=self.request.user)
 
 #get providers average rating
 class ProviderRatingView(generics.GenericAPIView):

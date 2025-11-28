@@ -177,6 +177,7 @@
 .appt-actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .appt-btn {
@@ -187,15 +188,6 @@
   border: none;
   font-weight: 700;
   min-width: 90px;
-}
-
-.view-btn {
-  background: #000000;
-  color: #ffffff;
-}
-
-.view-btn:hover {
-  opacity: 0.9;
 }
 
 .resched-btn {
@@ -213,6 +205,15 @@
 
 .cancel-btn:hover {
   filter: brightness(0.9);
+}
+
+.review-btn {
+  background: #0f9b63;
+  color: #ffffff;
+}
+
+.review-btn:hover {
+  filter: brightness(0.95);
 }
 
 /* === MODALS (CANCEL / RESCHEDULE) === */
@@ -304,4 +305,19 @@
 
 .modal-btn.danger:hover {
   filter: brightness(0.9);
+}
+
+.modal-form select,
+.modal-form textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #cccccc;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.modal-status {
+  font-weight: 700;
+  color: #0f9b63;
+  margin: 6px 0;
 }

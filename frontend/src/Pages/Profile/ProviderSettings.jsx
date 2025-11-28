@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ProviderSettings.css';
 import {
-  fetchMe,
   updateProfile,
   fetchProviderProfile,
   fetchProviderServices,
@@ -11,6 +10,9 @@ import {
   createServiceListing,
   updateService,
   deleteService,
+  updateProviderProfile,
+  fetchProviderReviews,
+  fetchProviderRating,
 } from '../../api/client';
 import { resolveMediaUrl } from '../../utils/api';
 
@@ -18,6 +20,7 @@ const ProviderSettings = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
+  const storedEmail = localStorage.getItem('email');
   const storedUser = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem('user')) || {};
@@ -27,12 +30,9 @@ const ProviderSettings = () => {
   }, []);
 
   const [profile, setProfile] = useState(() => {
-    const name = localStorage.getItem('name') || storedUser.username || 'Provider';
-    const email = localStorage.getItem('email') || storedUser.email || 'provider@example.com';
-    const avatar =
-      localStorage.getItem('profilePic') ||
-      storedUser.avatar ||
-      'https://via.placeholder.com/180x180.png?text=Profile';
+    const name = storedUser.username || 'Provider';
+    const email = storedEmail || storedUser.email || 'provider@example.com';
+    const avatar = storedUser.avatar || 'https://via.placeholder.com/180x180.png?text=Profile';
     return { displayName: name, email, avatar };
   });
 
@@ -67,26 +67,32 @@ const ProviderSettings = () => {
     location: '',
   });
   const [avatarFile, setAvatarFile] = useState(null);
+  const [saved, setSaved] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [rating, setRating] = useState(null);
+  const [showReviews, setShowReviews] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState("");
 
   useEffect(() => {
     const loadAll = async () => {
       try {
-        const me = await fetchMe();
-        const fullName = me?.full_name || [me?.first_name, me?.last_name].filter(Boolean).join(' ');
-        setProfile((prev) => ({
-          ...prev,
-          displayName: fullName || prev.displayName,
-          email: me?.email || prev.email,
-          avatar: resolveMediaUrl(me?.photo) || prev.avatar,
-        }));
-
         const provider = await fetchProviderProfile();
         if (provider?.id) {
           setProviderId(provider.id);
+          setProfile((prev) => ({
+            ...prev,
+            displayName: provider.business_name || prev.displayName,
+            avatar: resolveMediaUrl(provider.photo) || prev.avatar,
+            email: prev.email,
+          }));
           const svc = await fetchProviderServices(provider.id);
           setServices(Array.isArray(svc) ? svc : []);
           const bookings = await fetchProviderBookings(provider.id);
           setAppointments(Array.isArray(bookings) ? bookings : []);
+          const revs = await fetchProviderReviews(provider.id);
+          if (Array.isArray(revs)) setReviews(revs);
+          const avg = await fetchProviderRating(provider.id);
+          if (avg?.average_rating) setRating(Number(avg.average_rating));
         }
       } catch (err) {
         console.error('Failed to load provider data', err);
@@ -94,6 +100,16 @@ const ProviderSettings = () => {
     };
     loadAll();
   }, []);
+
+  const refreshServices = async () => {
+    if (!providerId) return;
+    try {
+      const svc = await fetchProviderServices(providerId);
+      setServices(Array.isArray(svc) ? svc : []);
+    } catch (err) {
+      console.error('Failed to refresh services', err);
+    }
+  };
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -110,12 +126,11 @@ const ProviderSettings = () => {
     };
     reader.readAsDataURL(file);
 
-    updateProfile({ photo: file })
+    updateProviderProfile({ photo: file })
       .then((resp) => {
         const newAvatar = resolveMediaUrl(resp?.photo);
         if (newAvatar) {
           setProfile((prev) => ({ ...prev, avatar: newAvatar }));
-          localStorage.setItem('profilePic', newAvatar);
         }
       })
       .catch((err) => console.error('Avatar update failed', err));
@@ -123,20 +138,22 @@ const ProviderSettings = () => {
 
   const handleProfileSave = (e) => {
     e.preventDefault();
-    const [first_name = '', last_name = ''] = (profile.displayName || '').split(' ');
-    updateProfile({
-      first_name,
-      last_name,
+    updateProviderProfile({
+      business_name: profile.displayName,
       photo: avatarFile || fileInputRef.current?.files?.[0],
     })
       .then((resp) => {
         const newAvatar = resolveMediaUrl(resp?.photo);
+        if (resp?.business_name) {
+          setProfile((prev) => ({ ...prev, displayName: resp.business_name }));
+        }
         if (newAvatar) {
           setProfile((prev) => ({ ...prev, avatar: newAvatar }));
-          localStorage.setItem('profilePic', newAvatar);
         }
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
       })
-      .catch((err) => console.error('Profile update failed', err));
+      .catch((err) => console.error('Provider profile update failed', err));
   };
 
   const handleAddService = (e) => {
@@ -157,7 +174,10 @@ const ProviderSettings = () => {
         duration,
         location,
       })
-        .then((svc) => setServices((prev) => [...prev, svc]))
+        .then(() => {
+          setServiceStatus("Service added");
+          refreshServices();
+        })
         .catch((err) => console.error('Create service failed', err));
     }
     e.target.reset();
@@ -197,11 +217,16 @@ const ProviderSettings = () => {
       .finally(() => setEditingService(null));
   };
 
-  const handleDeleteService = (svc) => {
+  const handleDeleteService = async (svc) => {
     if (!window.confirm('Delete this service?')) return;
-    deleteService(svc.id)
-      .then(() => setServices((prev) => prev.filter((s) => s.id !== svc.id)))
-      .catch((err) => console.error('Delete service failed', err));
+    try {
+      await deleteService(svc.id);
+      setServiceStatus("Service deleted");
+      await refreshServices();
+    } catch (err) {
+      console.error('Delete service failed', err);
+      setServiceStatus("Delete failed");
+    }
   };
 
   const handleSignOut = () => {
@@ -214,7 +239,7 @@ const ProviderSettings = () => {
     <div className="provider-settings-page">
       <div className="provider-topbar">
         <button className="provider-back-btn" onClick={() => navigate('/profile')}>
-          {`< Back`}
+          {`< Back to Profile`}
         </button>
         <button className="provider-signout-btn" onClick={handleSignOut}>Sign Out</button>
       </div>
@@ -233,6 +258,15 @@ const ProviderSettings = () => {
         </div>
         <h2 className="provider-name">{profile.displayName}</h2>
         <p className="provider-email">{profile.email}</p>
+        {rating !== null && (
+          <button
+            type="button"
+            className="provider-rating-pill"
+            onClick={() => setShowReviews(true)}
+          >
+            ⭐ {rating.toFixed(1)} · {reviews.length} review{reviews.length === 1 ? '' : 's'}
+          </button>
+        )}
       </section>
 
       <div className="provider-right">
@@ -270,18 +304,19 @@ const ProviderSettings = () => {
                     onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
                   />
                 </label>
-                <label>
-                  Email
-                  <input
-                    name="email"
-                    type="email"
-                    value={profile.email}
-                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                  />
-                </label>
+              <label>
+                Email
+                <input
+                  name="email"
+                  type="email"
+                  value={profile.email}
+                  disabled
+                />
+              </label>
                 <button type="submit" className="provider-save-btn">
                   Save
                 </button>
+                {saved && <p className="provider-saved-text">Changes saved!</p>}
               </form>
             </section>
           )}
@@ -353,24 +388,38 @@ const ProviderSettings = () => {
               {appointments.length === 0 ? (
                 <p className="empty">No appointments yet.</p>
               ) : (
-                <ul className="provider-list">
-                  {appointments.map((appt, idx) => (
-                    <li key={`${appt.id || idx}`}>
-                      <strong>{appt?.service?.title || 'Appointment'}</strong>
-                      <div className="muted">
-                        {[appt.date, appt.time].filter(Boolean).join(' ')}
-                        {` | `}
-                        {appt?.customer?.full_name ||
-                          [appt?.customer?.first_name, appt?.customer?.last_name]
-                            .filter(Boolean)
-                            .join(' ') ||
-                          appt?.customer?.username ||
-                          'Customer'}
+                <div className="provider-appt-grid">
+                  {appointments.map((appt, idx) => {
+                    const customerName =
+                      appt?.customer?.full_name ||
+                      [appt?.customer?.first_name, appt?.customer?.last_name].filter(Boolean).join(' ') ||
+                      appt?.customer?.username ||
+                      'Customer';
+                    const customerEmail = appt?.customer?.email || 'No email';
+                    const customerAvatar =
+                      resolveMediaUrl(appt?.customer?.photo) ||
+                      'https://via.placeholder.com/64x64.png?text=User';
+                    const dateTime = [appt.date, appt.time].filter(Boolean).join(' · ');
+                    return (
+                      <div className="provider-appt-card" key={`${appt.id || idx}`}>
+                        <div className="provider-appt-left">
+                          <img src={customerAvatar} alt={customerName} className="provider-appt-avatar" />
+                          <div>
+                            <div className="provider-appt-name">{customerName}</div>
+                            <div className="provider-appt-email">{customerEmail}</div>
+                          </div>
+                        </div>
+                        <div className="provider-appt-body">
+                          <div className="provider-appt-service">
+                            {appt?.service?.title || 'Appointment'}
+                          </div>
+                          <div className="provider-appt-meta">{dateTime}</div>
+                          {appt?.note ? <div className="provider-appt-note">{appt.note}</div> : null}
+                        </div>
                       </div>
-                      {appt?.note ? <div className="muted">{appt.note}</div> : null}
-                    </li>
-                  ))}
-                </ul>
+                    );
+                  })}
+                </div>
               )}
             </section>
           )}
@@ -443,11 +492,52 @@ const ProviderSettings = () => {
         </div>
       )}
 
+      {showReviews && (
+        <div className="provider-modal">
+          <div className="provider-modal-content">
+            <h3>Reviews</h3>
+            <p className="modal-subtext">
+              Average rating: {rating !== null ? rating.toFixed(1) : 'N/A'}
+            </p>
+            <div className="reviews-list-modal">
+              {reviews.length === 0 ? (
+                <p className="empty">No reviews yet.</p>
+              ) : (
+                reviews.map((rev) => (
+                  <div key={rev.id || `${rev.rating}-${rev.comment}`} className="review-row">
+                    <div className="review-header">
+                      <span className="review-rating-pill">⭐ {rev.rating}</span>
+                      <span className="review-date">
+                        {rev.created_at
+                          ? new Date(rev.created_at).toLocaleDateString()
+                          : ''}
+                      </span>
+                    </div>
+                    <p className="review-comment">{rev.comment || 'No comment'}</p>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="provider-modal-actions">
+              <button
+                type="button"
+                className="provider-chip-btn"
+                onClick={() => setShowReviews(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
 
 export default ProviderSettings;
+
+// Reviews modal appended at the end of the component render
 
 
 

@@ -295,14 +295,27 @@ export default function ProviderProfile() {
 
   return (
     <div className="provider-form-container">
+      <button
+        type="button"
+        className="back-link"
+        onClick={() => navigate("/profile")}
+      >
+        Back to Profile
+      </button>
+      <button
+        type="button"
+        className="signout-link"
+        onClick={() => {
+          localStorage.removeItem("access");
+          localStorage.removeItem("refresh");
+          localStorage.removeItem("name");
+          localStorage.removeItem("email");
+          navigate("/");
+        }}
+      >
+        Sign out
+      </button>
       <div className="provider-form">
-        <button
-          type="button"
-          className="back-link"
-          onClick={() => navigate("/")}
-        >
-          ← Back to Home
-        </button>
         <div className="form-header">
           <h1>Become a Service Provider</h1>
           <p>Fill out your information to create your provider profile</p>
