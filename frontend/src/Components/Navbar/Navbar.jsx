@@ -12,6 +12,7 @@ export const Navbar = () => {
   const [tab, setTab] = useState("signin");
 
   // Form states
+  // Form states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -83,6 +84,7 @@ export const Navbar = () => {
   const userName = localStorage.getItem("name");
 
   // Keep Navbar in sync if localStorage changes (e.g., in other tabs)
+  // Keep Navbar in sync if localStorage changes (e.g., in other tabs)
   useEffect(() => {
     function checkAuth() {
       setIsLoggedIn(!!localStorage.getItem("access"));
@@ -91,6 +93,7 @@ export const Navbar = () => {
     return () => window.removeEventListener("storage", checkAuth);
   }, []);
 
+  // ✅ LOGOUT
   // ✅ LOGOUT
   function logout() {
     localStorage.removeItem("access");
@@ -101,6 +104,7 @@ export const Navbar = () => {
     navigate("/");
   }
 
+  // ✅ SIGN UP
   // ✅ SIGN UP
   async function signup(e) {
     e.preventDefault();
@@ -120,6 +124,7 @@ export const Navbar = () => {
     }
   }
 
+  // ✅ SIGN IN
   // ✅ SIGN IN
   async function signin(e) {
     e.preventDefault();
@@ -161,9 +166,11 @@ export const Navbar = () => {
   }
 
   return (
+  
     <nav className="container" style={{ position: "relative" }}>
 
       <ul>
+        {/* ✅ Logged in view */}
         {/* ✅ Logged in view */}
         {isLoggedIn ? (
           <>
@@ -192,6 +199,7 @@ export const Navbar = () => {
           </>
         ) : (
           // ✅ Logged out view
+          // ✅ Logged out view
           <li>
             <button
               className="btn"
@@ -206,6 +214,7 @@ export const Navbar = () => {
         )}
       </ul>
 
+      {/* ✅ SIGN IN / SIGN UP MODAL */}
       {/* ✅ SIGN IN / SIGN UP MODAL */}
       {open && (
         <div style={overlayStyle} onClick={() => setOpen(false)}>

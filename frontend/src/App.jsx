@@ -56,6 +56,23 @@ function Home({ providers, services, servicesLoading, servicesError }) {
     services && services.length > 0
       ? services.slice(0, 3)
       : filtered.slice(0, 3);
+  const { services: recentServices } = useRecentRecommendations();
+  const personalizedCategories = useMemo(() => {
+    const seen = new Set();
+    const items = [];
+    recentServices.forEach((svc) => {
+      const label =
+        svc?.title ||
+        svc?.provider?.business_name ||
+        svc?.provider?.user?.username ||
+        svc?.location;
+      const normalized = (label || "").trim().toLowerCase();
+      if (!normalized || seen.has(normalized)) return;
+      seen.add(normalized);
+      items.push({ name: label });
+    });
+    return items.slice(0, DEFAULT_CATEGORIES.length);
+  }, [recentServices]);
 
   const reorderCategories = useCallback((counts) => {
     const order = [...DEFAULT_CATEGORIES].sort((a, b) => {
@@ -91,8 +108,7 @@ function Home({ providers, services, servicesLoading, servicesError }) {
     navigate(`/search?q=${encodeURIComponent(trimmed)}`);
   };
 
-  const categoriesToShow =
-    personalizedCategories.length > 0 ? personalizedCategories : categoryItems;
+  const categoriesToShow = categoryItems;
 
   return (
     <div>
@@ -153,21 +169,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-  const { services: recentServices } = useRecentRecommendations();
-
-  const personalizedCategories = useMemo(() => {
-    const seen = new Set();
-    const items = [];
-    recentServices.forEach((svc) => {
-      const label =
-        svc?.title ||
-        svc?.provider?.business_name ||
-        svc?.provider?.user?.username ||
-        svc?.location;
-      const normalized = (label || "").trim().toLowerCase();
-      if (!normalized || seen.has(normalized)) return;
-      seen.add(normalized);
-      items.push({ name: label });
-    });
-    return items.slice(0, DEFAULT_CATEGORIES.length);
-  }, [recentServices]);

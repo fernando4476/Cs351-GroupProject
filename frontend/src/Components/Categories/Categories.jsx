@@ -3,7 +3,7 @@ import './Categories.css';
 
 export const DEFAULT_CATEGORIES = [
   { name: 'Hair' },
-  { name: 'tutoring' },
+  { name: 'Tutoring' },
   { name: 'Photography' },
   { name: 'Tech Help' },
   { name: 'Events' }
