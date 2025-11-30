@@ -184,15 +184,8 @@ export default function ServiceDetail() {
 
   return (
     <div>
-      <Navbar />
+      <Navbar showBackButton backLabel="Home" backTo="/" />
       <main className="service-detail container">
-        <button
-          className="service-back-link"
-          onClick={() => navigate("/")}
-          type="button"
-        >
-          ← Back to Home
-        </button>
         {loading && <p className="service-detail__status">Loading service…</p>}
         {error && !loading && (
           <p className="service-detail__status service-detail__status--error">
@@ -255,19 +248,14 @@ export default function ServiceDetail() {
                       <span className="service-price-sub">per session</span>
                     </div>
                     <button
+                      type="button"
                       className="book-chip"
                       onClick={() => setBookingOpen(true)}
                     >
-                      book
+                      Book appointment
                     </button>
                   </div>
                 </div>
-              </div>
-
-              <div className="primary-cta">
-                <button onClick={() => setBookingOpen(true)}>
-                  Book Appointment
-                </button>
               </div>
             </section>
 

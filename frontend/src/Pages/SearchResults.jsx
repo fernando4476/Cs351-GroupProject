@@ -60,7 +60,7 @@ export default function SearchResults({
 
   return (
     <div>
-      <Navbar />
+      <Navbar showBackButton backLabel="Home" backTo="/" />
       <section className="results-hero">
         <div className="results-card">
           <p className="results-label">Search</p>
