@@ -86,7 +86,7 @@ const jsonRequest = async (
         }
       }
       clearAuthStorage();
-      throw new Error("Unauthorized. Please sign in again.");
+      throw new Error("Account not found.");
     }
     const message = await parseError(response);
     throw new Error(message);
@@ -167,6 +167,9 @@ export const fetchServices = (options) => jsonRequest("/services/", options);
 
 export const fetchServiceDetail = (id, options) =>
   jsonRequest(`/services/${id}/`, options);
+
+export const fetchRecommendations = (id, options) =>
+  jsonRequest(`/services/${id}/recommendations/`, options);
 
 export const updateService = (id, payload) =>
   jsonRequest(`/services/${id}/`, {
