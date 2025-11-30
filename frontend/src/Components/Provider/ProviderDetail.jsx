@@ -55,6 +55,23 @@ export default function ProviderDetail() {
     timeIndex: 0,
   });
 
+  const openBooking = (service) => {
+    if (!service) return;
+    setBooking({
+      open: true,
+      service,
+      dateIndex: 0,
+      timeIndex: 0,
+    });
+  };
+
+  const closeBooking = () =>
+    setBooking((prev) => ({
+      ...prev,
+      open: false,
+      service: null,
+    }));
+
   if (!provider) {
     return (
       <>
@@ -91,19 +108,6 @@ export default function ProviderDetail() {
     hours,
     services = [],
   } = provider;
-
-  const openBooking = (service) => {
-    setBooking({
-      open: true,
-      service,
-      dateIndex: 0,
-      timeIndex: 0,
-    });
-  };
-
-  const closeBooking = () => {
-    setBooking((prev) => ({ ...prev, open: false, service: null }));
-  };
 
   const selectedDate = dateOptions[booking.dateIndex];
   const selectedTime = TIME_SLOTS[booking.timeIndex];
