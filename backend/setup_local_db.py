@@ -51,7 +51,7 @@ def main():
     # Load fixtures
     load_fixtures()
 
-    print("✅ Local database setup complete!")
+    print("Local database setup complete!")
 
 if __name__ == "__main__":
     main()
