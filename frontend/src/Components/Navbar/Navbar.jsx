@@ -7,7 +7,12 @@ import {
   fetchMe,
 } from "../../api/client";
 
-export const Navbar = ({ fixed = true }) => {
+export const Navbar = ({
+  fixed = true,
+  showBackButton = false,
+  backTo = "/",
+  backLabel = "Home",
+}) => {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("signin");
   const [name, setName] = useState("");
@@ -94,6 +99,14 @@ export const Navbar = ({ fixed = true }) => {
     navigate("/");
   }
 
+  const handleBackClick = () => {
+    if (typeof backTo === "number") {
+      navigate(backTo);
+    } else {
+      navigate(backTo || "/");
+    }
+  };
+
   async function signup(e) {
     e.preventDefault();
     setMsg("");
@@ -142,6 +155,13 @@ export const Navbar = ({ fixed = true }) => {
   return (
     <nav className={`navbar ${fixed ? "navbar--fixed" : "navbar--static"}`}>
       <div className="navbar__inner container">
+        {showBackButton ? (
+          <button className="nav-back-btn" onClick={handleBackClick}>
+            ← {backLabel}
+          </button>
+        ) : (
+          <div className="nav-back-placeholder" />
+        )}
         <ul>
           {isLoggedIn ? (
             <>

@@ -121,13 +121,9 @@ export default function ProviderDetail() {
 
   return (
     <>
-      <Navbar />
+      <Navbar showBackButton backLabel="Home" backTo="/" />
       <main className="provider-detail-page">
         <div className="provider-detail-shell">
-          <button className="provider-detail-back" onClick={() => navigate(-1)}>
-            ← Back
-          </button>
-
           <div className="provider-detail-columns">
             <section className="provider-detail-left">
               <div className="provider-photo-large">

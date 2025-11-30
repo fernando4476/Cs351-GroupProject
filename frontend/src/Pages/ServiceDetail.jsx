@@ -184,15 +184,8 @@ export default function ServiceDetail() {
 
   return (
     <div>
-      <Navbar />
+      <Navbar showBackButton backLabel="Home" backTo="/" />
       <main className="service-detail container">
-        <button
-          className="service-back-link"
-          onClick={() => navigate("/")}
-          type="button"
-        >
-          ← Back to Home
-        </button>
         {loading && <p className="service-detail__status">Loading service…</p>}
         {error && !loading && (
           <p className="service-detail__status service-detail__status--error">

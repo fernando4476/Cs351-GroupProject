@@ -24,15 +24,39 @@
 .navbar__inner {
     width: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    padding: 0 20px;
+}
+
+.nav-back-placeholder {
+    width: 130px;
+    height: 1px;
+}
+
+.nav-back-btn {
+    background: #ffffff;
+    color: #c8102e;
+    border: 2px solid #0f172a;
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nav-back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.16);
 }
 
 nav ul {
     list-style: none;
     display: flex;
     margin: 0;
-    padding: 0 20px;
+    padding: 0;
     gap: 12px;
 }
 
