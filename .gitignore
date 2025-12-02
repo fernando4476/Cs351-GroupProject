@@ -18,4 +18,4 @@ __pycache__/
 db.sqlite3
 
 # --- Media uploads ---
-backend/media/photos/
+# backend/media/photos/
