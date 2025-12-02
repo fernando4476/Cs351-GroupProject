@@ -42,7 +42,7 @@ ________________________________________________________________________________
 
       Need to activate the virtual environment (source venv/bin/activate), possibly every time you reopen the project.
       
-      If plans to modify on git, don’t commit your venv/ folder to Git — add it to .gitignore.
+      If plans to modify on git, don’t commit your .env to Git — add it to .gitignore.
        
 ____________________________________________________________________________________________________________________________
 
@@ -65,6 +65,8 @@ ________________________________________________________________________________
     DB_PASSWORD=group14
     DB_HOST=localhost
     DB_PORT=5432
+
+     If plans to modify on git, don’t commit your venv/ folder to Git — add it to .gitignore.
 
 
 ____________________________________________________________________________________________________________________________
@@ -134,6 +136,7 @@ ________________________________________________________________________________
 
 
 If you encounter any trouble running the app, please contact the team at uicmarketplaceverify@gmail.com, reach out to collaborators, or create an issue.
+
 
 
 
