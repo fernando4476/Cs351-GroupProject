@@ -19,6 +19,7 @@ from .recent import push_view, get_recent_list
 from .permissions import IsServiceProvider
 from rest_framework import filters
 from accounts.models import ServiceProviderProfile , CustomerProfile
+from .recommendations import build_similarity_graph, iddfs
 
 
 #get returns list of services, post creates a service 
@@ -197,7 +198,46 @@ class MyBookingsListView(generics.ListAPIView):
     def get_queryset(self):
         customer = CustomerProfile.objects.get(user=self.request.user)
         return Booking.objects.filter(customer=customer)
-    
+
+
+class ServiceRecommendationsView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, service_id):
+        services_qs = (
+            Service.objects.all()
+            .select_related("provider", "provider__user")
+            .annotate(
+                rating=Avg("review__rating"),
+                review_count=Count("review", distinct=True),
+            )
+        )
+        services = list(services_qs)
+        service_map = {svc.id: svc for svc in services}
+        if service_id not in service_map:
+            return Response(
+                {"detail": "Service not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        graph = build_similarity_graph(services)
+        layers = iddfs(graph, service_id, max_depth=3)
+
+        def serialize_layer(depth):
+            ids = layers.get(depth, [])
+            ordered = [service_map[sid] for sid in ids if sid in service_map]
+            serializer = ServiceCardSerializer(
+                ordered, many=True, context={"request": request}
+            )
+            return serializer.data
+
+        payload = {
+            "depth_1": serialize_layer(1),
+            "depth_2": serialize_layer(2),
+            "depth_3": serialize_layer(3),
+        }
+        return Response(payload)
+
 
 class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = BookingSerializer
