@@ -113,8 +113,11 @@ How to use:
 
 
 Demo Video
-![Demo Video](https://github.com/user-attachments/assets/9e943de1-306a-4f06-827d-1c11142f4fbc)
+
+<video src="https://github.com/user-attachments/assets/9e943de1-306a-4f06-827d-1c11142f4fbc" width="320" height="240" controls></video>
+
       
+
 
 
 
