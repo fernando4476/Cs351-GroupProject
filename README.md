@@ -8,11 +8,12 @@ while earning money, honing their craft, and building practical business managem
 
 
 
-## How to run: After cloning the repository, do the following steps
+## How to run: 
+After cloning the repository, do the following steps
 
 ____________________________________________________________________________________________________________________________
 
-1.  Create a virtual environment
+### 1.  Create a virtual environment
 ____________________________________________________________________________________________________________________________
       Objective:  
       This installs Django, DRF, psycopg2-binary, and any other dependencies.
@@ -45,7 +46,7 @@ ________________________________________________________________________________
        
 ____________________________________________________________________________________________________________________________
 
-2. Set up environment variables
+### 2. Set up environment variables
 ____________________________________________________________________________________________________________________________
 
 
@@ -68,7 +69,7 @@ ________________________________________________________________________________
 
 ____________________________________________________________________________________________________________________________
 
-3. Run backend server, run web server
+### 3. Run backend server, run web server
 ____________________________________________________________________________________________________________________________
 
 
@@ -126,11 +127,14 @@ ________________________________________________________________________________
   - This helps other students find great services and avoid bad ones.
 
 
-Demo Video
+## Demo Video
 
 <video src="https://github.com/user-attachments/assets/9e943de1-306a-4f06-827d-1c11142f4fbc" width="320" height="240" controls></video>
 
-      
+
+
+If you encounter any trouble running the app, please contact the team at uicmarketplaceverify@gmail.com, reach out to collaborators, or create an issue.
+
 
 
 
