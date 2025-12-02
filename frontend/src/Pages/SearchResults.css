@@ -68,3 +68,23 @@
 .results-status--error {
     color: #b91c1c;
 }
+
+.results-section {
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 0 20px;
+}
+
+.results-section-header {
+    margin-bottom: 12px;
+}
+
+.results-section-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.results-section-header p {
+    margin: 4px 0 0;
+    color: #6b7280;
+}
