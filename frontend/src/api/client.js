@@ -168,11 +168,7 @@ export const fetchServices = (options) => jsonRequest("/services/", options);
 export const fetchServiceDetail = (id, options) =>
   jsonRequest(`/services/${id}/`, options);
 
-<<<<<<< HEAD
-export const fetchRecommendations = (id, options) =>
-=======
 export const fetchServiceRecommendations = (id, options) =>
->>>>>>> dbd98af (Hook IDDFS into search and expose recommendations API)
   jsonRequest(`/services/${id}/recommendations/`, options);
 
 export const updateService = (id, payload) =>

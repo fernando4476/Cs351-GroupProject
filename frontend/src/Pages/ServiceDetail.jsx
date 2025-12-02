@@ -159,38 +159,6 @@ export default function ServiceDetail() {
       .catch(() => {});
   }, [service?.id]);
 
-  useEffect(() => {
-    if (!service?.id) {
-      setRecs({ depth_1: [], depth_2: [], depth_3: [] });
-      return;
-    }
-    const controller = new AbortController();
-    setRecsLoading(true);
-    setRecsError(null);
-    fetchRecommendations(service.id, { signal: controller.signal })
-      .then((data) => {
-        if (!controller.signal.aborted) {
-          setRecs({
-            depth_1: data?.depth_1 || [],
-            depth_2: data?.depth_2 || [],
-            depth_3: data?.depth_3 || [],
-          });
-        }
-      })
-      .catch((err) => {
-        if (!controller.signal.aborted) {
-          setRecs({ depth_1: [], depth_2: [], depth_3: [] });
-          setRecsError(err.message || "Unable to load recommendations");
-        }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) {
-          setRecsLoading(false);
-        }
-      });
-    return () => controller.abort();
-  }, [service?.id]);
-
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     const token = getAccessToken();
@@ -498,65 +466,6 @@ export default function ServiceDetail() {
                 {reviewSubmitting ? "Submitting..." : "Submit review"}
               </button>
             </form>
-          </div>
-        </section>
-      )}
-
-      {!loading && !error && service && (
-        <section className="reviews-section container">
-          <div className="reviews-card">
-            <h2>Related services</h2>
-            {recsLoading && (
-              <p className="reviews-status">Loading recommendations…</p>
-            )}
-            {recsError && !recsLoading && (
-              <p className="reviews-status reviews-status--error">
-                {recsError}
-              </p>
-            )}
-            {!recsLoading &&
-              !recsError &&
-              recs &&
-              [recs.depth_1, recs.depth_2, recs.depth_3].every(
-                (arr) => !arr || arr.length === 0
-              ) && <p className="empty-text">No related services yet.</p>}
-
-            {!recsLoading && !recsError && (
-              <>
-                {[
-                  { label: "Most similar", list: recs.depth_1 },
-                  { label: "Similar", list: recs.depth_2 },
-                  { label: "Related", list: recs.depth_3 },
-                ].map(
-                  ({ label, list }) =>
-                    Array.isArray(list) &&
-                    list.length > 0 && (
-                      <div className="recommendations-group" key={label}>
-                        <h3>{label}</h3>
-                        <div className="recommendations-grid">
-                          {list.map((svc) => (
-                            <button
-                              key={svc.id}
-                              className="recommendation-chip"
-                              type="button"
-                              onClick={() => navigate(`/services/${svc.id}`)}
-                            >
-                              <span className="recommendation-chip__title">
-                                {svc.title || "Service"}
-                              </span>
-                              {svc.provider?.business_name && (
-                                <span className="recommendation-chip__provider">
-                                  {svc.provider.business_name}
-                                </span>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                )}
-              </>
-            )}
           </div>
         </section>
       )}

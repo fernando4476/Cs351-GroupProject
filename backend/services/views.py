@@ -24,9 +24,13 @@ from .recommendations import build_similarity_graph, iddfs
 
 #get returns list of services, post creates a service 
 class ServiceListCreateView(generics.ListCreateAPIView):
- 
     serializer_class = ServiceSerializer 
     permission_classes = [IsServiceProvider]
+
+    def get_permissions(self):
+        if self.request.method in ["GET", "HEAD", "OPTIONS"]:
+            return [permissions.AllowAny()]
+        return super().get_permissions()
 
     # adds filtering
     filter_backends = [filters.SearchFilter]
