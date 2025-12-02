@@ -8,7 +8,7 @@ while earning money, honing their craft, and building practical business managem
 
 
 
-How to run: After cloning the repository, do the following steps
+## How to run: After cloning the repository, do the following steps
 
 ____________________________________________________________________________________________________________________________
 
@@ -81,35 +81,49 @@ ________________________________________________________________________________
        then run 'npm run dev'
 
 
-How to use:
+## How to use:
 
-  Must have a UIC email to sign up 
-      You will get an email to your UIC account to verify your account. Without verification, you will not be able to sign in or book services
-    
-  Everyone starts with a customer profile and then gains authorization to create a provider profile
-      Upon verification, you will have a customer profile in which you are now authorized to book services and leave reviews
-      You will gain access to your profile where you can upload a profile photo, view and update account details, view/edit/cancel your appointments, 
-      view and modify reviews you have left, contact app owners for technical help.
+- **Must have a UIC email to sign up**
+  - You will get an email to your UIC account to verify your account.  
+    Without verification, you will not be able to sign in or book services.
 
-  Become a Provider
-      On the customer profile, click the 'Provider Profile' to create (once created, use the same button to switch to your provider profile). Fill out form
-      and add a service to get started. Once created, in your provider profile you can view appointments booked with you, add and delete service(s), and upload 
-      a profile photo.
-      
-  Providers create service(s)
-      In the provider profile, you can add services that will appear on the homepage and be available for all users to search and book.
-    
-  Browse available services
-      Use the homepage search bar to find services currently available. As you type, the search bar will help with autocompletion, showing you 
-      all services that contain your typed word (both in title and description). Click on a recommended service button and this will customize 
-      your homepage to show those types of services first (can we say personalization!)
-      
-  Book appointments
-      Click on a service, and you will be taken to the service page where you can pick a time and create an appointment with the provider
-      
-  Leave reviews
-      Users can leave reviews with rating on service page. The rating will be used to update the provider's average rating
-      across all their services. This will help other students find great services and avoid bad ones. 
+- **Everyone starts with a customer profile and then gains authorization to create a provider profile**
+  - Upon verification, you will have a customer profile in which you are authorized to book services and leave reviews.
+  - You will gain access to your profile where you can:
+    - upload a profile photo  
+    - view and update account details  
+    - view/edit/cancel appointments  
+    - view and modify reviews you have left  
+    - contact app owners for technical help
+
+- **Become a Provider**
+  - On the customer profile, click **“Provider Profile”** to create your provider profile  
+    (once created, use the same button to switch to your provider profile).
+  - Fill out the form and add a service to get started.
+  - In your provider profile you can:
+    - view appointments booked with you  
+    - add and delete services  
+    - upload a profile photo
+
+- **Providers create service(s)**
+  - In the provider profile, you can add services that will appear on the homepage  
+    and be available for all users to search and book.
+
+- **Browse available services**
+  - Use the homepage search bar to find services currently available.
+  - As you type, the search bar will autocompleted suggestions showing all services  
+    containing your typed words (in title and description).
+  - Clicking a recommended service button customizes your homepage to show  
+    those types of services first.
+
+- **Book appointments**
+  - Click on a service to go to its detail page, where you can pick a time  
+    and create an appointment with the provider.
+
+- **Leave reviews**
+  - Users can leave reviews with ratings on the service page.
+  - Ratings update the provider’s average rating across all their services.
+  - This helps other students find great services and avoid bad ones.
 
 
 Demo Video
@@ -117,6 +131,7 @@ Demo Video
 <video src="https://github.com/user-attachments/assets/9e943de1-306a-4f06-827d-1c11142f4fbc" width="320" height="240" controls></video>
 
       
+
 
 
 
