@@ -294,6 +294,15 @@ export const updateProfile = ({ first_name, last_name, email, country, photo }) 
   });
 };
 
+export const deleteAccount = () =>
+  jsonRequest("/auth/profile/delete/", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+
 // Provider profile for current user
 export const fetchProviderProfile = async () => {
   try {

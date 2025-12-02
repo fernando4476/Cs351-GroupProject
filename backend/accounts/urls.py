@@ -7,7 +7,8 @@ from .views import ( CustomerProfileListView,
                      ServiceProviderProfileListView,
                      ServiceProviderProfileCreateView,
                      ServiceProviderProfileMeView,
-                     FeedbackCreateView )
+                     FeedbackCreateView,
+                     DeleteAccountView )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -31,6 +32,8 @@ urlpatterns = [
     path('profile/update/', UpdateProfileView.as_view()),
     #get user account details
     path('profile/me/', UserAccountDetailsView.as_view()),
+    # delete account (soft delete)
+    path('profile/delete/', DeleteAccountView.as_view(), name='profile-delete'),
     # feedback
     path('feedback/', FeedbackCreateView.as_view(), name='feedback-create'),
 ]

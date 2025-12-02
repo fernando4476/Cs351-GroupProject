@@ -18,12 +18,12 @@ import {
 const DEFAULT_IMAGE = uicLogo;
 
 const DEFAULT_HOURS = {
-  Monday: "9:00 AM – 5:00 PM",
-  Tuesday: "9:00 AM – 5:00 PM",
-  Wednesday: "9:00 AM – 5:00 PM",
-  Thursday: "9:00 AM – 5:00 PM",
-  Friday: "9:00 AM – 5:00 PM",
-  Saturday: "10:00 AM – 2:00 PM",
+  Monday: "9:00 AM  5:00 PM",
+  Tuesday: "9:00 AM  5:00 PM",
+  Wednesday: "9:00 AM  5:00 PM",
+  Thursday: "9:00 AM  5:00 PM",
+  Friday: "9:00 AM  5:00 PM",
+  Saturday: "10:00 AM  2:00 PM",
   Sunday: "Closed",
 };
 
@@ -253,7 +253,14 @@ export default function ServiceDetail() {
     <div>
       <Navbar showBackButton backLabel="Home" backTo="/" />
       <main className="service-detail container">
-        {loading && <p className="service-detail__status">Loading service…</p>}
+        <button
+          className="service-back-link"
+          onClick={() => navigate("/")}
+          type="button"
+        >
+          &larr; Back to Home
+        </button>
+        {loading && <p className="service-detail__status">Loading service</p>}
         {error && !loading && (
           <p className="service-detail__status service-detail__status--error">
             {error}
@@ -276,9 +283,9 @@ export default function ServiceDetail() {
                 <h1>{service.title}</h1>
                 <p className="service-provider">{providerDisplayName}</p>
                 <div className="service-metrics">
-                  <span className="metric-star">★</span>
+                  <span className="metric-star"></span>
                   <span className="metric-new">New</span>
-                  <span className="metric-dot">•</span>
+                  <span className="metric-dot"></span>
                   <span>{reviews.length} reviews</span>
                   {rating !== null && (
                     <>
@@ -355,7 +362,7 @@ export default function ServiceDetail() {
                   {service.location && (
                     <p className="map-location">
                       <span className="map-location__pin" aria-hidden="true">
-                        📍
+                        
                       </span>
                       <span>{service.location}</span>
                     </p>
@@ -395,7 +402,7 @@ export default function ServiceDetail() {
           <div className="reviews-card">
             <h2>Reviews</h2>
             {reviewsLoading && (
-              <p className="reviews-status">Loading reviews…</p>
+              <p className="reviews-status">Loading reviews</p>
             )}
             {reviewsError && !reviewsLoading && (
               <p className="reviews-status reviews-status--error">
@@ -413,7 +420,7 @@ export default function ServiceDetail() {
                       <span className="review-user">
                         {review.customer?.full_name || "UIC student"}
                       </span>
-                      <span className="review-rating">★ {review.rating}</span>
+                      <span className="review-rating"> {review.rating}</span>
                     </div>
                     <p>{review.comment}</p>
                     <span className="review-date">
@@ -479,3 +486,4 @@ export default function ServiceDetail() {
     </div>
   );
 }
+
