@@ -1,7 +1,37 @@
+/* Back to Home button stays fixed */
 .service-detail {
   background: #f3f5fb;
   min-height: 100vh;
-  padding: 40px 20px 60px;
+  padding: 80px 20px 60px;
+  position: relative;
+}
+
+.service-back-link {
+  position: absolute;
+  top: -60px;
+  left: 16px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 18px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.service-back-link:hover {
+  transform: translateY(-1px);
+  background: #6C9E7D;
+  border-color: #6C9E7D;
+  color: #111827;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
 .service-detail__status {

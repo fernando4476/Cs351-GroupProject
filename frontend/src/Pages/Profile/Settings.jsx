@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import "./Settings.css";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import { fetchMe, updateProfile } from "../../api/client";
+import { fetchMe, updateProfile, deleteAccount } from "../../api/client";
 import { resolveMediaUrl } from "../../utils/api";
 
 export default function Settings() {
@@ -19,6 +19,10 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
   const [avatar, setAvatar] = useState(storedPic);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteStatus, setDeleteStatus] = useState("");
   const fileInputRef = useRef(null);
 
   // Load profile from backend
@@ -111,15 +115,35 @@ export default function Settings() {
       .catch((err) => console.error("Avatar update failed", err));
   };
 
-  const handleSignOut = () => {
+  const clearAuth = () => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     localStorage.removeItem("name");
     localStorage.removeItem("email");
     localStorage.removeItem("country");
     localStorage.removeItem("profilePic");
+  };
+
+  const handleSignOut = () => {
+    clearAuth();
     navigate("/");
     window.location.reload();
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteError("");
+    setDeleteStatus("");
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      setDeleteStatus("Account deleted. You can re-sign up with the same email anytime.");
+      clearAuth();
+      navigate("/");
+      window.location.reload();
+    } catch (err) {
+      setDeleteError(err?.message || "Unable to delete account. Please try again.");
+      setDeleting(false);
+    }
   };
 
   return (
@@ -209,7 +233,54 @@ export default function Settings() {
             Save Changes
           </button>
 
-          {saved && <p className="settings-saved-text">✓ Changes saved!</p>}
+          {saved && <p className="settings-saved-text">Changes saved!</p>}
+
+          <div className="danger-zone">
+            <h3>Delete Account</h3>
+            <p className="danger-copy">
+              Permanently remove your account. You can re-sign up with the same email if you'd like.
+            </p>
+
+            {showDeleteConfirm ? (
+              <div className="delete-confirm">
+                <p className="delete-warning">
+                  Are you sure you want to delete your account? You can re-sign up with the same email if you'd like.
+                </p>
+                <div className="delete-actions">
+                  <button
+                    type="button"
+                    className="delete-cancel-btn"
+                    onClick={() => {
+                      setShowDeleteConfirm(false);
+                      setDeleteError("");
+                    }}
+                    disabled={deleting}
+                  >
+                    Keep my account
+                  </button>
+                  <button
+                    type="button"
+                    className="delete-btn"
+                    onClick={handleDeleteAccount}
+                    disabled={deleting}
+                  >
+                    {deleting ? "Deleting..." : "Yes, delete my account"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="delete-btn"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                Delete my account
+              </button>
+            )}
+
+            {deleteError && <p className="delete-status error">{deleteError}</p>}
+            {deleteStatus && <p className="delete-status success">{deleteStatus}</p>}
+          </div>
         </div>
       </div>
     </div>
