@@ -89,7 +89,7 @@ export default function MyReviews() {
         </div>
 
         <div className="settings-right-wrapper">
-          <h1 className="settings-title">My Feedback</h1>
+          <h1 className="settings-title">Reviews History</h1>
 
           {reviews.length === 0 ? (
             <p className="empty">You haven't left any reviews yet.</p>

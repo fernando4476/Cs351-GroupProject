@@ -15,12 +15,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate
 from .models import CustomerProfile, ServiceProviderProfile, Feedback
+from django.db import transaction
 from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer, FeedbackSerializer
 from rest_framework import generics, permissions, parsers, status
 from rest_framework import filters
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework.views import APIView
 
 User = get_user_model()
 
@@ -54,8 +56,28 @@ class SignupView(View):
         if not UIC_REGEX.match(email):
             return JsonResponse({"error": "Email must be a @uic.edu address"}, status=400)
 
-        # Prevent duplicate registration
-        if User.objects.filter(email=email).exists():
+        # Handle existing accounts: if inactive, resend verification; if active, block duplicate
+        existing = User.objects.filter(email=email).first()
+        if existing:
+            if not existing.is_active:
+                # Resend verification for inactive accounts
+                uidb64 = urlsafe_base64_encode(force_bytes(existing.pk))
+                token = default_token_generator.make_token(existing)
+                verify_path = reverse("verify-email", args=[uidb64, token])
+                verify_url = request.build_absolute_uri(verify_path)
+
+                subject = "Verify your UIC Marketplace account"
+                full_name = f"{existing.first_name} {existing.last_name}".strip() or email
+                message = (
+                    f"Hi {full_name},\n\n"
+                    f"Click the link to verify your account:\n{verify_url}\n\n"
+                    f"If you didn't sign up, you can ignore this email."
+                )
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+                return JsonResponse(
+                    {"ok": True, "message": "Account exists but is not verified. Verification email re-sent."},
+                    status=200,
+                )
             return JsonResponse({"error": "Email already registered"}, status=409)
 
         # Create inactive user; use email as username if default User model
@@ -221,4 +243,46 @@ class FeedbackCreateView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Feedback.objects.all()
     parser_classes = [parsers.JSONParser, parsers.FormParser]
+
+
+class DeleteAccountView(APIView):
+    """
+    Soft delete the authenticated user:
+    - deactivate the account
+    - scrub PII (email/username/names)
+    - free up original email for reuse
+    - remove provider profile; anonymize customer profile
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        placeholder = f"deleted+{user.pk}@deleted.local"
+
+        with transaction.atomic():
+            # Scrub user and deactivate
+            user.is_active = False
+            user.email = placeholder
+            user.username = placeholder
+            user.first_name = ""
+            user.last_name = ""
+            user.save(update_fields=["is_active", "email", "username", "first_name", "last_name"])
+
+            # Anonymize customer profile
+            try:
+                customer = user.customer
+                customer.country = ""
+                customer.photo = "photos/default-profile.png"
+                customer.save(update_fields=["country", "photo"])
+            except CustomerProfile.DoesNotExist:
+                pass
+
+            # Remove provider profile (so no stale listings)
+            try:
+                provider = user.serviceproviderprofile
+                provider.delete()
+            except ServiceProviderProfile.DoesNotExist:
+                pass
+
+        return Response({"ok": True, "message": "Account deleted"}, status=status.HTTP_200_OK)
     

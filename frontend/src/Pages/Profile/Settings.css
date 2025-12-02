@@ -176,3 +176,84 @@ label {
   font-weight: bold;
   font-size: 18px;
 }
+
+.danger-zone {
+  margin-top: 40px;
+  padding: 20px;
+  border: 2px solid #d00000;
+  border-radius: 12px;
+  background: #fff5f5;
+}
+
+.danger-zone h3 {
+  margin: 0 0 8px 0;
+  color: #b00000;
+}
+
+.danger-copy {
+  margin: 0 0 16px 0;
+  color: #6b0000;
+}
+
+.delete-btn {
+  background: #d00000;
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.delete-btn:hover {
+  background: #aa0000;
+  transform: translateY(-1px);
+}
+
+.delete-confirm {
+  background: #ffecec;
+  border: 1px solid #f5b5b5;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.delete-warning {
+  margin: 0 0 12px 0;
+  color: #5a0000;
+  font-weight: 600;
+}
+
+.delete-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.delete-cancel-btn {
+  background: #ffffff;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.delete-cancel-btn:hover {
+  background: #f2f2f2;
+}
+
+.delete-status {
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.delete-status.error {
+  color: #b00000;
+}
+
+.delete-status.success {
+  color: #0b6b0b;
+}

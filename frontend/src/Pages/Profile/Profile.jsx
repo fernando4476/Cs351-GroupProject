@@ -125,7 +125,7 @@ export default function Profile() {
           </button>
 
           <button className="profile-btn-big" onClick={() => navigate("/my-feedback")}>
-            My Feedback
+            Reviews History
           </button>
 
         </div>

@@ -1,133 +1,147 @@
-# Logistics  
+## UBOOK  - service marketplace for UIC students
 
-**Q1:** At what time in the week would your group be available to meet online?  
+**By**: 
+Kassandra Acosta, Fernanado Dominguez, Ahamad Suleiman, Maria Clement 
 
-*Meeting weekly Thursday at 6:45
-
----
-
-# Timeline: Weekly Meeting Goals  
-
-**Q2:** What is your goals that your group want to achieve in each weekly meeting?  
-1. Check off last weeks to-do list
-2. Make decisions on problems encountered. 
-3. Write to do list for upcoming week
+A React/Django app built for Fall 2025 CS351 Adv. Data Structure & Algorithm Course group project. 
+Inspired by the desire to connect the UIC student community by encouraging students to exchange services within a trusted environment
+while earning money, honing their craft, and building practical business management skills. We leveraged trie, skiplist, and IDDFS (Iterative Deepening Depth-First Search) to implement autocompletion, personalization, and relative data aggregation. 
 
 
-# Communication  
 
-**Q3a:** How can your group communicate when doing the Full Stack Group Project?  
-We will use Discord for communication
+## How to run: 
+After cloning the repository, do the following steps
 
-**Q3b:** What are the usernames of each group member on that platform? 
-Usernames:
-Maria - mclem6
-Ahmad - ahmad9125  
-Fernando - fernando4476
-Kassandra - ka55andr4
+____________________________________________________________________________________________________________________________
 
-**Q3c:** What is your group’s expected response time to messages?  
-Our expected response time will be within 12 hours.
+### 1.  Create a virtual environment
+____________________________________________________________________________________________________________________________
+      Objective:  
+      This installs Django, DRF, psycopg2-binary, and any other dependencies.
+      Everyone will get the same versions, ensuring a consistent development environment.
 
+      Check your python version: Make sure you are running Python 3.11 or older, newer releases have issues with installing psycopg2-binary 
 
----
+      Create a virtual environment in the project root (.../Cs351-GroupProject)
+      ‘’’
+       # macOS/Linux
+      python3.11 -m venv venv
+      source venv/bin/activate
+      
+      # Windows
+      py -3.11 -m venv venv
+      .\venv\Scripts\activate
+      
+      ‘’’
+      
+      Install dependencies from your requirements.txt:
+      ‘’’
+      pip install --upgrade pip setuptools wheel
+      pip install -r requirements.txt
+      
+      ‘’’
 
-# Norms  
+      Need to activate the virtual environment (source venv/bin/activate), possibly every time you reopen the project.
+      
+      If plans to modify on git, don’t commit your .env to Git — add it to .gitignore.
+       
+____________________________________________________________________________________________________________________________
 
-**Q4a:** How will your group handle situations when there is conflict in your group?  
-1. If its about making a decision, then voting. 
-2. Do meeting without missing member, communicate to them their part. Also, record meetings.
-3. Give clear tasks and objectives, if person is struggling they need to reach out sooner than later.
-
-**Q4b:** How will your group handle situations when a member is not contributing enough?  
-Group mediation then give them resources they need. If not they continue not to contribute enough, have meeting with professor. 
-
-
-# Roles  
-
-**Q5:** How will your group divide your role in the Group Project?  
-Tentative: 
-roles needed: project manager, frontend, backend
- Fernando - frontend (experience with react)
- Maria - backend
- Kassandra - frontend/backend
- ahmad - frontend/backend
-
-
-# Tech Stacks
-
-**Q6:** Which tech stacks will your group use? (Django + React or Flask + React)
-
-We will use django + react
-
----
-# Full Stack Group Project Track  
----
-
-# Track 1: Tackling Generative AI Consequences
-**Problem 1:**  (deepfake)
-
-**Solution 1:** (analyze whether or how likely content is fake)
-
----
-
-# Track 2: Technology for Public Goods 
-
-**Problem 2:** Difficulty finding accessible playgrounds or locations.
-
-**Solution 2:** Develop a tool similar to Google Maps that helps identify accessible locations, such as playgrounds
-
-**Problem 3:**  Difficulty finding community at UIC / emphasis on sustainability 
-
-**Solution 3:**  Build a UIC marketplace where students can sell/ exchnage goods and services
-
-# Track 3: Creative Coding and Cultural Expression
-
-**Idea - Story - Inspiration 4:**  Kassandra was inspired by seeing how Chicago is a true melting pot of diverse ethnic backgrounds. She noticed that many people tend to flock to larger fast-food chains, and she felt it was important to shine a light on family-owned restaurants instead.
-
-**Implementation 4:**
-
-    we will be making a website using html,react,django, API(google maps), database(sql)
-
-**Idea - Story - Inspiration 5:**
-
-**Implementation 5:**
+### 2. Set up environment variables
+____________________________________________________________________________________________________________________________
 
 
-# Idea Finalization
+    In your backend folder (.../Cs351-GroupProject/backend), create a file named .env:
+    Paste the following code 
+    ‘’’
+    # Secret key for Django signing (shared for development)
+    SECRET_KEY=7+1!p$wz&9u=2*3o!b0q#4r5@l!v6x^z9%y&8k
+    
+    # Debug mode
+    DEBUG=True
+    
+    # Local Postgres (for running locally), feel free to change variable values
+    DB_NAME=localdb 
+    DB_USER=postgres
+    DB_PASSWORD=group14
+    DB_HOST=localhost
+    DB_PORT=5432
 
-**From 5 project ideas you have above, please choose one of the project that you are going with for the rest of the semester. Explain why you are going with that project**
-We are going with Maria's idea of building a UIC marketplace where students can provide services. We picked this project because it will promote community on UIC campus which a lot of students believe we lack being a commuter school
+     If plans to modify on git, don’t commit your venv/ folder to Git — add it to .gitignore.
 
 
-# Extra Credit (Only do this if you are done with Idea Finalization)
+____________________________________________________________________________________________________________________________
 
-## Database Design
+### 3. Run backend server, run web server
+____________________________________________________________________________________________________________________________
 
-**Q1: What database are you using for your project (SQLite, PostgreSQL, noSQL, MongoDB,...), and why do you choose it?**
-We will be using PostgreSQL because it is reliable, scalable, and integrates smoothly with Django or Flask. It supports advanced queries, which will be helpful for searching and filtering services by category, price range. PostgreSQL also handles relational data well, which is perfect for linking users, listings, and messages.
 
-**Q2: How will database be helpful to your project? How will you design your database to support your application features?**
-The database will store all key marketplace data — such as user accounts, services, categories, and messages between buyers and sellers.
-Each service will include details like iname, description, price, seller ID
-A users table will hold usernames, contact info, and authentication data.
-We may add a messages table to allow direct communication between users.
-## Third-Party API Integration
+     backend server
+       cd to backend folder
+       then run 'python manage.py runserver'
 
-**Q3: Which third-party API(s) will you integrate into your project? What data will you pull from the API(s), and how will you use it in your application?**
-Stripe API – We’ll use Stripe to handle secure payments between buyers and sellers. It will allow users to pay for items directly through the marketplace without sharing personal payment information.
-**Q4: Does your API key has limitations such as rate limits or downtime? How are you going to deal with that?**
-Stripe has usage limits and potential rate restrictions depending on the plan. we will Store all API keys securely in a .env file to prevent exposure
-## Authentication and Security
+     web server
+       cd to frontend folder
+       then run 'npm run dev'
 
-**Q5: What authentication method will you use (e.g., username/password, OAuth, JWT)?**
-We will use username and password authentication, taking advantage of Django’s built-in authentication system (or Flask-Login if we choose Flask). We may add UIC email verification to ensure only students can create accounts.
-**Q6: How will you store and protect sensitive user data (e.g., passwords, tokens)?**
-All passwords will be hashed and salted using Django’s built-in password hasher (or Flask’s Werkzeug hasher).
-API keys and database credentials will be stored in a .env file, not in the code.
-## Deployment
 
-**Q7: Where will you deploy your project (e.g., Heroku, AWS, Render)? How will you manage environment variables and secrets during deployment?**
-We plan to deploy on Heroku, which integrates well with GitHub and PostgreSQL. Environment variables (API keys, DB credentials, secret keys) will be added directly in the Heroku dashboard, so they never appear in our source code.
-**Q8: How will you ensure your deployment is reliable and easy to update?**
-We will use Github integration with Heroku so that pushing to main automatically updated the deployment. We will run tests locally before pushing. Lastly we will use version control branching to ensure updates don't break the main app
+## How to use:
+
+- **Must have a UIC email to sign up**
+  - You will get an email to your UIC account to verify your account.  
+    Without verification, you will not be able to sign in or book services.
+
+- **Everyone starts with a customer profile and then gains authorization to create a provider profile**
+  - Upon verification, you will have a customer profile in which you are authorized to book services and leave reviews.
+  - You will gain access to your profile where you can:
+    - upload a profile photo  
+    - view and update account details  
+    - view/edit/cancel appointments  
+    - view and modify reviews you have left  
+    - contact app owners for technical help
+
+- **Become a Provider**
+  - On the customer profile, click **“Provider Profile”** to create your provider profile  
+    (once created, use the same button to switch to your provider profile).
+  - Fill out the form and add a service to get started.
+  - In your provider profile you can:
+    - view appointments booked with you  
+    - add and delete services  
+    - upload a profile photo
+
+- **Providers create service(s)**
+  - In the provider profile, you can add services that will appear on the homepage  
+    and be available for all users to search and book.
+
+- **Browse available services**
+  - Use the homepage search bar to find services currently available.
+  - As you type, the search bar will autocompleted suggestions showing all services  
+    containing your typed words (in title and description).
+  - Clicking a recommended service button customizes your homepage to show  
+    those types of services first.
+
+- **Book appointments**
+  - Click on a service to go to its detail page, where you can pick a time  
+    and create an appointment with the provider.
+
+- **Leave reviews**
+  - Users can leave reviews with ratings on the service page.
+  - Ratings update the provider’s average rating across all their services.
+  - This helps other students find great services and avoid bad ones.
+
+
+## Demo Video
+
+<video src="https://github.com/user-attachments/assets/9e943de1-306a-4f06-827d-1c11142f4fbc" width="320" height="240" controls></video>
+
+
+
+If you encounter any trouble running the app, please contact the team at uicmarketplaceverify@gmail.com, reach out to collaborators, or create an issue.
+
+
+
+
+
+
+
+

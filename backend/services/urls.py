@@ -15,7 +15,8 @@ from .views import (
     ProviderRatingView,
     BookingDetailView,
     MyReviewsListView,
-    MyReviewDetailView
+    MyReviewDetailView,
+    ServiceRecommendationsView,
 )
 
 urlpatterns = [
@@ -23,6 +24,7 @@ urlpatterns = [
     path('services/', ServiceListCreateView.as_view(), name='service-list'),
     #Get details for single servive
     path('services/<int:pk>/', ServiceDetailView.as_view(), name='service-detail'),
+    path('services/<int:service_id>/recommendations/', ServiceRecommendationsView.as_view(), name='service-recommendations'),
     #trie implementation, get list of words with matching prefix 
     path('autocomplete/', AutocompleteAPIView.as_view(), name="autocomplete" ),
     #skip-list, post user selected service

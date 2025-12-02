@@ -86,7 +86,7 @@ const jsonRequest = async (
         }
       }
       clearAuthStorage();
-      throw new Error("Unauthorized. Please sign in again.");
+      throw new Error("Account not found.");
     }
     const message = await parseError(response);
     throw new Error(message);
@@ -167,6 +167,9 @@ export const fetchServices = (options) => jsonRequest("/services/", options);
 
 export const fetchServiceDetail = (id, options) =>
   jsonRequest(`/services/${id}/`, options);
+
+export const fetchServiceRecommendations = (id, options) =>
+  jsonRequest(`/services/${id}/recommendations/`, options);
 
 export const updateService = (id, payload) =>
   jsonRequest(`/services/${id}/`, {
@@ -290,6 +293,15 @@ export const updateProfile = ({ first_name, last_name, email, country, photo }) 
     body: form,
   });
 };
+
+export const deleteAccount = () =>
+  jsonRequest("/auth/profile/delete/", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
 
 // Provider profile for current user
 export const fetchProviderProfile = async () => {
