@@ -1,10 +1,11 @@
-App: UBOOK  - service marketplace for UIC students
-By: Kassandra Acosta, Fernanado Dominguez, Ahamad Suleiman, Maria Clement 
+## UBOOK  - service marketplace for UIC students
 
-About:
+**By**: 
+Kassandra Acosta, Fernanado Dominguez, Ahamad Suleiman, Maria Clement 
+
 A React/Django app built for Fall 2025 CS351 Adv. Data Structure & Algorithm Course group project. 
 Inspired by the desire to connect the UIC student community by encouraging students to exchange services within a trusted environment
-while earning money, honing their craft, and building practical business management skills.
+while earning money, honing their craft, and building practical business management skills. We leveraged trie, skiplist, and IDDFS (Iterative Deepening Depth-First Search) to implement autocompletion, personalization, and relative data aggregation. 
 
 
 
@@ -136,6 +137,7 @@ ________________________________________________________________________________
 
 
 If you encounter any trouble running the app, please contact the team at uicmarketplaceverify@gmail.com, reach out to collaborators, or create an issue.
+
 
 
 
