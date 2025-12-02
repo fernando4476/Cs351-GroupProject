@@ -37,7 +37,7 @@ export default function Feedback() {
       {/* Red header bar */}
       <div className="topbar-red">
         <button className="back-btn" onClick={() => navigate("/profile")}>
-          ← Back to Profile
+          {"<-"} Back to Profile
         </button>
         <button
           className="signout-btn"
@@ -59,7 +59,7 @@ export default function Feedback() {
           <h2 className="section-title">Frequently Asked Questions</h2>
 
           <p><strong>How do I become a service provider?</strong><br />
-            Go to the “Become a Provider” page and fill out your application.
+            Go to the "Become a Provider" page and fill out your application.
           </p>
 
           <p><strong>How do I contact support?</strong><br />
@@ -114,4 +114,3 @@ export default function Feedback() {
     </div>
   );
 }
-

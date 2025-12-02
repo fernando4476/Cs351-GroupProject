@@ -15,12 +15,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate
 from .models import CustomerProfile, ServiceProviderProfile, Feedback
+from django.db import transaction
 from .serializers import CustomerProfileSerializer, ServiceProviderProfileSerializer, FeedbackSerializer
 from rest_framework import generics, permissions, parsers, status
 from rest_framework import filters
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework.views import APIView
 
 User = get_user_model()
 
@@ -241,4 +243,46 @@ class FeedbackCreateView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Feedback.objects.all()
     parser_classes = [parsers.JSONParser, parsers.FormParser]
+
+
+class DeleteAccountView(APIView):
+    """
+    Soft delete the authenticated user:
+    - deactivate the account
+    - scrub PII (email/username/names)
+    - free up original email for reuse
+    - remove provider profile; anonymize customer profile
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        placeholder = f"deleted+{user.pk}@deleted.local"
+
+        with transaction.atomic():
+            # Scrub user and deactivate
+            user.is_active = False
+            user.email = placeholder
+            user.username = placeholder
+            user.first_name = ""
+            user.last_name = ""
+            user.save(update_fields=["is_active", "email", "username", "first_name", "last_name"])
+
+            # Anonymize customer profile
+            try:
+                customer = user.customer
+                customer.country = ""
+                customer.photo = "photos/default-profile.png"
+                customer.save(update_fields=["country", "photo"])
+            except CustomerProfile.DoesNotExist:
+                pass
+
+            # Remove provider profile (so no stale listings)
+            try:
+                provider = user.serviceproviderprofile
+                provider.delete()
+            except ServiceProviderProfile.DoesNotExist:
+                pass
+
+        return Response({"ok": True, "message": "Account deleted"}, status=status.HTTP_200_OK)
     
