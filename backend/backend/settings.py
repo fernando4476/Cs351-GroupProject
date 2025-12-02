@@ -7,11 +7,11 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-# Load .env environment variables
-load_dotenv()
-
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env environment variables (explicit path for reliability)
+load_dotenv(BASE_DIR / ".env")
 
 # SECURITY WARNING: keep the secret key secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "local-dev-secret-key")
@@ -153,6 +153,7 @@ REST_FRAMEWORK = {
 
 
 # where to store and access uploaded files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+
 

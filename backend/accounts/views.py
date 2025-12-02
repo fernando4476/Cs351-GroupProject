@@ -54,8 +54,28 @@ class SignupView(View):
         if not UIC_REGEX.match(email):
             return JsonResponse({"error": "Email must be a @uic.edu address"}, status=400)
 
-        # Prevent duplicate registration
-        if User.objects.filter(email=email).exists():
+        # Handle existing accounts: if inactive, resend verification; if active, block duplicate
+        existing = User.objects.filter(email=email).first()
+        if existing:
+            if not existing.is_active:
+                # Resend verification for inactive accounts
+                uidb64 = urlsafe_base64_encode(force_bytes(existing.pk))
+                token = default_token_generator.make_token(existing)
+                verify_path = reverse("verify-email", args=[uidb64, token])
+                verify_url = request.build_absolute_uri(verify_path)
+
+                subject = "Verify your UIC Marketplace account"
+                full_name = f"{existing.first_name} {existing.last_name}".strip() or email
+                message = (
+                    f"Hi {full_name},\n\n"
+                    f"Click the link to verify your account:\n{verify_url}\n\n"
+                    f"If you didn't sign up, you can ignore this email."
+                )
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+                return JsonResponse(
+                    {"ok": True, "message": "Account exists but is not verified. Verification email re-sent."},
+                    status=200,
+                )
             return JsonResponse({"error": "Email already registered"}, status=409)
 
         # Create inactive user; use email as username if default User model

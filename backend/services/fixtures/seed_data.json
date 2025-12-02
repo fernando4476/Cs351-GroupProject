@@ -2,113 +2,399 @@
   {
     "model": "auth.user",
     "pk": 1,
-    "fields": {"username": "bob@uic.edu", "password": "pbkdf2_sha256$...", "email": "bob@uic.edu", "first_name": "bob"}
+    "fields": {
+      "username": "arive",
+      "email": "arive@uic.edu",
+      "first_name": "Alex",
+      "last_name": "Rivera",
+      "password": "pbkdf2_sha256$260000$seed123$HASH1"
+    }
   },
   {
     "model": "auth.user",
     "pk": 2,
-    "fields": {"username": "quen6@uic.edu", "password": "pbkdf2_sha256$...", "email": "quen6@uic.edu", "first_name": "quen6"}
+    "fields": {
+      "username": "jchen",
+      "email": "jchen@uic.edu",
+      "first_name": "Jamie",
+      "last_name": "Chen",
+      "password": "pbkdf2_sha256$260000$seed123$HASH2"
+    }
   },
   {
     "model": "auth.user",
     "pk": 3,
-    "fields": {"username": "carol@uic.edu", "password": "pbkdf2_sha256$...", "email": "carol@uic.edu", "first_name": "carol"}
+    "fields": {
+      "username": "rmart",
+      "email": "rmart@uic.edu",
+      "first_name": "Riley",
+      "last_name": "Martinez",
+      "password": "pbkdf2_sha256$260000$seed123$HASH3"
+    }
   },
   {
     "model": "auth.user",
     "pk": 4,
-    "fields": {"username": "mclem6@uic.edu", "password": "pbkdf2_sha256$...", "email": "mclem6@uic.edu", "first_name": "mclem6"}
+    "fields": {
+      "username": "slopez",
+      "email": "slopez@uic.edu",
+      "first_name": "Sophia",
+      "last_name": "Lopez",
+      "password": "pbkdf2_sha256$260000$seed123$HASH4"
+    }
   },
   {
     "model": "auth.user",
     "pk": 5,
-    "fields": {"username": "dave@uic.edu", "password": "pbkdf2_sha256$...", "email": "dave@uic.edu", "first_name": "dave"}
+    "fields": {
+      "username": "tnguyen",
+      "email": "tnguyen@uic.edu",
+      "first_name": "Tyler",
+      "last_name": "Nguyen",
+      "password": "pbkdf2_sha256$260000$seed123$HASH5"
+    }
   },
   {
     "model": "auth.user",
     "pk": 6,
-    "fields": {"username": "eve@suic.edu", "password": "pbkdf2_sha256$...", "email": "eve@suic.edu", "first_name": "eve"}
+    "fields": {
+      "username": "mclark",
+      "email": "mclark@uic.edu",
+      "first_name": "Maya",
+      "last_name": "Clark",
+      "password": "pbkdf2_sha256$260000$seed123$HASH6"
+    }
   },
   {
     "model": "auth.user",
     "pk": 7,
-    "fields": {"username": "frank@uic.edu", "password": "pbkdf2_sha256$...", "email": "frank@uic.edu", "first_name": "frank"}
+    "fields": {
+      "username": "bsmith",
+      "email": "bsmith@uic.edu",
+      "first_name": "Ben",
+      "last_name": "Smith",
+      "password": "pbkdf2_sha256$260000$seed123$HASH7"
+    }
   },
   {
     "model": "auth.user",
     "pk": 8,
-    "fields": {"username": "grace@uic.edu", "password": "pbkdf2_sha256$...", "email": "grace@uic.edu", "first_name": "grace"}
+    "fields": {
+      "username": "lroberts",
+      "email": "lrobe@uic.edu",
+      "first_name": "Lily",
+      "last_name": "Roberts",
+      "password": "pbkdf2_sha256$260000$seed123$HASH8"
+    }
   },
   {
     "model": "auth.user",
     "pk": 9,
-    "fields": {"username": "heidi@uic.edu", "password": "pbkdf2_sha256$...", "email": "heidi@uic.edu", "first_name": "heidi"}
+    "fields": {
+      "username": "jking",
+      "email": "jking@uic.edu",
+      "first_name": "Jack",
+      "last_name": "King",
+      "password": "pbkdf2_sha256$260000$seed123$HASH9"
+    }
   },
   {
     "model": "auth.user",
     "pk": 10,
-    "fields": {"username": "ivan@uic.edu", "password": "pbkdf2_sha256$...", "email": "ivan@uic.edu", "first_name": "ivan"}
+    "fields": {
+      "username": "emartin",
+      "email": "emart@uic.edu",
+      "first_name": "Ella",
+      "last_name": "Martin",
+      "password": "pbkdf2_sha256$260000$seed123$HASH10"
+    }
+  },
+
+  {
+    "model": "auth.user",
+    "pk": 11,
+    "fields": {
+      "username": "kwhite",
+      "email": "kwhit@uic.edu",
+      "first_name": "Kevin",
+      "last_name": "White",
+      "password": "pbkdf2_sha256$260000$seed123$HASH11"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 12,
+    "fields": {
+      "username": "nallen",
+      "email": "nalle@uic.edu",
+      "first_name": "Nina",
+      "last_name": "Allen",
+      "password": "pbkdf2_sha256$260000$seed123$HASH12"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 13,
+    "fields": {
+      "username": "dking",
+      "email": "dking@uic.edu",
+      "first_name": "Daniel",
+      "last_name": "King",
+      "password": "pbkdf2_sha256$260000$seed123$HASH13"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 14,
+    "fields": {
+      "username": "slee",
+      "email": "slee@uic.edu",
+      "first_name": "Sara",
+      "last_name": "Lee",
+      "password": "pbkdf2_sha256$260000$seed123$HASH14"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 15,
+    "fields": {
+      "username": "cwang",
+      "email": "cwang@uic.edu",
+      "first_name": "Chris",
+      "last_name": "Wang",
+      "password": "pbkdf2_sha256$260000$seed123$HASH15"
+    }
   },
 
   {
     "model": "accounts.serviceproviderprofile",
     "pk": 1,
-    "fields": {"user": 4, "business_name": "Glow Studio", "description": "Hey! I’ve been doing braids for a few years and I love helping people look great. I’m a Business major and I run Glow Studio right on campus.", "phone": "555-0001"}
+    "fields": {
+      "user": 2,
+      "business_name": "UIC Tech Help",
+      "description": "Quick fixes and tutoring for all tech needs.",
+      "phone": "3125551111"
+    }
   },
   {
     "model": "accounts.serviceproviderprofile",
     "pk": 2,
-    "fields": {"user": 5, "business_name": "TechFix", "description": "I fix laptops, phones, and anything tech! I’m a CS student and have been helping friends with tech issues for years. Come check out TechFix!", "phone": "555-0002"}
+    "fields": {
+      "user": 3,
+      "business_name": "Campus Hair Studio",
+      "description": "Creative hairstyles, braids, and trims.",
+      "phone": "3125552222"
+    }
   },
   {
     "model": "accounts.serviceproviderprofile",
     "pk": 3,
-    "fields": {"user": 6, "business_name": "Hair Lounge", "description": "I love doing creative haircuts and styling. I’m an Arts major and have been styling hair since high school. Let’s make your hair look awesome!", "phone": "555-0003"}
+    "fields": {
+      "user": 4,
+      "business_name": "UIC Photo Pro",
+      "description": "Professional student photography for all occasions.",
+      "phone": "3125553333"
+    }
   },
   {
     "model": "accounts.serviceproviderprofile",
     "pk": 4,
-    "fields": {"user": 7, "business_name": "Fitness Pro", "description": "I run fun fitness sessions for students! I’m a Kinesiology major and enjoy helping people stay active. Join my classes at Fitness Pro!", "phone": "555-0004"}
+    "fields": {
+      "user": 5,
+      "business_name": "Student Tech Solutions",
+      "description": "Laptop repair, coding help, and more.",
+      "phone": "3125554444"
+    }
   },
   {
     "model": "accounts.serviceproviderprofile",
     "pk": 5,
-    "fields": {"user": 8, "business_name": "Tutor Hub", "description": "Need help with math or science? I’m a Math major and I love tutoring other students. Check out Tutor Hub for quick help!", "phone": "555-0005"}
+    "fields": {
+      "user": 6,
+      "business_name": "Hair Lounge UIC",
+      "description": "Haircuts, highlights, and styling.",
+      "phone": "3125555555"
+    }
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 6,
+    "fields": {
+      "user": 7,
+      "business_name": "Campus Photography",
+      "description": "Portraits, events, and social media shoots.",
+      "phone": "3125556666"
+    }
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 7,
+    "fields": {
+      "user": 8,
+      "business_name": "TechTutor Pro",
+      "description": "CS tutoring and tech workshops.",
+      "phone": "3125557777"
+    }
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 8,
+    "fields": {
+      "user": 9,
+      "business_name": "Hair Magic Studio",
+      "description": "Cuts, braids, and coloring.",
+      "phone": "3125558888"
+    }
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 9,
+    "fields": {
+      "user": 10,
+      "business_name": "Photo Snap UIC",
+      "description": "Student photography for campus events.",
+      "phone": "3125559999"
+    }
+  },
+  {
+    "model": "accounts.serviceproviderprofile",
+    "pk": 10,
+    "fields": {
+      "user": 11,
+      "business_name": "UIC Tech Gurus",
+      "description": "Quick tech solutions and tutoring.",
+      "phone": "3125550001"
+    }
   },
 
   {
     "model": "services.service",
     "pk": 1,
-    "fields": {"provider": 1, "title": "Braids", "description": "Knotless box braids for students who want a fresh new look!", "price": "200.00", "location": "UIC Campus"}
+    "fields": {
+      "provider": 1,
+      "title": "Laptop Repair",
+      "description": "Fix broken laptops and troubleshoot software issues.",
+      "price": 40.0,
+      "location": "UIC Library",
+      "duration": 60,
+      "photo": "photos/service_photos/laptop_repair.jpg"
+    }
   },
   {
     "model": "services.service",
     "pk": 2,
-    "fields": {"provider": 2, "title": "Laptop Repair", "description": "Quick laptop or tech repair for students on campus.", "price": "25.00", "location": "UIC Library"}
+    "fields": {
+      "provider": 2,
+      "title": "Haircut & Styling",
+      "description": "Trims, braids, and custom styling.",
+      "price": 30.0,
+      "location": "Campus Hair Studio",
+      "duration": 45,
+      "photo": "photos/service_photos/barber.jpeg"
+    }
   },
   {
     "model": "services.service",
     "pk": 3,
-    "fields": {"provider": 3, "title": "Haircut", "description": "Get a stylish haircut for any occasion!", "price": "30.00", "location": "Arts Building"}
+    "fields": {
+      "provider": 3,
+      "title": "Portrait Photography",
+      "description": "Professional portraits for students.",
+      "price": 50.0,
+      "location": "UIC Photo Pro",
+      "duration": 60,
+      "photo": "photos/service_photos/portrait_photography.jpg"
+    }
   },
   {
     "model": "services.service",
     "pk": 4,
-    "fields": {"provider": 4, "title": "Yoga Class", "description": "Relaxing yoga sessions perfect for students after classes.", "price": "10.00", "location": "Recreation Center"}
+    "fields": {
+      "provider": 4,
+      "title": "Python Tutoring",
+      "description": "Learn Python from scratch with hands-on exercises.",
+      "price": 25.0,
+      "location": "TechSolutions Lab",
+      "duration": 60,
+      "photo": "photos/service_photos/python.png"
+    }
   },
   {
     "model": "services.service",
     "pk": 5,
-    "fields": {"provider": 5, "title": "Math Tutoring", "description": "One-on-one tutoring sessions to ace your exams!", "price": "20.00", "location": "Library Study Room"}
+    "fields": {
+      "provider": 5,
+      "title": "Hair Highlights",
+      "description": "Add highlights or lowlights to your hair.",
+      "price": 45.0,
+      "location": "Hair Lounge UIC",
+      "duration": 60,
+      "photo": "photos/service_photos/highlights.jpg"
+    }
   },
   {
     "model": "services.service",
     "pk": 6,
-    "fields": {"provider": 1, "title": "Hair Highlights", "description": "Add some color to your hair with professional highlights.", "price": "150.00", "location": "Glow Studio"}
+    "fields": {
+      "provider": 6,
+      "title": "Event Photography",
+      "description": "Capture events like parties, meetings, and socials.",
+      "price": 70.0,
+      "location": "Campus Photography",
+      "duration": 90,
+      "photo": "photos/service_photos/photography.jpg"
+    }
   },
   {
     "model": "services.service",
     "pk": 7,
-    "fields": {"provider": 2, "title": "Phone Screen Repair", "description": "Fix cracked screens fast and affordable.", "price": "50.00", "location": "TechFix Desk"}
+    "fields": {
+      "provider": 7,
+      "title": "CS Tutoring",
+      "description": "Data structures, algorithms, and coding sessions.",
+      "price": 30.0,
+      "location": "TechTutor Lab",
+      "duration": 60,
+      "photo": "photos/service_photos/tutoring.jpeg"
+    }
+  },
+  {
+    "model": "services.service",
+    "pk": 8,
+    "fields": {
+      "provider": 8,
+      "title": "Braids & Styling",
+      "description": "Custom braids, trims, and hair styling.",
+      "price": 35.0,
+      "location": "Hair Magic Studio",
+      "duration": 60,
+      "photo": "photos/service_photos/braids.jpg"
+    }
+  },
+  {
+    "model": "services.service",
+    "pk": 9,
+    "fields": {
+      "provider": 9,
+      "title": "Campus Photography",
+      "description": "Portraits and event photography for students.",
+      "price": 60.0,
+      "location": "Photo Snap UIC",
+      "duration": 90,
+      "photo": "photos/service_photos/campus_photo.jpg"
+    }
+  },
+  {
+    "model": "services.service",
+    "pk": 10,
+    "fields": {
+      "provider": 10,
+      "title": "Laptop & Tech Help",
+      "description": "Quick fixes for laptops and tech issues.",
+      "price": 35.0,
+      "location": "UIC Tech Gurus",
+      "duration": 60,
+      "photo": "photos/service_photos/tech_help.jpg"
+    }
   }
 ]
