@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import {
   login as loginRequest,
@@ -7,17 +7,19 @@ import {
   fetchMe,
 } from "../../api/client";
 
-export const Navbar = () => {
+export const Navbar = ({
+  fixed = true,
+  showBackButton = false,
+  backTo = "/",
+  backLabel = "Home",
+}) => {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("signin");
-
-  // Form states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
   const overlayStyle = {
@@ -75,14 +77,11 @@ export const Navbar = () => {
   };
   const subtleTextStyle = { marginTop: 8, color: "#6b7280", fontSize: 14 };
 
-  // ✅ Logged-in state based on JWT in localStorage
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("access")
   );
-
   const userName = localStorage.getItem("name");
 
-  // Keep Navbar in sync if localStorage changes (e.g., in other tabs)
   useEffect(() => {
     function checkAuth() {
       setIsLoggedIn(!!localStorage.getItem("access"));
@@ -91,7 +90,6 @@ export const Navbar = () => {
     return () => window.removeEventListener("storage", checkAuth);
   }, []);
 
-  // ✅ LOGOUT
   function logout() {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
@@ -101,12 +99,18 @@ export const Navbar = () => {
     navigate("/");
   }
 
-  // ✅ SIGN UP
+  const handleBackClick = () => {
+    if (typeof backTo === "number") {
+      navigate(backTo);
+    } else {
+      navigate(backTo || "/");
+    }
+  };
+
   async function signup(e) {
     e.preventDefault();
     setMsg("");
     setLoading(true);
-
     try {
       await signupRequest({ name, email, password });
       setMsg("Verification email sent! Check your @uic.edu inbox.");
@@ -120,38 +124,26 @@ export const Navbar = () => {
     }
   }
 
-  // ✅ SIGN IN
   async function signin(e) {
     e.preventDefault();
     setMsg("");
     setLoading(true);
-
     try {
       const data = await loginRequest({ email, password });
-      // Backend returns: ok, name, access, refresh
       setMsg(`Welcome, ${data.name}!`);
-
-      // Save tokens + user info
       localStorage.setItem("access", data.access);
       localStorage.setItem("refresh", data.refresh);
-      // Try to hydrate full name from backend profile
       try {
         const me = await fetchMe();
         const fullName =
           me?.full_name ||
           [me?.first_name, me?.last_name].filter(Boolean).join(" ").trim();
-        if (fullName) {
-          localStorage.setItem("name", fullName);
-        } else {
-          localStorage.setItem("name", data.name);
-        }
+        localStorage.setItem("name", fullName || data.name);
       } catch {
         localStorage.setItem("name", data.name);
       }
       localStorage.setItem("email", email);
-
       setIsLoggedIn(true);
-      // Close modal after a short delay
       setTimeout(() => setOpen(false), 500);
     } catch (err) {
       setMsg(err.message || "Something went wrong");
@@ -161,165 +153,167 @@ export const Navbar = () => {
   }
 
   return (
-    <nav className="container" style={{ position: "relative" }}>
-
-      <ul>
-        {/* ✅ Logged in view */}
-        {isLoggedIn ? (
-          <>
-            {/* <li>
-              <Link to="/become-provider" className="btn">
-                Become a Provider
-              </Link>
-            </li> */}
-
+    <nav className={`navbar ${fixed ? "navbar--fixed" : "navbar--static"}`}>
+      <div className="navbar__inner container">
+        {showBackButton ? (
+          <button className="nav-back-btn" onClick={handleBackClick}>
+            ← {backLabel}
+          </button>
+        ) : (
+          <div className="nav-back-placeholder" />
+        )}
+        <ul>
+          {isLoggedIn ? (
+            <>
+              <li>
+                <button
+                  className="btn"
+                  onClick={() => {
+                    navigate("/profile");
+                  }}
+                >
+                  {userName ? `${userName}'s Profile` : "Profile"}
+                </button>
+              </li>
+              <li>
+                <button className="btn" onClick={logout}>
+                  Logout
+                </button>
+              </li>
+            </>
+          ) : (
             <li>
               <button
                 className="btn"
                 onClick={() => {
-                  navigate("/profile");
+                  setOpen(true);
+                  setTab("signin");
                 }}
-              >
-                {userName ? `${userName}'s Profile` : "Profile"}
-              </button>
-            </li>
-
-            <li>
-              <button className="btn" onClick={logout}>
-                Logout
-              </button>
-            </li>
-          </>
-        ) : (
-          // ✅ Logged out view
-          <li>
-            <button
-              className="btn"
-              onClick={() => {
-                setOpen(true);
-                setTab("signin");
-              }}
-            >
-              Sign in
-            </button>
-          </li>
-        )}
-      </ul>
-
-      {/* ✅ SIGN IN / SIGN UP MODAL */}
-      {open && (
-        <div style={overlayStyle} onClick={() => setOpen(false)}>
-          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-            {/* Tabs */}
-            <div style={tabsStyle}>
-              <button
-                style={tabButton(tab === "signin")}
-                onClick={() => setTab("signin")}
               >
                 Sign in
               </button>
+            </li>
+          )}
+        </ul>
 
-              <button
-                style={tabButton(tab === "signup")}
-                onClick={() => setTab("signup")}
-              >
-                Sign up
-              </button>
-            </div>
-
-            {/* SIGN IN FORM */}
-            {tab === "signin" ? (
-              <>
-                <h3 style={{ marginTop: 0 }}>Welcome back</h3>
-                <p style={subtleTextStyle}>Access your account to book services.</p>
-                <form onSubmit={signin} style={formStyle}>
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={inputStyle}
-                    required
-                  />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={inputStyle}
-                    required
-                  />
-                  <button style={primaryButtonStyle} type="submit" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign in"}
-                  </button>
-                </form>
-              </>
-            ) : (
-              // SIGN UP FORM
-              <>
-                <h3 style={{ marginTop: 0 }}>Create your account</h3>
-                <p style={subtleTextStyle}>Use your @uic.edu email to get started.</p>
-                <form onSubmit={signup} style={formStyle}>
-                  <input
-                    type="text"
-                    placeholder="Full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    style={inputStyle}
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="UIC email (must end with @uic.edu)"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={inputStyle}
-                    required
-                  />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={inputStyle}
-                    required
-                  />
-                  <button style={primaryButtonStyle} type="submit" disabled={loading}>
-                    {loading ? "Sending..." : "Sign up"}
-                  </button>
-                </form>
-              </>
-            )}
-
-            {/* MESSAGE */}
-            {msg && (
-              <div
-                style={{
-                  marginTop: 10,
-                  color:
-                    msg.toLowerCase().includes("welcome") ||
-                    msg.toLowerCase().includes("verification")
-                      ? "green"
-                      : "red",
-                }}
-              >
-                {msg}
+        {open && (
+          <div style={overlayStyle} onClick={() => setOpen(false)}>
+            <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+              <div style={tabsStyle}>
+                <button
+                  style={tabButton(tab === "signin")}
+                  onClick={() => setTab("signin")}
+                >
+                  Sign in
+                </button>
+                <button
+                  style={tabButton(tab === "signup")}
+                  onClick={() => setTab("signup")}
+                >
+                  Sign up
+                </button>
               </div>
-            )}
 
-            {/* CLOSE BUTTON */}
-            <div style={{ textAlign: "right", marginTop: 10 }}>
-              <button
-                className="btn"
-                style={{ background: "#f3f4f6", color: "#111", borderRadius: 12 }}
-                onClick={() => setOpen(false)}
-              >
-                Close
-              </button>
+              {tab === "signin" ? (
+                <>
+                  <h3 style={{ marginTop: 0 }}>Welcome back</h3>
+                  <p style={subtleTextStyle}>
+                    Access your account to book services.
+                  </p>
+                  <form onSubmit={signin} style={formStyle}>
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      style={inputStyle}
+                      required
+                    />
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      style={inputStyle}
+                      required
+                    />
+                    <button
+                      style={primaryButtonStyle}
+                      type="submit"
+                      disabled={loading}
+                    >
+                      {loading ? "Signing in..." : "Sign in"}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <h3 style={{ marginTop: 0 }}>Create your account</h3>
+                  <p style={subtleTextStyle}>Use your @uic.edu email.</p>
+                  <form onSubmit={signup} style={formStyle}>
+                    <input
+                      type="text"
+                      placeholder="Full name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      style={inputStyle}
+                      required
+                    />
+                    <input
+                      type="email"
+                      placeholder="UIC email (must end with @uic.edu)"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      style={inputStyle}
+                      required
+                    />
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      style={inputStyle}
+                      required
+                    />
+                    <button
+                      style={primaryButtonStyle}
+                      type="submit"
+                      disabled={loading}
+                    >
+                      {loading ? "Sending..." : "Sign up"}
+                    </button>
+                  </form>
+                </>
+              )}
+
+              {msg && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    color:
+                      msg.toLowerCase().includes("welcome") ||
+                      msg.toLowerCase().includes("verification")
+                        ? "green"
+                        : "red",
+                  }}
+                >
+                  {msg}
+                </div>
+              )}
+
+              <div style={{ textAlign: "right", marginTop: 10 }}>
+                <button
+                  className="btn"
+                  style={{ background: "#f3f4f6", color: "#111", borderRadius: 12 }}
+                  onClick={() => setOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   );
 };

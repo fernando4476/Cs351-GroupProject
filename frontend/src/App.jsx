@@ -1,3 +1,4 @@
+// App.jsx wires together routing, providers, and homepage sections for the SPA.
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar.jsx";
@@ -17,6 +18,7 @@ import SearchResults from "./Pages/SearchResults.jsx";
 import ServiceDetail from "./Pages/ServiceDetail.jsx";
 import { useProviders } from "./hooks/useProviders";
 import { useServicesApi } from "./hooks/useServicesApi";
+import useRecentRecommendations from "./hooks/useRecentRecommendations";
 import { recordSearchTerm, readSearchCounts } from "./utils/searchHistory";
 import ProviderAccount from "./Pages/Profile/ProviderAccount.jsx";
 import Appointments from "./Pages/Appointments.jsx";
@@ -54,6 +56,23 @@ function Home({ providers, services, servicesLoading, servicesError }) {
     services && services.length > 0
       ? services.slice(0, 3)
       : filtered.slice(0, 3);
+  const { services: recentServices } = useRecentRecommendations();
+  const personalizedCategories = useMemo(() => {
+    const seen = new Set();
+    const items = [];
+    recentServices.forEach((svc) => {
+      const label =
+        svc?.title ||
+        svc?.provider?.business_name ||
+        svc?.provider?.user?.username ||
+        svc?.location;
+      const normalized = (label || "").trim().toLowerCase();
+      if (!normalized || seen.has(normalized)) return;
+      seen.add(normalized);
+      items.push({ name: label });
+    });
+    return items.slice(0, DEFAULT_CATEGORIES.length);
+  }, [recentServices]);
 
   const reorderCategories = useCallback((counts) => {
     const order = [...DEFAULT_CATEGORIES].sort((a, b) => {
@@ -89,13 +108,13 @@ function Home({ providers, services, servicesLoading, servicesError }) {
     navigate(`/search?q=${encodeURIComponent(trimmed)}`);
   };
 
-
+  const categoriesToShow = categoryItems;
 
   return (
     <div>
       <Navbar />
       <Hero query={query} onQueryChange={setQuery} onSearch={handleSearch} />
-      <Categories onSelectCategory={handleSearch} items={categoryItems} />
+      <Categories onSelectCategory={handleSearch} items={categoriesToShow} />
       <Programs services={programServices} fallback={fallbackServices} />
     </div>
   );

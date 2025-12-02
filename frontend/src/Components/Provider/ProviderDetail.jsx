@@ -55,6 +55,23 @@ export default function ProviderDetail() {
     timeIndex: 0,
   });
 
+  const openBooking = (service) => {
+    if (!service) return;
+    setBooking({
+      open: true,
+      service,
+      dateIndex: 0,
+      timeIndex: 0,
+    });
+  };
+
+  const closeBooking = () =>
+    setBooking((prev) => ({
+      ...prev,
+      open: false,
+      service: null,
+    }));
+
   if (!provider) {
     return (
       <>
@@ -92,19 +109,6 @@ export default function ProviderDetail() {
     services = [],
   } = provider;
 
-  const openBooking = (service) => {
-    setBooking({
-      open: true,
-      service,
-      dateIndex: 0,
-      timeIndex: 0,
-    });
-  };
-
-  const closeBooking = () => {
-    setBooking((prev) => ({ ...prev, open: false, service: null }));
-  };
-
   const selectedDate = dateOptions[booking.dateIndex];
   const selectedTime = TIME_SLOTS[booking.timeIndex];
   const servicePriceRaw = booking.service?.price || "";
@@ -117,13 +121,9 @@ export default function ProviderDetail() {
 
   return (
     <>
-      <Navbar />
+      <Navbar showBackButton backLabel="Home" backTo="/" />
       <main className="provider-detail-page">
         <div className="provider-detail-shell">
-          <button className="provider-detail-back" onClick={() => navigate(-1)}>
-            ← Back
-          </button>
-
           <div className="provider-detail-columns">
             <section className="provider-detail-left">
               <div className="provider-photo-large">

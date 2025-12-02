@@ -12,7 +12,7 @@ import {
   createProviderReview,
   recordRecentView,
   fetchProviderRating,
-  fetchRecommendations,
+  fetchProviderServices,
 } from "../api/client";
 
 const DEFAULT_IMAGE = uicLogo;
@@ -35,6 +35,7 @@ export default function ServiceDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingService, setBookingService] = useState(null);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
   const [reviewStatus, setReviewStatus] = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
@@ -42,9 +43,8 @@ export default function ServiceDetail() {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState(null);
   const [rating, setRating] = useState(null);
-  const [recs, setRecs] = useState({ depth_1: [], depth_2: [], depth_3: [] });
-  const [recsLoading, setRecsLoading] = useState(false);
-  const [recsError, setRecsError] = useState(null);
+  const [providerServices, setProviderServices] = useState([]);
+  const [providerServicesLoading, setProviderServicesLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -122,6 +122,34 @@ export default function ServiceDetail() {
       });
 
     return () => controller.abort();
+  }, [service?.provider?.id]);
+  useEffect(() => {
+    const providerId = service?.provider?.id;
+    if (!providerId) {
+      setProviderServices([]);
+      return;
+    }
+    let cancelled = false;
+    setProviderServicesLoading(true);
+    fetchProviderServices(providerId)
+      .then((list) => {
+        if (!cancelled) {
+          setProviderServices(Array.isArray(list) ? list : []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setProviderServices([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setProviderServicesLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [service?.provider?.id]);
 
   useEffect(() => {
@@ -218,9 +246,44 @@ export default function ServiceDetail() {
     return `https://www.google.com/maps/embed/v1/place?key=${googleMapsKey}&q=${encodedLocation}`;
   }, [googleMapsKey, service?.location]);
 
+  const displayedServices = useMemo(() => {
+    const list = Array.isArray(providerServices) ? providerServices : [];
+    if (!service) {
+      return list;
+    }
+    const seen = new Set();
+    const ordered = [];
+    if (service.id !== undefined) {
+      seen.add(String(service.id));
+    }
+    ordered.push(service);
+    list.forEach((svc) => {
+      const svcId = svc?.id;
+      if (svcId !== undefined) {
+        const key = String(svcId);
+        if (seen.has(key)) return;
+        seen.add(key);
+      }
+      ordered.push(svc);
+    });
+    return ordered;
+  }, [providerServices, service]);
+
+  const openBookingModal = (svc) => {
+    const target = svc || service;
+    if (!target) return;
+    setBookingService(target);
+    setBookingOpen(true);
+  };
+
+  const closeBookingModal = () => {
+    setBookingOpen(false);
+    setBookingService(null);
+  };
+
   return (
     <div>
-      <Navbar />
+      <Navbar showBackButton backLabel="Home" backTo="/" />
       <main className="service-detail container">
         <button
           className="service-back-link"
@@ -273,37 +336,44 @@ export default function ServiceDetail() {
               <div className="services-section">
                 <h2>Services</h2>
                 <p className="services-subtitle">Popular Services</p>
-                <div className="service-row">
-                  <div>
-                    <p className="service-label">
-                      {service.category || service.location || "Service"}
-                    </p>
-                    <h3>{service.title}</h3>
-                    <p className="service-desc">
-                      {service.description || "Student-run service"}
-                    </p>
-                  </div>
-                  <div className="service-meta">
-                    <div className="service-price-block">
-                      <span className="service-price">
-                        ${Number(service.price || 0).toFixed(2)}
-                      </span>
-                      <span className="service-price-sub">per session</span>
+                {providerServicesLoading ? (
+                  <p className="service-detail__status">Loading services…</p>
+                ) : displayedServices.length === 0 ? (
+                  <p className="empty-text">
+                    This provider hasn&apos;t added services yet.
+                  </p>
+                ) : (
+                  displayedServices.map((svc) => (
+                    <div key={svc.id || svc.title} className="service-row">
+                      <div>
+                        <p className="service-label">
+                          {svc.category || svc.location || "Service"}
+                        </p>
+                        <h3>{svc.title}</h3>
+                        <p className="service-desc">
+                          {svc.description || "Student-run service"}
+                        </p>
+                      </div>
+                      <div className="service-meta">
+                        <div className="service-price-block">
+                          <span className="service-price">
+                            ${Number(svc.price || 0).toFixed(2)}
+                          </span>
+                          <span className="service-price-sub">
+                            per session
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="book-chip"
+                          onClick={() => openBookingModal(svc)}
+                        >
+                          Book appointment
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      className="book-chip"
-                      onClick={() => setBookingOpen(true)}
-                    >
-                      book
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="primary-cta">
-                <button onClick={() => setBookingOpen(true)}>
-                  Book Appointment
-                </button>
+                  ))
+                )}
               </div>
             </section>
 
@@ -500,8 +570,8 @@ export default function ServiceDetail() {
 
       <BookingModal
         open={bookingOpen}
-        service={service}
-        onClose={() => setBookingOpen(false)}
+        service={bookingService || service}
+        onClose={closeBookingModal}
         useBackendBooking
       />
     </div>
