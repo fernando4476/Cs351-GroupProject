@@ -201,11 +201,9 @@ export default function ServiceDetail() {
     : "";
   const hasCustomServicePhoto =
     service?.photo && !/default-service/i.test(service.photo);
-  const servicePhoto =
-    providerPhoto ||
-    (hasCustomServicePhoto ? resolveMediaUrl(service.photo) : "") ||
-    service?.image ||
-    DEFAULT_IMAGE;
+  const servicePhoto = hasCustomServicePhoto
+  ? resolveMediaUrl(service.photo) // use service photo first
+  : providerPhoto || service?.image || DEFAULT_IMAGE;
   const providerPhone = providerProfile?.phone?.trim() || "";
 
   const mapSrc = useMemo(() => {
